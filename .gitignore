@@ -1,0 +1,28 @@
+# Secrets (Tripo, image and audio tool API keys)
+.env
+.env.*
+!.env.example
+
+# Node, Vite, Vitest
+node_modules/
+dist/
+*.local
+coverage/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Blender backup files (scene.blend1, scene.blend2, ...)
+*.blend[0-9]*
+
+# Claude Code personal settings
+.claude/settings.local.json
+CLAUDE.local.md
+
+# OS and editor clutter
+.DS_Store
+Thumbs.db
+*.swp
