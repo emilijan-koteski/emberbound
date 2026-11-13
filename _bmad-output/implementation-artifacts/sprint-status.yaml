@@ -1,0 +1,209 @@
+# generated: 2026-11-13 22:07
+# last_updated: 2026-11-13 22:07
+# project: emberbound
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+#
+# PROJECT NOTES:
+# ==============
+# - Source: _bmad-output/planning-artifacts/gdds/gdd-emberbound-2026-11-12/epics.md
+# - Epics map to the brief's milestones M0 to M6 (Epic 0 = M0). Per CLAUDE.md, an epic
+#   starts only after the previous epic's exit criteria are met and the developer approves.
+
+generated: "2026-11-13 22:07"
+last_updated: "2026-11-13 22:07"
+project: emberbound
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 0: Reference and style lock
+  epic-0: backlog
+  0-1-scaffold-the-repository-toolchain-and-code-rules: backlog
+  0-2-check-the-download-and-asset-budgets-in-make-build: backlog
+  0-3-emit-the-design-md-tokens-as-css-custom-properties-with-a-contrast-check: backlog
+  0-4-generate-the-hero-and-emberwood-references-in-each-candidate-style: backlog
+  0-5-pick-the-style-and-write-docs-style-guide-md: backlog
+  0-6-build-the-look-dev-page-and-the-screenshot-harness: backlog
+  0-7-put-the-level-palettes-and-lighting-rigs-in-data: backlog
+  0-8-self-host-the-overlay-typefaces: backlog
+  0-9-build-the-shared-materials: backlog
+  0-10-frame-the-play-plane-with-the-view-camera-and-the-depth-layers: backlog
+  0-11-add-shadows-and-the-outline-and-grading-passes-the-style-calls-for: backlog
+  0-12-build-the-test-scene-and-check-it-against-the-budgets: backlog
+  0-13-build-the-sample-story-card-and-fix-where-card-text-sits: backlog
+  0-14-update-design-md-with-the-overlay-colours-and-typefaces: backlog
+  0-15-run-the-critic-loop-on-the-test-scene-and-approve-the-look: backlog
+  epic-0-retrospective: optional
+
+  # Epic 1: Grey-box core
+  epic-1: backlog
+  1-1-build-the-simulation-core-world-fixed-step-order-config-and-events: backlog
+  1-2-author-levels-in-tiled-and-compile-them-to-the-games-format: backlog
+  1-3-load-a-compiled-level-by-id-through-the-asset-manifest: backlog
+  1-4-step-the-simulation-from-a-fixed-60-hz-loop-with-latched-keyboard-input: backlog
+  1-5-draw-the-level-and-rowan-as-interpolated-grey-boxes-with-gameplay-screenshot-spots: backlog
+  1-6-move-rowan-to-the-movement-feel-table: backlog
+  1-7-add-one-way-ledges-drop-through-and-moving-platforms: backlog
+  1-8-follow-rowan-with-the-gameplay-camera-and-frame-the-logical-view-at-any-window-size: backlog
+  1-9-read-standard-gamepads-safely-and-track-the-last-used-device: backlog
+  1-10-route-pause-and-menu-actions-to-the-app-and-auto-pause-when-focus-is-lost: backlog
+  1-11-show-a-placeholder-pause-over-a-scrim-on-the-overlay-root: backlog
+  1-12-fire-the-ember-spit-aim-it-and-crouch-for-the-low-shot: backlog
+  1-13-hurt-rowan-on-spikes-with-hearts-knockback-and-invulnerability: backlog
+  1-14-respawn-at-checkpoints-return-from-pits-and-finish-at-the-exit: backlog
+  1-15-inspect-and-drive-the-game-with-the-debug-overlay-url-parameters-cheats-and-input-recording: backlog
+  1-16-add-the-walker-with-stomps-contact-damage-and-shot-hits: backlog
+  1-17-add-hit-feedback-hit-stop-shake-blink-flash-and-burst: backlog
+  1-18-add-the-thorn-flyer-and-the-thorn-rule: backlog
+  1-19-add-the-rooted-spitter-and-its-seeds-and-tune-the-crouch: backlog
+  1-20-collect-embers-to-refill-hearts-and-find-bells: backlog
+  1-21-add-the-triple-shot-pickup-and-the-weapon-rules: backlog
+  1-22-show-the-placeholder-hud-hearts-ember-meter-and-weapon-timer: backlog
+  1-23-show-basic-results-at-the-end-of-a-level: backlog
+  1-24-prove-every-marked-jump-with-the-real-simulation: backlog
+  1-25-check-the-main-path-the-platforming-metrics-and-the-level-caps: backlog
+  1-26-build-grey-box-level-1-to-the-teaching-order: backlog
+  1-27-place-the-control-signs-and-swap-them-with-the-last-used-device: backlog
+  1-28-measure-the-grey-box-pace-sign-off-the-feel-and-close-the-epic: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Hero
+  epic-2: backlog
+  2-1-clear-tripos-terms-and-set-up-blender-and-the-blender-mcp: backlog
+  2-2-make-rowans-four-reference-views-and-his-tripo-mesh: backlog
+  2-3-clean-up-rowans-mesh-in-blender: backlog
+  2-4-rig-rowan-and-prove-he-deforms-cleanly-or-build-the-hand-built-fallback: backlog
+  2-5-animate-rowans-movement-clips: backlog
+  2-6-export-rowan-through-make-models: backlog
+  2-7-show-rowan-under-the-games-look-on-the-look-dev-page: backlog
+  2-8-animate-rowans-action-clips: backlog
+  2-9-put-rowan-in-the-grey-box-level-with-his-clip-chosen-from-his-state: backlog
+  2-10-make-rowans-animation-follow-every-gameplay-state: backlog
+  2-11-run-the-hero-critic-loop-and-get-the-developers-sign-off: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Level 1 vertical slice (the MVP)
+  epic-3: backlog
+  3-1-finalise-emberwoods-layout-and-placements: backlog
+  3-2-dress-emberwoods-ground-ledges-platforms-and-spikes: backlog
+  3-3-build-emberwoods-backdrops-lanterns-and-dusk-lighting: backlog
+  3-4-build-the-wedding-glade-and-the-exit-under-its-arch: backlog
+  3-5-carve-the-waymarkers-and-draw-the-final-control-sign-icons: backlog
+  3-6-make-the-ember-bell-triple-shot-and-checkpoint-art: backlog
+  3-7-build-the-walker-model-and-animations: backlog
+  3-8-build-the-thorn-flyer-model-and-animations: backlog
+  3-9-build-the-rooted-spitter-model-and-animations: backlog
+  3-10-start-sound-through-a-guarded-mixer-and-mute-with-m: backlog
+  3-11-add-the-bare-title-gate: backlog
+  3-12-show-emberwoods-loading-card-from-the-story-text-module: backlog
+  3-13-build-the-five-intro-cards: backlog
+  3-14-play-the-intro-after-the-gate-with-the-card-input-rules: backlog
+  3-15-add-emberwoods-music-and-ambience: backlog
+  3-16-add-the-hero-and-enemy-sounds: backlog
+  3-17-add-the-world-and-interface-sounds: backlog
+  3-18-ring-elins-bell-the-bell-sound-and-the-bell-toast: backlog
+  3-19-finish-the-hud-and-judge-it-in-play: backlog
+  3-20-run-the-critic-loop-on-the-level-1-spots: backlog
+  3-21-playtest-emberwood-with-first-time-players: backlog
+  3-22-fix-the-playtest-findings-and-get-the-developers-approval: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: First warden
+  epic-4: backlog
+  4-1-check-harrowmeres-mark-and-the-tithes-sign-for-originality: backlog
+  4-2-build-the-standalone-warden-arena-its-door-and-the-wardens-body: backlog
+  4-3-build-the-wardens-attack-scheduler-and-its-phase-1-attacks: backlog
+  4-4-add-phase-2-the-wheel-roll-and-the-wardens-defeat: backlog
+  4-5-show-the-warden-bar-on-the-hud: backlog
+  4-6-add-ledge-grab-and-the-replay-form-rule-to-the-simulation: backlog
+  4-7-build-the-story-director-and-the-seal-break-in-the-simulation: backlog
+  4-8-build-rowan-stage-2-on-the-same-rig: backlog
+  4-9-animate-hang-and-climb-up: backlog
+  4-10-build-the-millhouse-arena-art: backlog
+  4-11-build-the-drowned-miller-model-and-animations: backlog
+  4-12-stage-the-seal-break: backlog
+  4-13-compose-the-level-2-tune-its-warden-arrangement-and-the-seal-break-stinger: backlog
+  4-14-add-the-warden-seal-break-wheel-and-ledge-grab-sounds: backlog
+  4-15-playtest-the-warden-and-close-the-epic: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: Levels 2 and 3
+  epic-5: backlog
+  5-1-add-waterwheel-platforms-and-deep-water: backlog
+  5-2-add-the-piercing-shot: backlog
+  5-3-lay-out-grey-box-level-2-with-its-jump-tests: backlog
+  5-4-join-the-warden-arena-to-the-drowned-mill: backlog
+  5-5-lay-out-grey-box-level-3-around-ledge-grab-with-its-jump-tests: backlog
+  5-6-route-the-first-play-campaign-through-the-level-2-and-3-loading-cards: backlog
+  5-7-add-the-held-beat-at-the-fallen-fire-bell: backlog
+  5-8-build-the-closing-card-and-the-all-bells-card: backlog
+  5-9-play-level-3s-end-order-and-return-to-the-title-gate: backlog
+  5-10-build-the-drowned-mill-kit-and-recolour-the-enemies: backlog
+  5-11-dress-the-drowned-mill-with-its-story-props: backlog
+  5-12-make-the-piercing-shot-pickup-and-its-hud-icon: backlog
+  5-13-build-the-harrowmere-kit-and-recolour-the-enemies: backlog
+  5-14-dress-harrowmere-ruins-with-its-story-props: backlog
+  5-15-add-the-drowned-mill-ambience-and-the-great-wheels-loop: backlog
+  5-16-add-the-harrowmere-tune-its-fade-to-wind-its-ambience-and-the-closing-card-stinger: backlog
+  5-17-run-the-critic-loop-across-levels-2-and-3: backlog
+  5-18-playtest-version-one-from-start-to-finish: backlog
+  epic-5-retrospective: optional
+
+  # Epic 6: Wrap and release
+  epic-6: backlog
+  6-1-add-the-settings-model-and-apply-volumes-and-reduced-motion: backlog
+  6-2-build-the-versioned-save-with-validation-and-an-in-memory-fallback: backlog
+  6-3-save-progress-at-the-end-of-each-level: backlog
+  6-4-build-the-slider-toggle-confirm-dialog-and-notice-line: backlog
+  6-5-show-the-boot-loading-screen: backlog
+  6-6-show-the-device-note-on-phones-and-tablets: backlog
+  6-7-add-the-title-menu-with-continue-the-intro-on-a-new-save-and-its-notices: backlog
+  6-8-add-the-level-select-with-best-times-bells-and-the-all-bells-row: backlog
+  6-9-start-replays-with-the-replay-form-and-the-replay-skips: backlog
+  6-10-route-the-end-of-a-replay-and-play-the-all-bells-card-after-the-ninth-bell: backlog
+  6-11-finish-the-results-screen-with-the-stagger-and-new-best: backlog
+  6-12-build-the-pause-menu-with-restart-and-quit-behind-a-confirm: backlog
+  6-13-build-the-settings-screen-with-volumes-reduced-motion-and-fullscreen: backlog
+  6-14-show-the-bug-panel-and-the-retry-panel: backlog
+  6-15-add-the-perf-1-frame-time-recorder-and-perf-report: backlog
+  6-16-complete-the-smoke-checks-and-walk-the-four-journeys: backlog
+  6-17-check-the-final-title-the-story-names-and-the-credit-requirements: backlog
+  6-18-put-the-final-title-on-screen-and-build-the-title-backdrop: backlog
+  6-19-run-the-performance-pass-on-the-reference-machines: backlog
+  6-20-prepare-the-itch-io-page-with-credits: backlog
+  6-21-add-make-release-and-push-the-first-private-upload: backlog
+  6-22-run-the-browser-checks-on-the-private-itch-io-upload: backlog
+  6-23-release-version-one-on-itch-io: backlog
+  epic-6-retrospective: optional
