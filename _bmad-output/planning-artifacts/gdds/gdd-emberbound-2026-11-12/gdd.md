@@ -12,6 +12,8 @@ inputs:
   - docs/PROJECT_BRIEF.md
   - prototype/sprout-demo.html
   - _bmad-output/planning-artifacts/narratives/narrative-emberbound-2026-11-13/narrative-design.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-emberbound-2026-11-13/EXPERIENCE.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-emberbound-2026-11-13/DESIGN.md
 ---
 
 # Emberbound (working title) - Game Design Document
@@ -26,6 +28,7 @@ inputs:
 - **Units and timing.** Numbers are in tiles and seconds. One tile is one world unit. The game updates 60 times a second, and each update is one "step".
 - **Status of numbers.** Unmarked numbers were proven in the Sprout prototype (`prototype/sprout-demo.html`) or decided by the developer. Numbers marked † are starting guesses, tuned with the developer in the epic named. No proven number changes without the developer.
 - **Narrative.** The story content lives in the narrative design document (`_bmad-output/planning-artifacts/narratives/narrative-emberbound-2026-11-13/narrative-design.md`): characters, world, every line of story text, environmental storytelling and the seal-break staging. This GDD keeps the rules and decisions that affect play and production.
+- **Interface.** The HUD, menus and screens are specified in the UX spines in `_bmad-output/planning-artifacts/ux-designs/ux-emberbound-2026-11-13/`: `EXPERIENCE.md` for behaviour, flows and interface text, `DESIGN.md` for the overlay's look. They are the authority on menu and HUD behaviour. This GDD names only what affects play and production.
 
 ---
 
@@ -174,7 +177,7 @@ Every mechanic, level and asset answers to these three pillars. Each pillar has 
 
 1. Read the screen.
 2. Run, jump, spit or stomp.
-3. An enemy dies, with hit-stop and a burst, or a hazard is cleared.
+3. An enemy dies in a burst (a stomp also gets a short hit-stop), or a hazard is cleared.
 4. Embers along the path show the way forward and fill the ember meter.
 5. Repeat on the next obstacle.
 
@@ -252,14 +255,17 @@ Full rules and numbers are in the Action Platformer Specific Elements section an
 - A jump or spit press always registers, even a tap shorter than one step.
 - A jump pressed up to 0.12 s before landing still fires on landing.
 - The stick needs to be pushed 0.35 of the way sideways and 0.5 of the way up or down to count.
-- The game pauses automatically when the browser tab is hidden.
+- The game pauses automatically when the browser tab is hidden, and in the other cases listed under Platform-Specific Details. Held inputs are cleared, so Rowan stops.
 - If the browser refuses gamepad access, the keyboard still works and the game keeps running.
+- If the gamepad fails during play, it turns off for the session and the game pauses, as it does for a disconnect. The pause and title menus then show a one-line notice that the gamepad is unavailable and the keyboard still works.
 - Key remapping is not in version one. Touch controls are not in version one.
 
 **Teaching the controls:**
 
 - The first time each action is needed, a small sign in the scenery shows the key or button icon for that action, with no words.
 - The icon matches the device the player last used, keyboard or gamepad.
+- Keyboard signs teach one key set only: the arrow keys, Z to jump and X to spit. The other keys in the table work but are never shown.
+- Gamepad signs show button positions, never platform letters, colours or logos. The spit sign shows the west face button.
 - There are about 6 signs, all in Level 1: move, jump, spit, aim up, crouch, and drop-through. There are none after Level 1.
 - The signs never cover the play area.
 - Ledge grab gets no sign; Level 3's layout teaches it.
@@ -401,6 +407,7 @@ Durations convert to whole steps by rounding to the nearest step.
 - **Door:** a checkpoint sits at the door, with a triple shot pickup just before it. The warden stays dormant until Rowan enters the arena, so the checkpoint is safe. The door shuts behind him.
 - **Body:** the warden is 3 × 4 tiles † and stands at the arena's right side. Its body is its hurtbox.
 - **Health:** 30 HP. Each ember hit does 1 damage, a triple shot can land 3 hits, and the warden can be hit at any time.
+- **Health bar:** a HUD bar labelled "The Warden" appears when the door shuts and drops with each hit. A notch at 15 HP marks where phase 2 starts. It empties and fades when the warden falls.
 - **Stomp:** the warden has spikes, so it cannot be stomped. Touching its body costs 1 heart.
 - **On respawn:** the warden returns to full health when Rowan respawns at the door. A fight of 120 s or less stays within pillar 2's replay limit.
 - **Target length:** 60 to 120 s for a first-time player.
@@ -580,7 +587,7 @@ There is one difficulty setting, tuned generous. Intensity rises across version 
 | Hearts | 3 at level start and at every respawn | Absorb hits | No heart pickups and no extra hearts |
 | Embers | Placed in the level, about 100 to 150 per level † | Fill the ember meter; 50 embers restore 1 heart | The meter starts at 0 in each level and carries across checkpoints and respawns. At full hearts, a full meter waits and refills the next heart lost. Embers past a full meter only count toward the total. Collected embers stay collected, so each ember heals at most once and there are at most 2 or 3 heals per level. |
 | Weapon pickups | 1 or 2 per level, placed before combat-heavy stretches and before the warden | 20 s upgrade to the spit | See Pickup rules in Combat System |
-| Bells | 3 hidden per level, 9 in version one | Replay goal; all 9 unlock a story card | Bells found add up across replays |
+| Bells | 3 hidden per level, 9 in version one | Replay goal; all 9 unlock a story card | Bells found add up across replays. A pickup briefly shows "Bell n of 3" on the HUD, counting this run's bells as the results screen does. There is no lasting bell counter. |
 
 **Ember placement:** about 60% trace intended jump arcs and paths, 25% reward detours, and 15% sit in clusters after hard stretches †.
 
@@ -617,6 +624,7 @@ Six seals are held by six wardens. How wardens 2 to 6 map onto Levels 3 to 6 is 
 
 **Session flow:**
 
+- **Boot:** a loading screen (the wordmark and a progress bar, no tips) while shared assets load, then a "Click or press any key" gate. The gate's key press or click starts sound and gives the game keyboard focus inside the itch.io page.
 - **Title screen:** Continue, Level select, Settings.
   - Continue starts the next unfinished level, or opens the level select once everything is finished.
   - The level select appears after Level 1 is finished.
@@ -624,14 +632,16 @@ Six seals are held by six wardens. How wardens 2 to 6 map onto Levels 3 to 6 is 
   - Lists the finished levels plus the next unlocked one, each with best clear time and bells found.
   - Any listed level can be played. Replays follow the replay-form rule.
 - **Intro:** plays once, on the first Continue of a new save. Skippable.
+- **Pause menu:** Resume, Restart level, Settings, Quit to level select. Until the level select unlocks, the last item reads "Quit to title". Restart level and Quit each ask for one confirmation, with Cancel as the default, because leaving mid-level restarts the level.
 - **Order at the end of a level:**
-  - Levels 1 and 2: the results, then, on a first play, the next level's line on its loading card. In Level 2 the seal break comes before the results.
+  - Levels 1 and 2: the results, then, on a first play, the next level's loading card; a replay returns to the level select. In Level 2 the seal break comes before the results.
   - Level 3: the held beat, the closing card, the all-bells card if earned, then the results. Clear time and respawns arrive after the story lands, not between the bell and the card.
 - **Results screen**, after each level:
   - clear time in m:ss.s, not counting pauses or story moments
   - bells found in this run, out of 3
   - respawns
   - embers collected, out of the level total
+  - a "New best" tag on the clear time when a replay beats the level's best; never on a first play
 - **All-bells card:**
   - Plays after the closing card if all 9 bells have been found by then.
   - If the ninth bell is found on a Level 1 or 2 replay, the card plays after that level's results. On a Level 3 replay it follows the closing card, as above.
@@ -644,7 +654,7 @@ Six seals are held by six wardens. How wardens 2 to 6 map onto Levels 3 to 6 is 
 **Rules:**
 
 - A short intro: 5 cards, one line each, about 60 s at most, skippable. It plays once, on the first Continue of a new save.
-- One line of text before each level, shown on the level's loading card for at least about 3 s † of reading time. Loading happens behind the card; the 3 s transition limit applies to loading, not to reading.
+- One line of text before each level, shown with the level's name on its loading card on every load, first play or replay, for at least about 3 s † of reading time. On a replay, confirm skips the rest of the reading time once loading is done. Loading happens behind the card; the 3 s transition limit applies to loading, not to reading.
 - No dialogue during play.
 - The seal break is shown in the engine without text.
 - **The held beat:** at Level 3's exit, the fallen fire bell, control stops for about 3 s † while Rowan stands at the bell. Then the closing card. No text; skippable on replays only.
@@ -762,7 +772,7 @@ Design sign-off happens in Epic 0 (concept) and Epic 2 (model).
 | World | Ember pickup, heart restored, bell (a clear bell tone, tied to Elin), checkpoint, weapon pickup, weapon running out (3 s left), seal break |
 | Interface | Menu move, confirm, back, pause |
 
-**Settings:** music volume, effects volume, and mute (M).
+**Settings:** music volume and effects volume. Mute is the M key only, not a settings row; a speaker-off icon shows while sound is muted.
 
 **Tools:** generated effects and music are acceptable. The audio tool is not chosen yet. Every audio asset is logged in `docs/ASSETS.md` with its tool and licence.
 
@@ -794,13 +804,16 @@ Design sign-off happens in Epic 0 (concept) and Epic 2 (model).
   - Landscape, with window resizing and fullscreen.
   - 16:9 is the main target.
   - Other aspect ratios show more or less backdrop, never less than 19 × 10.4 tiles of play area.
-- **Phones and tablets:** not supported in version one. They show a "best played on desktop with keyboard or gamepad" note.
+- **Phones and tablets:** not supported in version one. They show a "best played on desktop with keyboard or gamepad" note instead of the title, with a "Try anyway" link for tablets with a keyboard.
 - **Saves:**
   - Progress is stored in the browser on that device and saves automatically after each level.
   - Clearing browser data clears progress. There are no cloud saves.
   - Leaving mid-level restarts that level.
-- **Auto-pause** when the tab is hidden.
-- **Settings:** music volume, effects volume, reduced motion (turns screen shake off), fullscreen. There is no key remapping in version one.
+  - If the browser refuses storage, progress is kept in memory for the session, and the title screen says in one line that it won't be saved.
+- **Auto-pause** when the tab is hidden, the window loses focus, fullscreen is left during play, or the gamepad disconnects or fails. The game never resumes by itself.
+- **Settings:** music volume, effects volume, reduced motion, fullscreen. Mute is the M key only. There is no key remapping in version one.
+  - **Reduced motion** turns screen shake off and turns full-screen flashes, such as the seal-break ember flash, into a short fade. It also stops the HUD's last-heart pulse and icon shake. Hit-stop and the invulnerability blink stay, because they carry timing and readability.
+  - A new save takes its reduced-motion default from the browser's `prefers-reduced-motion` setting.
 - **Language:** English only.
 - **Later, not in version one:** a desktop build for Steam.
 
@@ -813,7 +826,7 @@ Design sign-off happens in Epic 0 (concept) and Epic 2 (model).
 | Warden | 1 | Idle, three attacks with their warnings, the roll curl, hurt, phase change, defeat |
 | Environment kits | 3 (one per level) | Snap to the tile grid: ground pieces, solid ledges, one-way ledges, moving platforms (waterwheel platforms in Level 2), spikes, props, lanterns (Emberwood only), 3 or 4 backdrop layers. Story props per level are listed in the narrative design document (Environmental Storytelling), for example the wedding glade, the marked grain sacks, the siege camp and the fallen fire bell. |
 | Pickups and markers | 6 | Ember, bell, triple shot, piercing shot, checkpoint, exit |
-| Interface | 1 set | HUD (hearts, ember meter, weapon timer), title, pause, level select, results, settings, story cards, control signs (keyboard and gamepad icons for about 6 actions) |
+| Interface | 1 set | HUD (hearts, ember meter, weapon timer, bell toast, warden health bar, mute icon), boot loading screen, title gate, title, loading card, pause, confirm dialog, level select, results, settings, phone and tablet note, one-line notices, error panels, story cards, control signs (keyboard and gamepad icons for about 6 actions). Specified in the UX spines. |
 | Story art | 7 cards | Intro (5), closing card, all-bells card. Layered silhouettes built in the engine, so no models of Elin, Maldrek or the village are needed. |
 | Music and ambience | 3 tunes, a warden arrangement, stingers, 3 ambience beds and the great wheel's loop | See Audio and Music |
 | Sound effects | About 30 | See Audio and Music |
@@ -824,6 +837,7 @@ Design sign-off happens in Epic 0 (concept) and Epic 2 (model).
 - Art never defines collision.
 - The hero and the enemies must deform cleanly when animated. Raw generated meshes are fine only for background props. A character mesh that won't deform cleanly is replaced with a simpler model built by hand.
 - Every asset, its tool and its licence are logged in `docs/ASSETS.md`, including whether it was made with AI.
+- Credits go on the itch.io page. If an asset's licence requires credit inside the game, a Credits row joins Settings. This is settled once `docs/ASSETS.md` lists every licence.
 - Per-asset size budgets are set in the architecture document, within the 30 MB total.
 
 ---
@@ -920,7 +934,7 @@ Playtests use 3 to 5 first-time players from the primary audience, watched witho
 | Image model for reference art and Tripo's input views | Before Epic 0 starts | Not chosen. Check commercial-use terms and log them in `docs/ASSETS.md`. |
 | Art style lock and `docs/STYLE_GUIDE.md` | End of Epic 0 | Chosen from generated references, then reproduced in the engine. Also confirms the silhouette story-card style on a sample card, the cards' warm-light exception, and where the card shapes come from. |
 | Hero design sign-off | Epic 0 (concept), Epic 2 (model) | None |
-| Level editor (LDtk or Tiled) | Epic 1, for loading levels | Not chosen |
+| Level editor | Epic 1, for loading levels | Tiled 1.12.x, chosen 2026-11-13 (game-architecture.md, decision 9) |
 | Tripo licence and commercial-use terms | Epic 2 | Log in `docs/ASSETS.md` |
 | Audio tools | Epic 3 | Not chosen. Check licence terms. |
 | Tool budgets | Epic 0 | Tool subscriptions only; amounts not set |

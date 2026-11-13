@@ -219,3 +219,9 @@ Canonical record of decisions, changes and version transitions made while writin
   - Nothing blocks architecture.
 - **Finalize, steps 5 to 7:** no `doc_standards` and no external handoffs are configured. The narrative is already done.
 - **Status: final.** `gdd.md` and `epics.md` are updated from narrative design and ready for `gds-game-architecture`.
+
+### Update from UX design (2026-11-13)
+
+- **Intent: update, through `gds-correct-course`.** Change signal: the UX spines, `ux-designs/ux-emberbound-2026-11-13/EXPERIENCE.md` and `DESIGN.md` (final), section "Open Questions & Notes for GDD".
+- **Conflict check:** no pillar, core-loop or tuned-number change. Two GDD contradictions resolved: settings vs mute (gdd.md:765 against 803: mute is the M key only, D10) and the level line on replays (gdd.md:628 against 647: every load shows the name and line; replays can skip the reading floor, F10).
+- **Added:** a pointer to the UX spines as the authority on menu and HUD behaviour; the warden health bar (F1); the bell toast (F2); the mute icon (D7); the boot screen and title gate (D8); the pause menu with "Quit to title" before unlock and the restart and quit confirms (D9); the "New best" tag (D11); auto-pause on blur, fullscreen exit and gamepad loss (D14); the storage notice (D15); "Try anyway" on the phone and tablet note (D16); the wider reduced-motion scope (D17) and its browser default (Q5); the gamepad-unavailable notice (Q7); the credits rule (Q10); the control signs' arcade key set and position glyphs (F6, F3); the interface asset list.

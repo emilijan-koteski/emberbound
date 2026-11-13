@@ -888,14 +888,14 @@ Every line follows the Dialogue Framework: folk-tale narrator, past tense, about
 **Player Control:**
 
 - The intro can always be skipped.
-- Level lines show while the level loads. The card stays up for a minimum reading time, about 3 s (a guess), then continues.
+- Level lines show with the level's name while the level loads, on every load, first play or replay. The card stays up for a minimum reading time, about 3 s (a guess), then continues. On a replay, confirm skips the rest of the reading time once loading is done.
 - The seal break and the held beat can be skipped on replays.
 - The closing card and the all-bells card advance on confirm.
 - The all-bells card can be watched again from the level select (GDD).
 
 **Order at the end of a level:**
 
-- Levels 1 and 2: exit (or the seal break), then results, then the next level's line card.
+- Levels 1 and 2: exit (or the seal break), then results, then, on a first play, the next level's line card. A replay returns to the level select.
 - Level 3, first completion: the held beat, the closing card, the all-bells card if earned, then results.
 - Level 3 replays: the same order. The held beat, the closing card and the all-bells card can be skipped.
 

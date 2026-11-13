@@ -3,7 +3,7 @@ title: 'Game Architecture'
 project: 'Emberbound (working title)'
 date: '2026-11-13'
 author: 'Emilijan'
-version: '1.0'
+version: '1.1'
 stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8, 9]
 status: 'complete'
 engine: 'three.js r187 (WebGLRenderer, GLSL), TypeScript 6.0, Vite 8.3'
@@ -14,6 +14,8 @@ gdd: '_bmad-output/planning-artifacts/gdds/gdd-emberbound-2026-11-12/gdd.md'
 epics: '_bmad-output/planning-artifacts/gdds/gdd-emberbound-2026-11-12/epics.md'
 brief: '_bmad-output/planning-artifacts/briefs/brief-emberbound-2026-11-12/brief.md'
 narrative: '_bmad-output/planning-artifacts/narratives/narrative-emberbound-2026-11-13/narrative-design.md'
+ux_experience: '_bmad-output/planning-artifacts/ux-designs/ux-emberbound-2026-11-13/EXPERIENCE.md'
+ux_design: '_bmad-output/planning-artifacts/ux-designs/ux-emberbound-2026-11-13/DESIGN.md'
 planning_doc: 'docs/PROJECT_BRIEF.md'
 ---
 
@@ -36,13 +38,15 @@ planning_doc: 'docs/PROJECT_BRIEF.md'
 
 **Project Structure:** domain layers with enforced import boundaries (ESLint, plus a DOM-free TypeScript config for the simulation). All 21 core systems are mapped to locations.
 
-**Implementation Patterns:** 8 patterns (4 standard, 4 novel) and 23 consistency rules.
+**Implementation Patterns:** 8 patterns (4 standard, 4 novel) and 24 consistency rules.
 
 **Ready for:** epics and stories (`gds-create-epics-and-stories`), after the two follow-ups in Architecture Validation (CLAUDE.md and the GDD).
 
 ## Document Status
 
 This architecture document was created through the GDS Architecture Workflow on 2026-11-13.
+
+**Revised 2026-11-13 (version 1.1)** through `gds-correct-course`, folding in the UX design's notes for architecture (`ux-designs/ux-emberbound-2026-11-13/`: EXPERIENCE.md and DESIGN.md). Changes: more auto-pause triggers; reduced motion for full-screen flashes, and its default; the audio-locked state; `--tile`; the new interface modules and UI timings; and the app states the UX adds. "UX" plus a decision id (D14, M3, …) cites that folder's `.decision-log.md`.
 
 † marks a starting guess, tuned with the developer in the epic named (the GDD's convention).
 
@@ -99,7 +103,7 @@ This architecture document was created through the GDS Architecture Workflow on 
 | Story director (intro, level-line loading cards, seal break, held beat, closing and all-bells cards, safe story moments, skip rules, replay-form rule) | Medium (novel) | Story Delivery; Session flow; narrative design |
 | Silhouette story cards rendered in the engine, with the text drawn over them | Medium | Story Delivery |
 | Audio (music per level, warden arrangement switching at phase 2, stingers, ambience beds, the wheel getting louder with distance, Level 3 fade-out, motif, browser autoplay rules) | Medium | Audio and Music |
-| Interface and session flow (HUD, title, Continue, level select, results, pause, settings, control signs) | Medium | Session flow; Controls and Input |
+| Interface and session flow (boot loading, HUD, title gate and menu, Continue, level select, loading card, results, pause with restart and quit confirms, settings, notices, error panels, control signs) | Medium | Session flow; Controls and Input; UX spines |
 | Save and progress (local storage, auto-save per level, bells across replays, best times, safe failure) | Low | Platform-Specific Details |
 | Clear-time tracking (excludes pauses and story moments) | Low | Session flow |
 
@@ -121,7 +125,7 @@ This architecture document was created through the GDS Architecture Workflow on 
 - **Resilience:**
   - Gamepad, storage, audio and fullscreen each fail independently.
   - The frame loop never stops because of one of them.
-  - Auto-pause when the tab is hidden.
+  - Auto-pause when the tab is hidden, the window loses focus, fullscreen is left during play, or the gamepad disconnects or is turned off (UX D14, Q7).
 - **Saves:** in the browser, automatically after each level. Leaving mid-level restarts that level.
 - **Networking:** none.
 - **Code rules (CLAUDE.md):**
@@ -132,7 +136,8 @@ This architecture document was created through the GDS Architecture Workflow on 
   - Every simulation rule has a unit test.
   - An automated test proves every jump is possible.
 - **Accessibility and text:**
-  - Reduced motion turns shake off.
+  - Reduced motion turns shake off and full-screen flashes into a short fade, and stops the HUD's last-heart pulse and icon shake. Hit-stop and the 9 Hz blink stay (UX D17).
+  - A new save takes its reduced-motion default from the browser's `prefers-reduced-motion` (UX Q5).
   - Hitboxes favour the player.
   - English only, with story text kept apart from the art.
 
@@ -364,11 +369,14 @@ All of these are resolved in Architectural Decisions (2026-11-13). The list stay
 
 **App state machine:**
 
-- Boot → Title → (Intro cards, on a new save) → Level loading (level-line card) → Playing ⇄ Paused → end of level.
+- Boot (loading bar) → (Device note, on a phone or tablet; "Try anyway" continues) → Title gate → Title menu → (Intro cards, on a new save) → Level loading (level-line card) → Playing ⇄ Paused → end of level. Epic 3 builds the gate alone, going straight to the intro cards and Emberwood; the title menu comes in Epic 6 (UX F5).
+- Level loading shows the level name and its line on every load. It holds for the GDD's reading floor (about 3 s †) and until loading is done, then goes to Playing. On a replay, once loading is done, confirm skips the rest of the floor (UX F10).
+- Paused opens Settings or the confirm dialog (Restart level, Quit). Both are app states over Paused: the simulation stays stopped, and Back or Cancel returns to Paused. Settings opened from the title menu returns there. Restart recreates the level and fades straight to Playing, without the loading card. Quit goes to the level select, or to the title menu before the level select unlocks (UX D9). Pausing works during in-level story moments, the death sequence and the pit fade, and the simulation resumes where it stopped (UX M5).
 - End of level, Levels 1 and 2: Results → next level loading (first play) or Level select (replay). On a replay where the ninth bell is found, the all-bells card plays after the results.
-- End of level, Level 3: closing card → all-bells card, if all 9 bells are found → Results. Replays keep the order; the held beat and the cards can be skipped.
+- End of level, Level 3: closing card → all-bells card, if all 9 bells are found → Results → Title menu (first play; Continue there now opens the level select) or Level select (replay). Replays keep the order; the held beat and the cards can be skipped.
 - The level select offers the all-bells card again once all 9 bells are found.
-- A hidden tab sends Playing to Paused.
+- Auto-pause: a hidden tab, window blur, leaving fullscreen, or the gamepad disconnecting or being turned off after an error sends Playing to Paused, with Resume focused. It never resumes by itself. `platform/visibility.ts` (tab hidden, window blur), `platform/fullscreen.ts` (fullscreen left) and `platform/gamepad.ts` (disconnect, or off after an error) report to `main.ts`, which clears held input and dispatches one auto-pause command. Outside Playing, a trigger only clears held input; on cards and the loading card nothing else is running (UX D14, M5, Q7).
+- A failed asset load, at boot or behind the loading card, shows the Retry panel after one silent retry; Retry repeats that load as often as it is pressed (UX Q8). A release-build bug shows the "Something went wrong" panel over Playing, and "Restart level" restarts the level.
 
 **Simulation `World`:** plain TypeScript objects, created by `createWorld(level, params)` and advanced by `step(world, input)`.
 
@@ -410,8 +418,9 @@ All of these are resolved in Architectural Decisions (2026-11-13). The list stay
 **Simulation to presentation:** each step appends typed events; the full `SimEvent` union is in Cross-cutting Concerns (Event System). The loop gathers them per frame and hands them to audio, rendering effects and the interface. The rules:
 
 - Shake is computed in rendering from events, using `CONFIG.feedback`. A new shake raises trauma to its value if that is higher, and never adds (GDD). Reduced motion turns it off.
+- Full-screen flashes (`render/fx/flash.ts`, such as the seal-break ember flash staged by `storyStaging.ts`) read `reducedMotion`. With it on, each becomes a short fade. Hit-stop and the 9 Hz blink stay (UX D17).
 - The 9 Hz blink is derived from the invulnerability timer and the step count.
-- **Presentation settings:** `main.ts` passes rendering, audio and the interface one read-only `PresentationSettings` snapshot per frame: `reducedMotion`, `musicVolume`, `effectsVolume`, `isMuted`, `lastDevice`. No presentation layer reads settings or devices any other way.
+- **Presentation settings:** `main.ts` passes rendering, audio and the interface one read-only `PresentationSettings` snapshot per frame: `reducedMotion`, `musicVolume`, `effectsVolume`, `isMuted`, `lastDevice`, plus the feature status that the notices and the fullscreen toggle show: `isAudioLocked`, `isFullscreen`, and the optional features turned off for the session (storage, gamepad, fullscreen). No presentation layer reads settings, devices or feature status any other way.
 
 ### Game Loop
 
@@ -450,7 +459,7 @@ frame(now):
   - **Cues apply during the timeline.** The seal break's `rowanChange` cue makes Rowan stage 2 with ledge grab. Each cue emits `storyCueReached`, so audio can cut the music and play the stinger.
   - **The end:** `endStory` applies any cue not yet reached (when skipped), emits `storyEnded`, then `levelCompleted`.
 - **In rendering:** it reads `story`, the step count and the cue steps in `CONFIG.story` to stage the camera, effects and model swap. The cue values come from the narrative document's timings; rendering keeps no timings of its own.
-- **In the app:** story cards (intro, level-line, closing, all-bells) are app states. A separate card scene renders the silhouettes, with the text in the DOM overlay.
+- **In the app:** story cards (intro, level-line, closing, all-bells) are app states. A separate card scene renders the silhouettes of the intro, closing and all-bells cards, with the text in the DOM overlay. The level-line card has no silhouettes: the level name and its line sit on the opaque screen ground (UX `loading-card`).
 - **Replay-form rule:** a fixed table in `config.ts` (`levelForm`: Levels 1 and 2 beast, Level 3 changed) sets Rowan's stage and abilities when a level is created. It matches the GDD rule without storing anything.
 
 ### Data Persistence
@@ -558,14 +567,24 @@ frame(now):
 - A press is latched until the next step consumes it, so a tap shorter than one step is never lost (GDD).
 - Stick thresholds: 0.35 sideways and 0.5 up and down (GDD).
 - **Gamepad reads are wrapped in try/catch.** The first error turns the gamepad off for the session, logs once, and the keyboard keeps working. This is the prototype bug inside an embedded iframe.
-- The last-used device (keyboard or gamepad) goes into the `PresentationSettings` snapshot, which picks the icons on the control signs.
-- **App-level actions** (pause, mute, and menu up, down, confirm and back) go to the app, never to the simulation. Menus can be navigated with a gamepad.
+- The last-used device (keyboard or gamepad) goes into the `PresentationSettings` snapshot, which picks the icons on the control signs and the card advance hint. A key press or a click sets keyboard; a gamepad button, or a stick past the play thresholds above, sets gamepad (UX).
+- **App-level actions** (pause, mute, and menu up, down, left, right, confirm and back) go to the app, never to the simulation. Menus can be navigated with a gamepad.
+  - Esc pauses during play; in menus and on cards it means Back. Back on the pause menu resumes; on the title menu it does nothing (UX).
+  - **Hold-to-repeat:** a held menu direction, on lists and sliders, repeats after 0.4 s at 8 steps per second (UX). The values live in `core/uiTimings.ts`, which every layer may import (UX DN-2).
+  - **Card guard:** menu actions are presses, never held state. When a card appears, presses latched before it are dropped, so only a press that began on the card counts. The app ignores all card input, Back included, before the GDD's card minimum (about 1.5 s †, in `core/uiTimings.ts`) (UX).
+- **Bound keys call `preventDefault`** while the game has focus, so Space and the arrows never scroll the itch.io page (UX; verify on the Epic 6 upload).
+- **Auto-pause clears held input:** every auto-pause trigger (State Management) releases held keys and directions, so Rowan stops (UX D14).
 - Input frames can be recorded and replayed. The same path feeds the jump search and the development replay tool.
 
 ### User Interface
 
 - **The DOM overlay** sits above the canvas: plain TypeScript modules, one per screen, plus CSS.
-  - Screens: HUD, title, level select, results, settings, pause, card text, and the note for phone and tablet visitors.
+  - Screens: boot loading, HUD, title (the "Click or press any key" gate, then the menu), loading card, level select, results, settings, pause, card text, the error panels (bug; retry, for boot and level loads), and the note for phone and tablet visitors.
+  - Shared components, one file each in `ui/components/`: menu item, panel, scrim, slider, toggle, notice line, confirm dialog. Screens are built from them (UX M8).
+  - `ui/overlay.ts` is the root. It stacks the layers in DESIGN.md's order (Elevation & Depth), owns the mute indicator, which sits above every scrim including the error panel's (UX M6), and sets `--tile`.
+- **`--tile`** is the on-screen size of one world tile. `ui/overlay.ts` sets it on the overlay root on resize, from the logical view's size in `sim/config.ts` and DESIGN.md's formula. CSS never hard-codes it, and every overlay size is a multiple of it (UX M3). If Epic 0's camera frames a margin around the logical view, the value must include that margin, since `ui/` cannot import `render/`. The DESIGN.md tokens become CSS custom properties named `--{group}-{name}`.
+- **UI timings** (fades, holds, the results stagger, menu repeat, and the GDD's card minimum and loading-card reading floor) live in one module, `core/uiTimings.ts`, so `input/`, `app/` and `ui/` all read the same values, in seconds (`…Seconds`), never frames. Every value is provisional † and tuned in the epic that builds its surface (UX M2).
+- **Mouse:** menus only, never required. Hover moves focus and a click confirms. The cursor hides when play starts and shows when a menu opens (UX D13).
 - **The interface reads** the app state and `DeepReadonly<World>` each frame and only touches the DOM when a value changes. It sends commands to the app (start, select level, change setting) and never to the simulation.
 - **Story text** comes from one typed module keyed by moment (narrative design), never hard-coded in screens.
 - **Fonts are self-hosted:** no runtime requests to third parties.
@@ -574,7 +593,7 @@ frame(now):
 
 ### Audio
 
-- **The Web Audio API directly**, with an `AudioContext` created or resumed on the first user input on the title screen (browser autoplay rules).
+- **The Web Audio API directly**, with an `AudioContext` created or resumed on the first key press or click, normally at the title gate (browser autoplay rules). Gamepad presses are not user activation, so a gate passed with a gamepad leaves audio locked: the game runs silently, and the title menu shows the audio notice until the first key press or click (UX A1; verify on the Epic 6 upload).
 - **Buses:** master, then music, effects and ambience. The settings volumes map to the bus gains, and M toggles the master mute.
 - **Music:**
   - one looping buffer per level
@@ -583,7 +602,7 @@ frame(now):
   - at the seal break, the music cuts and the stinger plays on `storyCueReached`
   - in Level 3, the music fades out on the `regionEntered` event for the `MusicFade` region
 - **Ambience:** one looping bed per level. The great wheel's loop gain follows Rowan's distance from the arena anchor, read from the snapshot.
-- **Failure:** if audio can't start, audio stays off and the game runs.
+- **Failure:** if creating or resuming the `AudioContext` throws or is rejected, audio stays off for the session and the game runs, with no notice (UX Q7). A context still waiting for a key press or click is locked, not failed.
 
 ### Build and Release
 
@@ -595,7 +614,7 @@ frame(now):
   4. the Vite build
   5. the manifest (`scripts/buildManifest.ts`)
   6. the budget checks: total size 30 MB or less, 1,000 files or fewer, the per-asset budgets
-- **`make release`** uploads `dist/` to itch.io with `butler`, pinned in `mise.toml` in Epic 6. Before the public release, a private itch.io upload checks the iframe behaviour: gamepad, storage, audio, fullscreen.
+- **`make release`** uploads `dist/` to itch.io with `butler`, pinned in `mise.toml` in Epic 6. Before the public release, a private itch.io upload checks the iframe behaviour: gamepad, storage, audio, fullscreen, plus the UX's browser checks: audio unlock after a gamepad-passed gate, fullscreen refused from a gamepad, the Esc that leaves browser fullscreen, iframe focus, page scrolling, and the 1280 × 720 embed with itch.io's fullscreen button (UX A1-A3, Q9).
 
 ### Debug Tools (development builds only)
 
@@ -614,8 +633,8 @@ frame(now):
 | Simulation rules | Vitest | `src/sim/**/*.test.ts`, beside the code | Node | Every simulation rule (CLAUDE.md), the story-moment safety rule, the feel regression test |
 | Determinism | Vitest | `src/sim/determinism.test.ts` | Node | A recorded input stream run twice on each level gives identical state hashes |
 | Levels | Vitest | `tests/levels/` | Node | Compile validation, the marked-jump search, coverage, static metric checks |
-| App and input logic | Vitest | `src/app/*.test.ts`, `src/input/*.test.ts` | Node | Save validation and migration, the app state machine, input latching with synthetic events |
-| Browser smoke checks | Playwright | `tests/e2e/smoke.spec.ts` | Headless Chromium and Firefox | Boot, title, level, pause; no console errors; a gamepad error doesn't stop the frame loop; refused storage falls back |
+| App and input logic | Vitest | `src/app/*.test.ts`, `src/input/*.test.ts` | Node | Save validation and migration, the app state machine (the UX states, the confirm dialog and auto-pause included), the reduced-motion default, and input latching, hold-to-repeat and the card guard, with synthetic events |
+| Browser smoke checks | Playwright | `tests/e2e/smoke.spec.ts` | Headless Chromium and Firefox | Boot, the title gate, title, level, pause and the restart confirm; no console errors; a gamepad error doesn't stop the frame loop; refused storage falls back |
 | Screenshots | Playwright | `tests/e2e/shots.spec.ts` | Headless Chromium, against the dev server | The critic loop's spots |
 | Performance | `?perf=1` | Release build | Real hardware | The GDD's frame-time pass marks; level load times |
 | First load | Browser developer tools | Release build | Real hardware, network throttled to 50 Mbit/s | First input within 10 s (GDD) |
@@ -698,7 +717,7 @@ These patterns apply to every system. Every implementation follows them, and ESL
 | Class | Examples | Handling |
 | --- | --- | --- |
 | **Bug:** an invariant is broken | Rowan's position becomes NaN; an entity id is unknown | `invariant()` throws. **Development:** fail loudly, with the error in the debug overlay. **Release:** the frame loop catches it, logs it, and shows a small "Something went wrong" panel with "Restart level". The loop keeps running. |
-| **Optional feature unavailable** | Gamepad refused inside the itch.io iframe; storage blocked; audio can't start; fullscreen denied | Wrapped at the feature's edge in `platform/`. The first failure turns the feature off for the session and logs one warning. The game continues (GDD resilience rule). |
+| **Optional feature unavailable** | Gamepad refused inside the itch.io iframe; storage blocked; audio can't start; fullscreen denied | Wrapped at the feature's edge in `platform/`. The first failure turns the feature off for the session and logs one warning. The game continues (GDD resilience rule). A request refused only for lack of user activation (a fullscreen toggle or audio unlock from a gamepad, UX A1) is not a failure: the feature stays available and the next key press or click can retry. |
 | **Expected failure** | An asset fetch fails; a saved game is corrupt or old | Return `Result<T, E>`. The caller decides: retry an asset once, then show a Retry panel; fall back to a fresh save. Never throw for these. |
 
 - Level rules are validated at build time. At runtime, `parseLevel` checks only the file's shape and version; a failure there is an expected failure (`Result`).
@@ -790,8 +809,9 @@ log.error('loop', 'Frame failed', err);
 | Fixed per-level tables | `sim/config.ts` | For example `levelForm` (the replay-form rule), the challenge-jump caps, and story timelines in steps |
 | Look data | `render/palettes/`, `render/lighting/` | Palette and lighting rig per level, as data. `render/materials` consumes them. |
 | Audio mix | `audio/mix.ts` | Bus levels, crossfade times, the wheel's distance curve |
+| UI timings | `core/uiTimings.ts` | Every overlay fade, hold, stagger and menu-repeat time, plus the GDD's card minimum and loading-card reading floor (†), in seconds (`…Seconds`), never frames. Provisional †, each tuned in the epic that builds its surface (UX M2). In `core/` so `input/`, `app/` and `ui/` all import it (UX DN-2). |
 | Story text | `content/storyText.ts` | Every on-screen story line, keyed by moment (narrative design) |
-| Player settings | `app/settings.ts`, stored in the save | Music volume, effects volume, reduced motion. Defaults live here. |
+| Player settings | `app/settings.ts`, stored in the save | Music volume, effects volume, reduced motion. Defaults live here. A new save takes `reducedMotion` from the browser's `prefers-reduced-motion`, read by `platform/device.ts` and passed in (UX Q5). The settings screen's fullscreen toggle and the M mute are never saved. |
 | Build constants | Vite's `import.meta.env` | `DEV` gates the debug tools. No secrets, ever (CLAUDE.md). |
 
 **Example:**
@@ -1011,6 +1031,7 @@ src/
 ├── main.ts                     Boot, wiring, frame loop. The only file that knows every layer.
 ├── core/                       Shared basics; no DOM, no three.js
 │   ├── result.ts, invariant.ts, log.ts, deepReadonly.ts, assertNever.ts
+│   ├── uiTimings.ts            Every UI fade, hold, repeat and card time, in …Seconds (provisional †; UX M2, DN-2)
 ├── sim/                        The pure simulation. Runs in Node. No DOM, no three.js (own tsconfig)
 │   ├── tsconfig.json           lib without DOM
 │   ├── config.ts               Every gameplay number (GDD units, converted to steps)
@@ -1058,10 +1079,13 @@ src/
 │   └── cards/                  cardScene.ts (silhouette cards)
 ├── audio/                      mixer.ts (buses), music.ts, sfx.ts, ambience.ts, mix.ts (levels and curves)
 ├── ui/                         The DOM overlay
-│   ├── overlay.ts
-│   ├── screens/                hud.ts, title.ts, levelSelect.ts, results.ts, settings.ts, pause.ts,
-│   │                           cardText.ts, deviceNote.ts, levelError.ts, perfReport.ts
-│   └── styles/                 base.css, screens.css
+│   ├── overlay.ts              The root: layer stacking, sets --tile, owns the mute indicator
+│   ├── components/             Shared: menuItem.ts, panel.ts, scrim.ts, slider.ts, toggle.ts,
+│   │                           noticeLine.ts, confirmDialog.ts
+│   ├── screens/                bootLoading.ts, hud.ts, title.ts (gate, then menu), loadingCard.ts,
+│   │                           levelSelect.ts, results.ts, settings.ts, pause.ts, cardText.ts, deviceNote.ts,
+│   │                           levelError.ts (bug panel; retry panel for boot and level loads), perfReport.ts
+│   └── styles/                 base.css (DESIGN.md tokens as --{group}-{name}), screens.css
 ├── content/                    Data only
 │   ├── storyText.ts            Every story line, keyed by moment
 │   ├── cards.ts                Story card definitions: layers, palette slots, light
@@ -1085,7 +1109,7 @@ src/
 | Gameplay camera | `src/sim/camera.ts` | Look-ahead, dead zone, clamping, the logical view |
 | Story director | `src/sim/story.ts` (in level); `src/app/app.ts` (cards) | Story moments and safety; card sequences |
 | Hit feedback | `src/sim/` (hit-stop); `src/render/fx/` (shake, flash, blink) | Deterministic hit-stop; visual-only effects |
-| Session flow | `src/app/app.ts` | Title, intro, loading, playing, pause, results, level select |
+| Session flow | `src/app/app.ts` | Boot, device note, title gate and menu, intro, loading, playing, pause (settings, confirm dialog), auto-pause, results, level select, error panels |
 | Saving and settings | `src/app/save.ts`, `settings.ts`, `src/platform/storage.ts` | Versioned save, fallback, settings |
 | Input | `src/input/`, `src/platform/gamepad.ts` | Action state, latching, devices, menu actions |
 | Level data | `levels/` (sources), `scripts/compileLevels.ts`, `src/sim/level/` | Authoring, compiling and validating, loading at runtime |
@@ -1146,7 +1170,8 @@ src/
 | Lasting ids (saved or authored) | Kebab-case strings taken from Tiled object names, scoped by level | `drowned-mill/bell-2` |
 | Simulation events | Past tense, camelCase `type` | `enemyKilled` |
 | App commands | Imperative, camelCase `type` | `startLevel` |
-| CSS classes | kebab-case, prefixed by screen | `hud-hearts`, `results-time` |
+| CSS classes | kebab-case, prefixed by the component's name in the UX spines; shared components in `ui/components/` take `ui-` (proposed) | `hud-hearts`, `results-stat`, `ui-menu-item` |
+| CSS custom properties | `--{group}-{name}` from the DESIGN.md tokens; `--tile` is set only by `ui/overlay.ts` | `--colors-surface-scrim`, `--tile` |
 
 #### Game Assets
 
@@ -1379,7 +1404,7 @@ const input = createInput({ onAppAction: (a) => app.dispatch(a) });
 const view = createRenderer(canvas);
 const audio = createAudio(createAudioContext());         // platform (guarded)
 const ui = createUi(overlayEl, { dispatch: app.dispatch, playUiSound: audio.playUi });
-const presentation = () => presentationSettings(app.state, input.lastDevice()); // read-only, per frame
+const presentation = () => presentationSettings(app.state, input.lastDevice(), featureStatus()); // read-only, per frame; featureStatus() reads the platform/ wrappers
 startLoop({ app, input, view, audio, ui, presentation });
 ```
 
@@ -1477,7 +1502,7 @@ export function chooseHeroClip(p: DeepReadonly<Player>): HeroClip {
 import { CONFIG } from '../sim/config.ts';              // numbers (relative imports carry .ts)
 import { STORY_TEXT } from '../content/storyText.ts';   // words
 const hero = await assets.model('hero-rowan');          // manifest id, not 'assets/models/…'
-ui.cardText.show(STORY_TEXT.levelLine['drowned-mill']);
+ui.loadingCard.show(STORY_TEXT.levelLine['drowned-mill']);
 ```
 
 ### Consistency Rules
@@ -1498,6 +1523,7 @@ ui.cardText.show(STORY_TEXT.levelLine['drowned-mill']);
 | Logging | Only through `core/log.ts`; never in `sim/` | ESLint `no-console` everywhere except `core/log.ts` |
 | Asset references | Manifest ids, never path strings | Review |
 | Story text | Only in `content/storyText.ts` | Review |
+| Overlay values | UI timings only in `core/uiTimings.ts` (`…Seconds`, never frames); sizes as multiples of `--tile`, which only `ui/overlay.ts` sets; colours and type only through the token properties (`--{group}-{name}`) | Review |
 | Formatting | Prettier with the project config (approved 2026-11-13) | `make format`; `make check` runs `prettier --check` |
 | Imports and syntax | Relative imports carry `.ts`; `import type` for types; no enums, namespaces or parameter properties (Node runs `scripts/*.ts` natively) | tsconfig `allowImportingTsExtensions`, `verbatimModuleSyntax`, `erasableSyntaxOnly` |
 | Presentation settings | Read only from the per-frame `PresentationSettings` snapshot | Review |
@@ -1525,7 +1551,7 @@ ui.cardText.show(STORY_TEXT.levelLine['drowned-mill']);
 ### Coverage Report
 
 **Systems Covered:** 21 of 21 (the core systems in Project Context)
-**Patterns Defined:** 4 standard, 4 novel, 23 consistency rules
+**Patterns Defined:** 4 standard, 4 novel, 24 consistency rules
 **Decisions Made:** 22
 
 ### Issues Resolved
@@ -1562,6 +1588,7 @@ ui.cardText.show(STORY_TEXT.levelLine['drowned-mill']);
 
 - **CLAUDE.md** still lists the level editor as open, and doesn't mention the mise, Makefile and Docker rule. Update it with the developer's approval.
 - **The GDD's Dependencies table** still lists the level editor as "not chosen". Update it through `gds-gdd` (update) or `gds-correct-course`.
+- **`_bmad-output/project-context.md`** is generated from this document. Refresh it after the 1.1 revision (the UX fold-in), with `gds-generate-project-context` or by applying the listed rule edits.
 
 ### Validation Date
 

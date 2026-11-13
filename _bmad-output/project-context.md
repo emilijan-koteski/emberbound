@@ -5,7 +5,7 @@ date: '2026-11-13'
 sections_completed: ['technology_stack', 'engine_rules', 'performance_rules', 'organization_rules', 'testing_rules', 'platform_rules', 'anti_patterns']
 existing_patterns_found: 0
 status: 'complete'
-rule_count: 119
+rule_count: 129
 optimized_for_llm: true
 source: '_bmad-output/planning-artifacts/architectures/architecture-emberbound-2026-11-13/game-architecture.md'
 ---
@@ -57,7 +57,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **Hit-stop lives in the simulation,** counted in steps. **Shake lives in rendering:**
   - driven by events, through `shake.raise()`, which takes the higher value and never adds
   - its values come from `CONFIG.feedback`
-  - reduced motion turns it off
+  - reduced motion turns it off, and turns full-screen flashes (`render/fx`, such as the seal-break ember flash) into a short fade; hit-stop and the 9 Hz blink stay
 - **Story moments** (the seal break, the held beat) are simulation state, with cues in `CONFIG.story`.
   - Rendering stages them from the cues and keeps no timings of its own.
   - Rowan can't be hurt during them, and attacks already in flight are cleared.
@@ -104,12 +104,15 @@ _This file contains critical rules and patterns that AI agents must follow when 
 | Story text | `content/storyText.ts` |
 | Palettes and lighting | Data in `render/palettes/` and `render/lighting/` |
 | Browser features | `platform/` |
+| UI timings, card minimum, loading-card floor | `core/uiTimings.ts`, in `…Seconds`, never frames |
+| Shared UI components | `ui/components/` (menu item, panel, scrim, slider, toggle, notice line, confirm dialog) |
+| Overlay sizes and tokens | Multiples of `--tile` (set only by `ui/overlay.ts`); DESIGN.md tokens as `--{group}-{name}` |
 | Level sources | `levels/*.tmj` |
 | Shipped assets | `public/assets/`, referenced by **manifest id**, never by path |
 
 - **Wiring:** everything is wired explicitly in `main.ts`. No singletons and no service locator.
   - Two typed channels: `SimEvent` (past tense, simulation to presentation) and `AppCommand` (imperative, into the app).
-  - Presentation reads settings and the last-used device only from the per-frame `PresentationSettings` snapshot.
+  - Presentation reads settings, the last-used device and feature status (`isAudioLocked`, `isFullscreen`, features turned off) only from the per-frame `PresentationSettings` snapshot.
 - **Entities:** plain objects with `kind`, `state` and `stateSteps`.
   - All of an entity's transitions live in one function.
   - Ids come from `world.nextId++`.
@@ -121,6 +124,8 @@ _This file contains critical rules and patterns that AI agents must follow when 
   - Step counts end in `…Steps`. Booleans start with `is`, `has` or `can`.
   - **A level's id is its kebab-case file name, used everywhere** (`drowned-mill`).
   - Asset files are kebab-case with a kind prefix (`enemy-thorn-flyer.glb`). glTF nodes and clips are snake_case.
+  - Times outside `sim/` end in `…Seconds` or `…Ms`.
+  - CSS classes start with the component's name from the UX spines (`hud-hearts`, `results-stat`); shared components use `ui-` (`ui-menu-item`).
 - **Failures:**
   - `invariant()` for bugs.
   - `Result` for expected failures.
@@ -137,7 +142,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
   - Every break or rise on the main path needs a mark in the `jumps` layer.
   - `make test` runs the compile validation, the jump search and the coverage check.
 - **Start tests anywhere** with `createWorld(level, { spawnAt })`. There are no test-only code paths in the simulation.
-- **No jsdom.** DOM screens are covered by Playwright smoke checks. Screenshots are compared by eye, never pixel-diffed.
+- **No jsdom.** DOM screens are covered by Playwright smoke checks. Screenshots are compared by eye, never pixel-diffed. So navigation rules (confirm dialog, settings return, auto-pause, card guard, hold-to-repeat) live in `app/` and `input/`, where Vitest covers them.
 - **Before saying a change works:** run `make check`.
 - **For any visual change:** run the critic loop with `make shots ROUND=n`: at most 3 rounds, then report before and after.
 
@@ -146,7 +151,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **Targets:** desktop Chrome, Edge and Firefox (Safari best-effort); keyboard and standard gamepads. No touch; phones and tablets get a note.
 - **itch.io runs the game in a cross-origin iframe.**
   - Gamepad, storage, audio and fullscreen may throw or be refused. Each is wrapped in `platform/`, and the first failure turns that feature off. **The frame loop never stops.**
-  - The `AudioContext` is resumed on the first user input.
+  - The `AudioContext` is resumed on the first key press or click. Gamepad presses are not user activation: after a gamepad-passed title gate, audio stays locked, the game runs silently, and the title menu shows the audio notice. Locked is not a failure.
 - **Build:**
   - `base: './'`, so every URL is relative.
   - 1,000 files or fewer, 30 MB or less.
@@ -156,7 +161,12 @@ _This file contains critical rules and patterns that AI agents must follow when 
   - One `InputFrame` per step.
   - Presses are latched until consumed, and hit-stop never counts input buffers down.
   - Stick thresholds: 0.35 sideways, 0.5 up and down.
-  - Menu, pause and mute actions go to the app, never to the simulation.
+  - Menu, pause and mute actions go to the app, never to the simulation. Menu actions: up, down, left, right, confirm, back. Esc pauses in play and means Back elsewhere.
+  - A held menu direction repeats after 0.4 s at 8 per second. The values come from `core/uiTimings.ts`.
+  - Cards count only a press that began after the card appeared; presses latched before it are dropped.
+  - Bound keys call `preventDefault` while the game has focus.
+  - Last device: a key press or click sets keyboard; a gamepad button, or a stick past the play thresholds, sets gamepad.
+  - Auto-pause on a hidden tab, window blur, leaving fullscreen, or the gamepad disconnecting or turning off. Held input is cleared, and Paused never resumes by itself. On cards and the loading card, a trigger only clears held input.
 - **Tooling:**
   - Always run `make` targets.
   - Tool versions come from `mise.toml`; any service runs in Docker; binaries go in Git LFS.
@@ -168,12 +178,12 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **Never retune a proven GDD number** (one without †) without asking. Numbers marked † are tuned only with the developer, in the epic named.
 - **Never write to `World` outside `sim/`.** Cheats go through `sim/debugCommands.ts`.
 - **Never let a press vanish,** never decide "on screen" from the canvas, and never put GLSL outside `render/materials/`.
-- **Never hard-code** story text, asset paths or gameplay numbers.
+- **Never hard-code** story text, asset paths, gameplay numbers, UI timings or `--tile`.
 - **Never add a dependency or framework without asking.** No React, Howler, jsdom, tsx and so on. **Never TypeScript 7, never enums.**
 - **The pit rule:** "last stable ground" is never a moving platform and never next to a hazard.
 - **Story:**
-  - No text during play; level lines appear on loading cards.
-  - Level 3 ends: held beat, closing card, all-bells card if earned, then results.
+  - No text during play; level lines appear on loading cards, on every load. On a replay, confirm skips the reading floor once loading is done.
+  - Level 3 ends: held beat, closing card, all-bells card if earned, then results, then the title menu (first play) or the level select (replay).
   - On a Level 1 or 2 replay, the all-bells card comes after the results.
 - **After a three.js upgrade,** read the migration notes and re-run the critic loop: revisions change APIs and looks.
 - **Legal:**
