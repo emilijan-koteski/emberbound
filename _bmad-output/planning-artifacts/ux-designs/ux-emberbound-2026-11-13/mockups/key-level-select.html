@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Key screen: level select</title>
+<style>
+/*
+  key-level-select.html: level select panel, 1280 x 720. Layout reference only.
+
+  Governing spine sections
+    DESIGN.md
+      - Colors: surface-screen, surface-panel, border-subtle, surface-focus, focus-ring, text-primary, text-muted (provisional)
+      - Typography: ui-lg (level names, rows), numeric-md (best times, tabular)
+      - Layout & Spacing: menus = one centred column in a panel of {spacing.panel-width}; menu-item-height
+      - Shapes: rounded.sm on panel and rows; bell icon as a single-colour silhouette
+      - Components: panel, level-select-row (incl. rewatch variant), menu-item
+      - Do's and Don'ts: tabular figures for every number; nothing relies on colour alone (filled vs outlined bells)
+    EXPERIENCE.md
+      - Information Architecture: Level select row
+      - Component Patterns: level-select-row (union of bells, default focus, rewatch variant), menu-item
+      - State Patterns: Level select / All 9 bells found; Every menu / Focus
+      - Voice and Tone: Level select strings
+      - Accessibility Floor: not colour alone (D18)
+      - Key Flows: Ines steps 1 and 8
+    .decision-log.md: D13, D18; "Level select" line under Flow and menus; draft review (default focus, "All-bells card", "Back", "-")
+
+  Token mapping: --c-* = DESIGN.md colors, --s-* = spacing, --t-* = typography sizes.
+  {spacing.tile} is min(100vw / 19, 100vh / 10.4); each frame stands in for the 1280 x 720 viewport.
+  --anno-* = annotation chrome, not a product token.
+*/
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  --anno-ground: #E4E5E7; --anno-ink: #1F2023; --anno-muted: #55585E; --anno-rule: #7A7D83;
+  background: var(--anno-ground); color: var(--anno-ink);
+  font: 13px/1.45 system-ui, sans-serif;
+  padding: 28px 40px 96px; min-width: 1360px;
+}
+code { font-family: ui-monospace, monospace; font-size: 0.95em; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; text-align: inherit; }
+
+.mock-caption {
+  position: fixed; top: 10px; right: 12px; z-index: 10; margin: 0;
+  max-width: 300px; padding: 6px 8px;
+  font-size: 11px; line-height: 1.35; color: var(--anno-muted);
+  background: var(--anno-ground); border: 1px solid var(--anno-rule);
+}
+.page-head { width: 1280px; margin: 0 auto 8px; padding-right: 330px; }
+.page-head h1 { font-size: 18px; margin: 0 0 4px; }
+.page-head p { margin: 0; color: var(--anno-muted); }
+
+/* ---------- tokens ---------- */
+.sheet {
+  --vw: 1280px; --vh: 720px;
+  --tile: min(var(--vw) / 19, var(--vh) / 10.4);
+
+  --c-surface-screen: #0E0F11; --c-surface-panel: #18191C; --c-surface-focus: #2B2E33;
+  --c-border-subtle: #3A3D43; --c-text-primary: #ECECEC; --c-text-muted: #A3A6AB; --c-focus-ring: #AEBBC9;
+
+  --s-1: calc(var(--tile) * 0.05); --s-2: calc(var(--tile) * 0.1); --s-3: calc(var(--tile) * 0.15);
+  --s-4: calc(var(--tile) * 0.25); --s-5: calc(var(--tile) * 0.4); --s-6: calc(var(--tile) * 0.6);
+  --s-hud-icon-sm: calc(var(--tile) * 0.24);
+  --s-focus-ring: max(2px, calc(var(--tile) * 0.03));
+  --s-menu-item-height: max(36px, calc(var(--tile) * 0.5));
+  --s-panel-width: min(calc(var(--vw) * 0.9), calc(var(--tile) * 7));
+  --r-sm: max(2px, calc(var(--tile) * 0.04));
+
+  --t-ui-lg: max(16px, calc(var(--tile) * 0.28));
+  --t-numeric-md: max(14px, calc(var(--tile) * 0.22));
+
+  width: 1280px; margin: 40px auto 0;
+}
+.sheet h2 { font-size: 15px; margin: 0 0 2px; }
+.sheet > .sub { margin: 0 0 6px; color: var(--anno-muted); }
+
+/* ---------- annotation band (outside the frame) ---------- */
+.anno-band { position: relative; height: 92px; font-size: 12px; line-height: 1.35; }
+.anno-zone {
+  position: absolute; bottom: 0; height: 8px;
+  left: calc(var(--x0) * var(--tile)); width: calc((var(--x1) - var(--x0)) * var(--tile));
+  border: 1px solid var(--anno-rule); border-top: 0;
+}
+.anno-text { position: absolute; bottom: 14px; margin: 0; padding: 0; list-style: none; left: 50%; transform: translateX(-50%); text-align: center; width: 620px; }
+.anno-text li + li { margin-top: 2px; }
+.anno-notes { margin: 8px 0 0; padding-left: 18px; }
+.anno-notes li { margin-top: 3px; }
+.anno-notes .muted { color: var(--anno-muted); }
+
+/* ---------- frame: exactly 1280 x 720 ---------- */
+/* Ground behind the level select is not specified (title backdrop is open, EXPERIENCE.md Open #1):
+   surface-screen used, as for the title gate "until the title backdrop exists". */
+.frame {
+  position: relative; width: 1280px; height: 720px; overflow: hidden;
+  outline: 1px solid var(--anno-rule); background: var(--c-surface-screen);
+  font-family: system-ui, sans-serif;
+}
+
+.panel {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: var(--s-panel-width); padding: var(--s-5);
+  background: var(--c-surface-panel); border: 1px solid var(--c-border-subtle); border-radius: var(--r-sm);
+  color: var(--c-text-primary);
+}
+/* Row gap not specified: {spacing.2}. Groups (levels / rewatch / Back) set apart by {spacing.5}. */
+.level-list { display: flex; flex-direction: column; gap: var(--s-2); }
+.panel-group + .panel-group { margin-top: var(--s-5); }
+
+/* level-select-row: name (ui-lg) left; best time (numeric-md, muted) and three bell slots right.
+   Row inner padding not specified: {spacing.4}. Bell gap not specified: {spacing.1}, as hud-hearts. */
+.level-select-row, .menu-item {
+  display: flex; align-items: center; width: 100%;
+  min-height: var(--s-menu-item-height); border-radius: var(--r-sm);
+  font-size: var(--t-ui-lg); font-weight: 500; line-height: 1.3; color: var(--c-text-primary);
+}
+.level-select-row { gap: var(--s-4); padding-inline: var(--s-4); text-align: left; }
+.level-select-row .name { flex: 1; }
+.level-select-row .time {
+  font-size: var(--t-numeric-md); font-weight: 500; line-height: 1.3;
+  font-variant-numeric: tabular-nums; color: var(--c-text-muted);
+}
+.level-select-row .bells { display: flex; gap: var(--s-1); }
+.bell { display: block; width: var(--s-hud-icon-sm); height: var(--s-hud-icon-sm); overflow: visible; }
+.bell.is-found { fill: var(--c-text-primary); stroke: none; }
+/* outline stroke width not specified: 1.5 px chosen */
+.bell.is-missing { fill: none; stroke: var(--c-text-muted); stroke-width: 1.5px; stroke-linejoin: round; }
+.menu-item { justify-content: center; }
+.level-select-row.is-focused, .menu-item.is-focused {
+  background: var(--c-surface-focus); outline: var(--s-focus-ring) solid var(--c-focus-ring); outline-offset: 0;
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="i-bell">
+      <rect x="10.6" y="1.9" width="2.8" height="2.4" vector-effect="non-scaling-stroke"/>
+      <path vector-effect="non-scaling-stroke"
+        d="M12 4 C8.4 4 6.6 6.6 6.6 10.1 V13.6 C6.6 15.3 5.4 16.6 4 17.4 V18.8 H20 V17.4 C18.6 16.6 17.4 15.3 17.4 13.6 V10.1 C17.4 6.6 15.6 4 12 4 Z"/>
+      <circle cx="12" cy="20.7" r="1.9" vector-effect="non-scaling-stroke"/>
+    </g>
+  </defs>
+</svg>
+
+<p class="mock-caption">Layout reference — provisional greyscale tokens. Final look from STYLE_GUIDE.md at Epic 0.</p>
+
+<header class="page-head">
+  <h1>Key screen: level select, 1280 × 720</h1>
+  <p>Two frames, each exactly 1280 × 720. Labels sit outside the frames. Ines's journey: before and after her ninth bell (Key Flow steps 1 and 8).</p>
+</header>
+
+<!-- ===================== A: 8 of 9 bells ===================== -->
+<section class="sheet">
+  <h2>A · Everything finished, 8 of 9 bells (Ines, step 1)</h2>
+  <p class="sub">Reached from the title menu. With every level finished, default focus is the first row (EXPERIENCE.md Component Patterns, level-select-row).</p>
+
+  <div class="anno-band">
+    <div class="anno-zone" style="--x0:6; --x1:13">
+      <ul class="anno-text">
+        <li><code>level-select-row</code> × 3: name (<code>ui-lg</code>), best time (<code>numeric-md</code>, <code>text-muted</code>, tabular), three bell slots</li>
+        <li>Bells show the union across all runs: filled = found (<code>text-primary</code>), outline = not found (<code>text-muted</code>)</li>
+        <li>Emberwood focused: <code>surface-focus</code> fill and <code>focus-ring</code> ring · "Back" is a <code>menu-item</code> and goes to the title</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="panel level-select">
+      <div class="panel-group level-list">
+        <button class="level-select-row is-focused" type="button">
+          <span class="name">Emberwood</span>
+          <span class="time">7:48.3</span>
+          <span class="bells">
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+            <svg class="bell is-missing" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+          </span>
+        </button>
+        <button class="level-select-row" type="button">
+          <span class="name">The Drowned Mill</span>
+          <span class="time">8:31.0</span>
+          <span class="bells">
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+          </span>
+        </button>
+        <button class="level-select-row" type="button">
+          <span class="name">Harrowmere ruins</span>
+          <span class="time">9:05.7</span>
+          <span class="bells">
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+          </span>
+        </button>
+      </div>
+      <div class="panel-group">
+        <button class="menu-item" type="button">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <ol class="anno-notes">
+    <li>Placeholder data: 8:31.0 and 9:05.7 are illustrative. Emberwood's best, 7:48.3, reuses the first-play time from key-results.html.</li>
+    <li>No panel heading and no locked rows: Voice and Tone lists no level-select title, and nothing locked is ever listed. The ground is <code>surface-screen</code>, because the title backdrop is still open.</li>
+    <li class="muted">Spine refs: DESIGN.md Components level-select-row, menu-item, panel; EXPERIENCE.md Component Patterns level-select-row, State Patterns Every menu / Focus, Key Flow Ines 1.</li>
+  </ol>
+</section>
+
+<!-- ===================== B: all 9 bells ===================== -->
+<section class="sheet">
+  <h2>B · After the ninth bell: all-bells row added (Ines, step 8)</h2>
+  <p class="sub">Returned from the all-bells card after the replay results. Focus is on the level just played. EXPERIENCE.md State Patterns: Level select / All 9 bells found.</p>
+
+  <div class="anno-band">
+    <div class="anno-zone" style="--x0:6; --x1:13">
+      <ul class="anno-text">
+        <li>Emberwood: three filled bells and the new best, 6:52.4 (the replay results value; no tag here)</li>
+        <li>"All-bells card": rewatch variant of <code>level-select-row</code>, label only, set apart by <code>{spacing.5}</code></li>
+        <li>Confirming it plays the all-bells card, which returns here; Back skips it</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="panel level-select">
+      <div class="panel-group level-list">
+        <button class="level-select-row is-focused" type="button">
+          <span class="name">Emberwood</span>
+          <span class="time">6:52.4</span>
+          <span class="bells">
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+          </span>
+        </button>
+        <button class="level-select-row" type="button">
+          <span class="name">The Drowned Mill</span>
+          <span class="time">8:31.0</span>
+          <span class="bells">
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+          </span>
+        </button>
+        <button class="level-select-row" type="button">
+          <span class="name">Harrowmere ruins</span>
+          <span class="time">9:05.7</span>
+          <span class="bells">
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+            <svg class="bell is-found" viewBox="0 0 24 24"><use href="#i-bell"/></svg>
+          </span>
+        </button>
+      </div>
+      <div class="panel-group">
+        <button class="level-select-row is-rewatch" type="button"><span class="name">All-bells card</span></button>
+      </div>
+      <div class="panel-group">
+        <button class="menu-item" type="button">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <ol class="anno-notes">
+    <li>Order chosen: level rows, then the "All-bells card" row, then Back. The spine places the rewatch row "at the bottom" and does not say where Back goes relative to it. Back is set apart by <code>{spacing.5}</code> in both frames.</li>
+    <li class="muted">Spine refs: DESIGN.md Components level-select-row (rewatch variant); EXPERIENCE.md Component Patterns level-select-row, State Patterns Level select / All 9 bells found, Key Flow Ines 8.</li>
+  </ol>
+</section>
+
+</body>
+</html>

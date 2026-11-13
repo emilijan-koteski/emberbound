@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UX Design Validation: Emberbound</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --muted: #78716c;
+
+    --verdict-strong: #16a34a;
+    --verdict-adequate: #65a30d;
+    --verdict-thin: #d97706;
+    --verdict-broken: #dc2626;
+
+    --sev-low: #64748b;
+    --sev-medium: #ca8a04;
+    --sev-high: #ea580c;
+    --sev-critical: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  header.report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .title h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .title .subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+  .synthesis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--muted);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 15.5px;
+  }
+  .synthesis p { margin: 0 0 10px; }
+  .synthesis p:last-child { margin-bottom: 0; }
+
+  .dimension-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .dim-card .dim-name { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .dim-card .dim-verdict { font-size: 14px; font-weight: 600; }
+
+  section.dimension, section.reviewer-section { margin-bottom: 14px; }
+  section.dimension details, section.reviewer-section details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  section summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  section summary::-webkit-details-marker { display: none; }
+  section summary::before {
+    content: "▸";
+    display: inline-block;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
+  section details[open] summary::before { transform: rotate(90deg); }
+  section summary h2 {
+    display: inline;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    flex: 1;
+  }
+  .verdict-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: white;
+  }
+  .verdict-strong { background: var(--verdict-strong); }
+  .verdict-adequate { background: var(--verdict-adequate); }
+  .verdict-thin { background: var(--verdict-thin); }
+  .verdict-broken { background: var(--verdict-broken); }
+
+  .dim-body { padding: 4px 20px 18px; }
+  .dim-judgment { color: var(--text); font-size: 14.5px; }
+  .dim-judgment p { margin: 0 0 10px; }
+
+  .findings-list { padding: 0 20px 4px; }
+  article.finding {
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  article.finding:first-child { border-top: none; }
+  article.finding header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .badge {
+    font-size: 10.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .badge-sev-low { background: rgba(100, 116, 139, 0.12); color: var(--sev-low); }
+  .badge-sev-medium { background: rgba(202, 138, 4, 0.14); color: var(--sev-medium); }
+  .badge-sev-high { background: rgba(234, 88, 12, 0.14); color: var(--sev-high); }
+  .badge-sev-critical { background: rgba(220, 38, 38, 0.14); color: var(--sev-critical); }
+  .finding-title { margin: 0; font-size: 15px; font-weight: 500; flex: 1; min-width: 200px; }
+  .finding-location { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--muted); }
+  .finding-note, .finding-fix { margin-top: 6px; font-size: 14px; }
+  .finding-fix strong { color: var(--muted); font-weight: 500; }
+
+  .reviewer-source {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .mechanical {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+  .mechanical h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .mechanical ul { margin: 0; padding-left: 20px; }
+  .mechanical li { margin-bottom: 4px; color: var(--text); }
+
+  footer.report-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  footer .meta { display: flex; gap: 24px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header class="report-header">
+      <div class="title">
+        <h1>Emberbound — UX Design Validation Report</h1>
+        <div class="subtitle">/mnt/data/Projects/personal/emberbound/_bmad-output/planning-artifacts/ux-designs/ux-emberbound-2026-11-13/DESIGN.md · EXPERIENCE.md</div>
+      </div>
+    </header>
+    <div class="synthesis">
+      <p>The pair works as a contract. Every <code>{token}</code> reference resolves. All 16 colours carry a provisional hex, a role and a "never used for" rule, and the contrast table recomputes correctly. The 22 component names are identical across the DESIGN frontmatter, DESIGN.Components and EXPERIENCE.Component Patterns, and 44 of 47 spot-checked citations are exact.</p>
+      <p>One gap has high downstream impact. The D1 deferral has a clean replacement rule, but no owner: Epic 0's style-guide scope does not include overlay colours or typefaces, and the spine's "replace at Epic 0" conflicts with its own "Epic 1 grey-box HUD". The medium gaps are: no UI timing values, pause and visibility behaviour outside plain play, the mute indicator's visibility, a component-to-architecture-module mapping that is claimed but missing, and journeys that never reach Settings, the confirm dialog or the Level 3 ending. Only the rubric walker ran (F7), so this synthesis is that lens alone.</p>
+    </div>
+    <div class="dimension-summary">
+      <div class="dim-card">
+        <div class="dim-name">Flow coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Token completeness</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Component coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-strong)">strong</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">State coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Visual reference coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-thin)">thin</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Bloat &amp; overspecification</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Inheritance discipline</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Shape fit</div>
+        <div class="dim-verdict" style="color: var(--verdict-strong)">strong</div>
+      </div>
+    </div>
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>1. Flow coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>The sources name no player journeys (D20: drafted by the facilitator), so I checked the three flows against the IA surfaces and the Epic 6 session-flow requirements. Marta, Tomás and Ines each have a named protagonist, numbered steps and a bold climax; Marta and Tomás have failure paths. The steps agree with the IA, the Mermaid chart and the State Patterns. The gap is reach: five surfaces and the Level 3 ending have no journey.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Five surfaces and the Level 3 ending have no journey</h3>
+              <span class="finding-location">EXPERIENCE.md Key Flows, 283-326</span>
+            </header>
+            <div class="finding-note">No flow lands on Settings, the confirm dialog, the device note, either error panel, or the Level 3 first-play ending (held beat → closing card → all-bells card if earned → results → title, after which Continue opens the level select). That ending is the most order-sensitive sequence and the only results → title path. Settings carries the reduced-motion toggle, whose scope is non-obvious (D17).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a fourth flow ending at the fallen bell in Harrowmere. Fold Pause → Settings → Reduced motion and a Restart confirm into an existing flow or a short fifth one.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Ines's flow has no failure path</h3>
+              <span class="finding-location">EXPERIENCE.md:315-326</span>
+            </header>
+            <div class="finding-note">The replay journey has no branch for missing the bell.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add one line: she reaches the arch without it, results read "Bells 2 of 3", no card plays, and she is back at the level select.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>2. Token completeness</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>All 45 <code>{path}</code> references resolve. All 16 colours have hex, and every contrast row recomputes correctly (WCAG 2.x; scrim over white = #4A4B4D). The D1 roles, replacement rule and contrast targets are clean. What is missing: an owner and timeline for the replacement, overlay timing values, a non-duplicated <code>--tile</code> source, and targets for text drawn over art.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">D1 replacement has no owner and a contradictory timeline</h3>
+              <span class="finding-location">DESIGN.md:12-15, 96, 100; epics.md:37-44; EXPERIENCE.md:336</span>
+            </header>
+            <div class="finding-note">DESIGN says "replace from STYLE_GUIDE.md at Epic 0" but also calls the values "a placeholder for the Epic 1 grey-box HUD". Epic 0 comes before Epic 1, so both cannot hold. Epic 0's STYLE_GUIDE scope has no overlay colour roles, UI typefaces or font licence and budget check, and Notes for epics carries only F5. As written, no story picks the three faces or re-measures the contrast table, and Epic 3's "final HUD" (epics.md:191) has no trigger to swap values.</div>
+            <div class="finding-fix"><strong>Fix:</strong> State the lifecycle once in DESIGN.md Colors. Epic 0 picks values for the 16 roles and the 3 faces (OFL, ≤ 0.3 MB) and records the re-measured ratios. DESIGN.md is updated through <code>gds-ux</code> Update at Epic 0 exit. The Epic 1 grey box may stay grey. Epic 3's final HUD must use the new values. Add a [NOTE FOR EPICS] to extend Epic 0's STYLE_GUIDE list through <code>gds-correct-course</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">No overlay timing values</h3>
+              <span class="finding-location">DESIGN.md Components; EXPERIENCE.md:196</span>
+            </header>
+            <div class="finding-note">Seven DESIGN component state lists include fading states. The HUD fades on <code>storyStarted</code>, the toast and advance hint fade, and screens change "by fades only". None of these has a duration, so each UI story will invent its own.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a provisional UI timing table named <code>…Seconds</code> (game-architecture.md:1142), for example <code>screenFadeSeconds</code>, <code>panelFadeSeconds</code>, <code>hudFadeSeconds</code>, <code>toastFadeSeconds</code>, <code>hintFadeSeconds</code>, and name the <code>ui/</code> module that owns it.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title"><code>{spacing.tile}</code> duplicates the logical view in CSS</h3>
+              <span class="finding-location">DESIGN.md:47, 105, 157</span>
+            </header>
+            <div class="finding-note"><code>min(100vw / 19, 100vh / 10.4)</code> hard-codes the simulation's logical-view constants and the renderer's framing. DESIGN admits the Epic 0 camera may add margin, but <code>ui/</code> cannot import <code>render/</code>, so the corrected value has no route into the overlay.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Have <code>ui/overlay.ts</code> set <code>--tile</code> from the logical-view values in <code>sim/config.ts</code> (an allowed import, game-architecture.md:1174) or from a framing value in app state. Add this to the Notes for architecture.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Text over art has no target and contradicts the Do's row</h3>
+              <span class="finding-location">DESIGN.md:138, 189, 191, 200, 218</span>
+            </header>
+            <div class="finding-note"><code>hud-bell-toast</code>, the <code>hud-warden-bar</code> label and unbanded <code>card-text</code> are <code>text-primary</code> straight over art, while the Do's row says text belongs on a panel, the screen ground or a scrim band. The HUD backing is checked "by eye" only.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add the HUD-text exception to the Do's row and a contrast row: <code>text-primary</code> vs its <code>hud-outline</code> ring ≥ 3:1 (16.2 provisional). Allow unbanded card text only where the look-dev page judgment passes.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Contrast table omits four passing load-bearing pairs</h3>
+              <span class="finding-location">DESIGN.md:128-136</span>
+            </header>
+            <div class="finding-note">Missing rows: the "New best" tag (<code>surface-panel</code> on <code>text-primary</code>, 14.9), <code>focus-ring</code> on <code>surface-screen</code> (9.8), the slider fill <code>text-muted</code> on <code>border-subtle</code> (4.5), and <code>text-primary</code> vs <code>hud-outline</code> (16.2).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add these rows so Epic 0 re-measures them.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">HUD shadow and ember glow have no values</h3>
+              <span class="finding-location">DESIGN.md:138, 187</span>
+            </header>
+            <div class="finding-note">The "soft shadow" and the full-meter glow have no size or opacity.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Give each a value in tile units, either as a token or in the prose.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">No token-to-CSS naming rule; 8-digit hex scrim</h3>
+              <span class="finding-location">DESIGN.md:18, 105</span>
+            </header>
+            <div class="finding-note">Only <code>--tile</code> is named. <code>surface-scrim</code> is <code>#0E0F11BF</code>, which some DESIGN.md tooling may reject.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add one line, for example "tokens emit as <code>--{group}-{name}</code>; 8-digit hex is intentional", or split the scrim into a colour plus an opacity.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>3. Component coverage</h2>
+          <span class="verdict-pill verdict-strong">strong</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>All 22 components appear with identical names, in the same order, in the DESIGN frontmatter, DESIGN.Components and EXPERIENCE.Component Patterns, each with real visual and behavioural rules tied to <code>SimEvent</code>s. Only small placement gaps remain.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Advance hint and wordmark under-placed</h3>
+              <span class="finding-location">EXPERIENCE.md:137; DESIGN.md:202-206</span>
+            </header>
+            <div class="finding-note">The advance hint's position ("lower right") lives only in EXPERIENCE, with no size or opacity in DESIGN <code>card-text</code>. The wordmark is used by four components with only a type token.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Move the hint placement into DESIGN <code>card-text</code>, and add one line on wordmark placement and size.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Device note "Try anyway" not reachable by gamepad</h3>
+              <span class="finding-location">EXPERIENCE.md:143</span>
+            </header>
+            <div class="finding-note">Lists click, tap and Enter only. This breaks D19: completable gamepad-only, all menus included.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add the south button.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>4. State coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>I walked all 17 IA surfaces. Boot, title, play, results, level select and settings are thorough: storage refused, corrupt save, audio locked, gamepad error and fullscreen refused are all covered. Gaps: pause and visibility during story moments, death and loading; the mute indicator's scope; focus on return; input guards on cards.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Pause and auto-pause outside plain play unspecified</h3>
+              <span class="finding-location">EXPERIENCE.md:169-170</span>
+            </header>
+            <div class="finding-note">Not covered: the seal break (14 s) and held beat, the 0.85 s death sequence, the pit fade, and the auto-advancing loading card. "Input ignored" during story moments leaves Esc, P and Start ambiguous. A hidden tab during the seal break would put the pause menu over a story moment with no HUD; a hidden tab during the loading card lets the level start unseen.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add State Patterns rows, for example "Esc / P / Start ignored during story moments; auto-pause still applies; Resume continues the moment" and "loading card holds until visible".</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Mute indicator visibility contradicts the HUD rules</h3>
+              <span class="finding-location">EXPERIENCE.md:127, 138, 212</span>
+            </header>
+            <div class="finding-note">Component Patterns: shown "on every surface after the gate except cards and in-level moments". HUD &amp; Diegetic UI: the HUD is hidden during cards and loading. The loading card accepts M, so feedback may be missing there. Whether it sits above or under the scrim, and which module owns it, is not stated. The log's D7 only says "top-right while M-mute is on".</div>
+            <div class="finding-fix"><strong>Fix:</strong> List its surfaces (menus, loading card, play; not cards or in-level moments), say it draws above the scrim, and give it to the overlay, not the HUD.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Focus on return unspecified</h3>
+              <span class="finding-location">EXPERIENCE.md:159, 174, 176</span>
+            </header>
+            <div class="finding-note">After Settings Back or Confirm Cancel, "default on the primary action" lands on Resume or Continue rather than the opener.</div>
+            <div class="finding-fix"><strong>Fix:</strong> State "focus returns to the item that opened it".</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Card-input guard ambiguous for Back and carried presses</h3>
+              <span class="finding-location">EXPERIENCE.md:137, 195; gdd.md:244</span>
+            </header>
+            <div class="finding-note">It is unclear whether Back is gated by the ~1.5 s minimum, or whether a press held from play counts. Gamepad east is both spit and Back, so spit-mashing at a Level 3 replay's closing card could skip both cards.</div>
+            <div class="finding-fix"><strong>Fix:</strong> "All card input, Back included, is ignored before the minimum; a press must begin after the screen appears."</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Menu hold-to-repeat unspecified</h3>
+              <span class="finding-location">EXPERIENCE.md Interaction Primitives</span>
+            </header>
+            <div class="finding-note">Behaviour of a held arrow or stick on lists and volume sliders is not stated.</div>
+            <div class="finding-fix"><strong>Fix:</strong> One line: either repeat after a delay or no repeat.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Results background after Level 3 undefined</h3>
+              <span class="finding-location">DESIGN.md:169</span>
+            </header>
+            <div class="finding-note">Level 3 results follow cards, not the world, yet the results scrim is "over the world".</div>
+            <div class="finding-fix"><strong>Fix:</strong> Name the ground for this case, for example the last card scene dimmed, or <code>surface-screen</code>.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+    <section class="dimension">
+      <details open>
+        <summary>
+          <h2>5. Visual reference coverage</h2>
+          <span class="verdict-pill verdict-thin">thin</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>There are no mockups, wireframes or imports yet. The spine says so and states once that the spines win on conflict. The F8 mocks (in-play HUD, results, level select) are being rendered and are not counted as critical. HUD geometry is prose only until they land.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">No visual reference for any surface</h3>
+              <span class="finding-location">EXPERIENCE.md:23; DESIGN.md:159</span>
+            </header>
+            <div class="finding-note">HUD geometry (cluster size, toast offset, warden bar and label) is prose only. The F8 mocks are pending and their absence is not critical.</div>
+            <div class="finding-fix"><strong>Fix:</strong> When the F8 mocks are promoted, link them inline at DESIGN Layout &amp; Spacing (HUD anchors), DESIGN Components (<code>results-stat</code>, <code>level-select-row</code>) and the EXPERIENCE IA, each naming what it illustrates.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Spine-only surfaces not listed</h3>
+              <span class="finding-location">EXPERIENCE.md:23</span>
+            </header>
+            <div class="finding-note">F8 kept pause and confirm spine-only, but the spines do not record which surfaces are intentionally unmocked.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add one line under Foundation › Visual references.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>6. Bloat &amp; overspecification</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Both files are mostly load-bearing tables. Pixel values appear only as worked examples of <code>--tile</code>. Two sections restate upstream or log content.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Foundation restates architecture internals</h3>
+              <span class="finding-location">EXPERIENCE.md:20</span>
+            </header>
+            <div class="finding-note">Restates the read-only <code>World</code>, <code>AppCommand</code>, <code>playUiSound</code> and <code>PresentationSettings</code>.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Keep the citation and the behavioural delta only.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Open Questions section duplicates the log</h3>
+              <span class="finding-location">EXPERIENCE.md:328-346</span>
+            </header>
+            <div class="finding-note">Nineteen lines repeat the log's cross-artifact NOTE lists.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Keep only what a consumer must act on (the open assumption and the Epic 6 browser checks); leave the backlog in <code>.decision-log.md</code>.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>7. Inheritance discipline</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>I spot-checked 47 citations: 44 exact, 2 off by a line, 1 overclaim. Level names, approved vocabulary, the 12 <code>SimEvent</code> names and the architecture types are verbatim. Nothing contradicts <code>.decision-log.md</code>, though about ten small decisions are not yet logged. The component-to-module and class-name mapping claim does not hold.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Component names do not match architecture modules or class prefixes</h3>
+              <span class="finding-location">EXPERIENCE.md:21, 334; game-architecture.md:1062-1063, 1149</span>
+            </header>
+            <div class="finding-note">The claimed match with "screen-prefixed CSS class names" is false for 12 of 22 components. The architecture has no screen module for boot loading, the loading card, the confirm dialog or shared widgets. <code>error-panel</code> maps to <code>levelError.ts</code>, but the retry panel also serves boot. None of this is in the Notes for architecture.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a "module / class prefix" column, or exempt shared widgets (for example a <code>ui-</code> prefix). Add a [NOTE FOR ARCHITECTURE] for the boot, loading-card and confirm modules.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Citation drift</h3>
+              <span class="finding-location">DESIGN.md:150; EXPERIENCE.md:334</span>
+            </header>
+            <div class="finding-note">game-architecture.md:531 is the story-card budget; fonts are at :536 (the same error is in log D3). :134 is a heading; the content is at :135.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Correct the line numbers.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">"Loading card" vs "level-line card"</h3>
+              <span class="finding-location">EXPERIENCE.md Foundation</span>
+            </header>
+            <div class="finding-note">The architecture names the same thing the "level-line card" and the "Level loading" state (game-architecture.md:367, 453, 513).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a one-line alias.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">IA, Mermaid and prose disagree on two edges</h3>
+              <span class="finding-location">EXPERIENCE.md:34, 43, 58-59, 92, 95</span>
+            </header>
+            <div class="finding-note">The chart lacks "Continue when everything is finished → Level select". <code>errRetry</code> only returns to <code>loading</code>, though the boot load is also retried. The IA "Loading card" row omits Intro cards and Retry.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add <code>titleMenu --&gt;|"Continue, all finished"| levelSelect</code> and <code>errRetry --&gt;|"Retry, boot"| boot</code>, and extend the IA row.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Open [ASSUMPTION] presented as fact</h3>
+              <span class="finding-location">EXPERIENCE.md:138, 320</span>
+            </header>
+            <div class="finding-note">The replay loading card showing the name only is still open in the log, yet Ines step 2 states it as settled.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Resolve it before <code>status: final</code>, or mark the step as an assumption.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Decisions in the spines not in the log</h3>
+              <span class="finding-location">EXPERIENCE.md:127, 133, 137, 141, 193, 221, 260; DESIGN.md:161, 165-172, 180</span>
+            </header>
+            <div class="finding-note">Back resumes from pause and does nothing on the title menu. Esc means Back on screens opened from pause. The mute indicator's scope. The gamepad notice also on the title menu. Fullscreen not saved. The hint at the lower right. The stacking order. Card-text placement on the sample card. The comic ink-outline rule. A stick sets the last device. "Animate only opacity and transform". None contradicts the log.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Log them at the next Update.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>8. Shape fit</h2>
+          <span class="verdict-pill verdict-strong">strong</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>DESIGN.md has all eight canonical sections in order. EXPERIENCE.md has every required default plus the triggered game sections and Inspiration &amp; Anti-patterns. Browser Constraints earns its place; Open Questions &amp; Notes for GDD only partly does (see Bloat).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding"><div class="finding-note">No findings beyond those listed under Bloat &amp; overspecification.</div></article>
+        </div>
+      </details>
+    </section>
+    <div class="mechanical">
+      <h3>Mechanical notes</h3>
+      <ul>
+        <li>Token references: 45 (DESIGN 43, EXPERIENCE 2), all resolved. <code>spacing.2</code> and <code>spacing.3</code> are unreferenced, but the prose range "<code>{spacing.1}</code> to <code>{spacing.6}</code>" covers them.</li>
+        <li>Colours: 16, all hex. Contrast rows recomputed (WCAG 2.x); all match the stated ratios to rounding.</li>
+        <li>Component names: 22, identical and in the same order in DESIGN frontmatter, DESIGN.Components and EXPERIENCE.Component Patterns.</li>
+        <li>Mermaid (EXPERIENCE.md:49-93): valid <code>flowchart TD</code>. Labels are quoted, <code>--&gt;|"…"|</code> and <code>-.-&gt;|"…"|</code> edges are valid, and no reserved-word ids are used. Two edge gaps against the IA are listed under Inheritance.</li>
+        <li>IA, Mermaid and State Patterns otherwise agree. Every IA surface has a State Patterns row, its own or shared.</li>
+        <li>Citations: 47 checked; 44 exact, 2 off by a line, 1 overclaim.</li>
+        <li>Frontmatter: both files are <code>status: draft</code> and <code>updated: 2026-11-13</code>; <code>sources</code> resolve.</li>
+        <li>Decision log: no contradictions. One [ASSUMPTION] is open (the replay loading card).</li>
+        <li>Visual references: <code>imports/</code> is empty, and there is no <code>mockups/</code> or <code>wireframes/</code>. "Spines win on conflict" is stated once (EXPERIENCE.md:23).</li>
+      </ul>
+    </div>
+    <footer class="report-footer">
+      <div class="meta">
+        <span>Rubric: /mnt/data/Projects/personal/emberbound/.claude/skills/gds-ux/references/validate.md</span>
+        <span>Reviewer file: /mnt/data/Projects/personal/emberbound/_bmad-output/planning-artifacts/ux-designs/ux-emberbound-2026-11-13/review-rubric.md</span>
+        <span>Generated: 2026-11-13</span>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

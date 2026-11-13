@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Key screen: in-play HUD</title>
+<style>
+/*
+  key-hud.html: in-play HUD at 1280 x 720 (itch.io embed, Q9). Layout reference only.
+
+  Governing spine sections
+    DESIGN.md
+      - Colors: provisional tokens; "HUD backing treatment" (hud-outline ring + soft shadow, opaque hud-track, no plate)
+      - Typography: ui-sm (toast, warden label)
+      - Layout & Spacing: the tile unit, safe margin, HUD anchors
+      - Shapes: HUD icons as single-colour silhouettes; rounded.none on HUD bars
+      - Components: hud-hearts, hud-ember-meter, hud-weapon-timer, hud-bell-toast, hud-mute-indicator, hud-warden-bar
+      - Do's and Don'ts: no plates, vignettes or edge tints; ember only for embers
+    EXPERIENCE.md
+      - HUD & Diegetic UI (priority table, top band, absent-by-design list)
+      - Component Patterns: hud-hearts, hud-ember-meter, hud-weapon-timer, hud-bell-toast, hud-mute-indicator, hud-warden-bar
+      - State Patterns: Playing / Normal, Low health, Weapon running out, Full meter full hearts
+      - Voice and Tone: HUD strings ("Bell 2 of 3", "The Warden")
+      - Responsive & Platform: itch.io embed 1280 x 720
+      - Key Flows: Marta 5-6; Tomas 2-5; Ines 4-5
+    .decision-log.md: D1, D2, D4, D5, D6, D7, F1, F2
+
+  Token mapping: --c-* = DESIGN.md colors, --s-* = spacing, --t-* = typography sizes.
+  {spacing.tile} is min(100vw / 19, 100vh / 10.4); each 1280 x 720 frame stands in for the viewport,
+  so --vw / --vh are the frame size, not the page size.
+  --w-* = placeholder world greys and --anno-* = annotation chrome; neither is a product token.
+*/
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  --anno-ground: #E4E5E7; --anno-ink: #1F2023; --anno-muted: #55585E; --anno-rule: #7A7D83;
+  background: var(--anno-ground); color: var(--anno-ink);
+  font: 13px/1.45 system-ui, sans-serif;
+  padding: 28px 40px 96px;
+  min-width: 1360px;
+}
+code { font-family: ui-monospace, monospace; font-size: 0.95em; }
+
+.mock-caption {
+  position: fixed; top: 10px; right: 12px; z-index: 10; margin: 0;
+  max-width: 300px; padding: 6px 8px;
+  font-size: 11px; line-height: 1.35; color: var(--anno-muted);
+  background: var(--anno-ground); border: 1px solid var(--anno-rule);
+}
+
+.page-head { width: 1280px; margin: 0 auto 8px; padding-right: 330px; }
+.page-head h1 { font-size: 18px; margin: 0 0 4px; }
+.page-head p { margin: 0; color: var(--anno-muted); }
+
+/* ---------- tokens: one sheet = one simulated 1280 x 720 viewport ---------- */
+.sheet {
+  --vw: 1280px; --vh: 720px;
+  --tile: min(var(--vw) / 19, var(--vh) / 10.4);           /* {spacing.tile}, 67.4 px here */
+
+  --c-surface-screen: #0E0F11; --c-surface-scrim: #0E0F11BF; --c-surface-panel: #18191C;
+  --c-surface-focus: #2B2E33; --c-border-subtle: #3A3D43; --c-text-primary: #ECECEC;
+  --c-text-muted: #A3A6AB; --c-focus-ring: #AEBBC9; --c-hud-outline: #0E0F11; --c-hud-track: #232529;
+  --c-heart-fill: #E6E6E6; --c-heart-empty: #8E9196; --c-ember: #E8902E; --c-weapon-timer: #C8CED6;
+  --c-warden-bar: #A9B3BD; --c-warning: #FFFFFF;
+
+  --s-1: calc(var(--tile) * 0.05); --s-2: calc(var(--tile) * 0.1); --s-3: calc(var(--tile) * 0.15);
+  --s-4: calc(var(--tile) * 0.25); --s-5: calc(var(--tile) * 0.4); --s-6: calc(var(--tile) * 0.6);
+  --s-safe-margin: calc(var(--tile) * 0.25);
+  --s-hud-icon: calc(var(--tile) * 0.34);
+  --s-hud-icon-sm: calc(var(--tile) * 0.24);
+  --s-hud-bar-length: calc(var(--tile) * 1.12);
+  --s-hud-bar-thickness: max(4px, calc(var(--tile) * 0.09));
+  --s-hud-outline: max(1.5px, calc(var(--tile) * 0.02));
+  --s-bar-long: calc(var(--tile) * 6);
+  --s-focus-ring: max(2px, calc(var(--tile) * 0.03));
+  --s-menu-item-height: max(36px, calc(var(--tile) * 0.5));
+  --s-panel-width: min(calc(var(--vw) * 0.9), calc(var(--tile) * 7));
+  --r-sm: max(2px, calc(var(--tile) * 0.04));
+
+  --t-ui-lg: max(16px, calc(var(--tile) * 0.28));
+  --t-ui-md: max(14px, calc(var(--tile) * 0.22));
+  --t-ui-sm: max(13px, calc(var(--tile) * 0.18));
+  --t-numeric-lg: max(18px, calc(var(--tile) * 0.36));
+  --t-numeric-md: max(14px, calc(var(--tile) * 0.22));
+
+  /* HUD backing treatment (DESIGN.md Colors). Soft-shadow blur not specified: {spacing.1} chosen. */
+  --hud-soft: var(--s-1);
+  --hud-ring:
+    0 0 0 var(--s-hud-outline) var(--c-hud-outline),
+    0 0 var(--hud-soft) var(--s-hud-outline) var(--c-hud-outline);
+  --hud-text-ring:
+    var(--s-hud-outline) 0 0 var(--c-hud-outline),
+    calc(-1 * var(--s-hud-outline)) 0 0 var(--c-hud-outline),
+    0 var(--s-hud-outline) 0 var(--c-hud-outline),
+    0 calc(-1 * var(--s-hud-outline)) 0 var(--c-hud-outline),
+    calc(0.7071 * var(--s-hud-outline)) calc(0.7071 * var(--s-hud-outline)) 0 var(--c-hud-outline),
+    calc(-0.7071 * var(--s-hud-outline)) calc(0.7071 * var(--s-hud-outline)) 0 var(--c-hud-outline),
+    calc(0.7071 * var(--s-hud-outline)) calc(-0.7071 * var(--s-hud-outline)) 0 var(--c-hud-outline),
+    calc(-0.7071 * var(--s-hud-outline)) calc(-0.7071 * var(--s-hud-outline)) 0 var(--c-hud-outline),
+    0 0 var(--hud-soft) var(--c-hud-outline);
+
+  /* placeholder world greys (not product tokens) */
+  --w-sky: #303236; --w-far: #383B3F; --w-plat: #4B4E53; --w-plat-top: #5F6369;
+  --w-ground: #3C3F44; --w-ground-top: #555960; --w-rowan: #9A9EA3; --w-dark: #1D1E21;
+  --w-door: #3A3D42; --w-wheel: #35373B;
+  --w-bright: #D7D9DC; --w-bright-2: #B3B6BA; --w-bright-3: #EEF0F1; --w-bright-4: #9FA3A8;
+
+  width: 1280px; margin: 40px auto 0;
+}
+.sheet h2 { font-size: 15px; margin: 0 0 2px; }
+.sheet > .sub { margin: 0 0 6px; color: var(--anno-muted); }
+
+/* ---------- annotation band above the frame (outside it) ---------- */
+.anno-band { position: relative; height: 104px; font-size: 12px; line-height: 1.35; }
+.anno-zone {
+  position: absolute; bottom: 0; height: 8px;
+  left: calc(var(--x0) * var(--tile)); width: calc((var(--x1) - var(--x0)) * var(--tile));
+  border: 1px solid var(--anno-rule); border-top: 0;
+}
+.anno-text { position: absolute; bottom: 14px; width: 420px; margin: 0; padding: 0; list-style: none; }
+.anno-zone.is-left .anno-text { left: 0; }
+.anno-zone.is-centre .anno-text { left: 50%; transform: translateX(-50%); text-align: center; width: 370px; }
+.anno-zone.is-right .anno-text { right: 0; text-align: right; width: 300px; }
+.anno-text li + li { margin-top: 2px; }
+.anno-text .absent { color: var(--anno-muted); }
+
+/* ---------- the frame: exactly 1280 x 720 ---------- */
+.frame {
+  position: relative; width: 1280px; height: 720px; overflow: hidden;
+  outline: 1px solid var(--anno-rule);
+  background: var(--w-sky);
+  font-family: system-ui, sans-serif;
+}
+.ruler {
+  margin-top: 6px; height: 8px; width: 1280px;
+  background: repeating-linear-gradient(90deg, var(--anno-rule) 0 1px, transparent 1px var(--tile));
+  border-top: 1px solid var(--anno-rule);
+}
+.anno-notes { margin: 6px 0 0; padding-left: 18px; max-width: 1280px; color: var(--anno-ink); }
+.anno-notes li { margin-top: 3px; }
+.anno-notes .muted { color: var(--anno-muted); }
+
+/* ---------- placeholder world: the 19 x 10.4-tile play box, centred ---------- */
+.world {
+  position: absolute; left: 0; top: calc((var(--vh) - var(--tile) * 10.4) / 2);
+  width: calc(var(--tile) * 19); height: calc(var(--tile) * 10.4);
+}
+.w {
+  position: absolute; display: block;
+  left: calc(var(--x) * var(--tile)); top: calc(var(--y) * var(--tile));
+  width: calc(var(--w) * var(--tile)); height: calc(var(--h) * var(--tile));
+}
+.w-far { background: var(--w-far); }
+.w-plat { background: var(--w-plat); box-shadow: inset 0 calc(var(--tile) * 0.08) 0 var(--w-plat-top); }
+.w-ground { background: var(--w-ground); box-shadow: inset 0 calc(var(--tile) * 0.08) 0 var(--w-ground-top); }
+.w-rowan { background: var(--w-rowan); border-radius: calc(var(--tile) * 0.2) calc(var(--tile) * 0.2) 0 0; }
+.w-dark { background: var(--w-dark); }
+.w-door { background: var(--w-door); }
+.w-wheel { background: var(--w-wheel); border-radius: 50%; }
+/* bright, busy test region: HUD backing must hold over it */
+.w-bright {
+  background: repeating-linear-gradient(90deg,
+    var(--w-bright) 0 11px, var(--w-bright-2) 11px 15px, var(--w-bright-3) 15px 24px,
+    var(--w-bright-4) 24px 27px, var(--w-bright) 27px 33px, var(--w-bright-3) 33px 38px);
+}
+.w-bright.is-diagonal {
+  background: repeating-linear-gradient(115deg,
+    var(--w-bright) 0 12px, var(--w-bright-2) 12px 16px, var(--w-bright-3) 16px 27px,
+    var(--w-bright-4) 27px 30px, var(--w-bright-3) 30px 36px);
+}
+
+/* ---------- HUD layer ---------- */
+.hud { position: absolute; inset: 0; pointer-events: none; }
+
+.icon { display: block; overflow: visible; filter: drop-shadow(0 0 var(--hud-soft) var(--c-hud-outline)); }
+.icon .ring {
+  fill: var(--c-hud-outline); stroke: var(--c-hud-outline);
+  stroke-width: calc(var(--glyph-w, 0px) + 2 * var(--s-hud-outline));
+  stroke-linejoin: round; stroke-linecap: round;
+}
+.icon .body {
+  fill: var(--glyph-fill); stroke: var(--glyph-stroke, var(--glyph-fill));
+  stroke-width: var(--glyph-w, 0px); stroke-linejoin: round; stroke-linecap: round;
+}
+
+/* top-left cluster (D4): hearts, meter under them, weapon timer right of the meter, toast right of the hearts */
+.hud-cluster { position: absolute; left: var(--s-safe-margin); top: var(--s-safe-margin); }
+
+.hud-hearts { display: flex; gap: var(--s-1); }
+.hud-heart { width: var(--s-hud-icon); height: var(--s-hud-icon); --glyph-fill: var(--c-heart-fill); }
+/* lost: outline in heart-empty around a hud-track interior. Stroke width not specified: 2 px chosen. */
+.hud-heart.is-lost { --glyph-fill: var(--c-hud-track); --glyph-stroke: var(--c-heart-empty); --glyph-w: 2px; }
+
+.hud-ember-meter, .hud-weapon-timer .track, .hud-warden-bar .track {
+  position: relative; height: var(--s-hud-bar-thickness);
+  background: var(--c-hud-track); box-shadow: var(--hud-ring); border-radius: 0;
+}
+.hud-ember-meter { margin-top: var(--s-2); width: var(--s-hud-bar-length); }
+.fill { position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--fill) * 100%); }
+.hud-ember-meter .fill { background: var(--c-ember); }
+/* full and waiting: steady soft ember glow. Glow radius not specified: {spacing.3} chosen. */
+.hud-ember-meter.is-waiting { box-shadow: var(--hud-ring), 0 0 var(--s-3) calc(var(--s-hud-outline) * 1.5) var(--c-ember); }
+
+.hud-weapon-timer {
+  position: absolute; display: flex; align-items: center; gap: var(--s-2);
+  left: calc(var(--s-hud-bar-length) + var(--s-4));
+  top: calc(var(--s-hud-icon) + var(--s-2) + var(--s-hud-bar-thickness) / 2);
+  transform: translateY(-50%);
+}
+.hud-weapon-timer .icon { width: var(--s-hud-icon-sm); height: var(--s-hud-icon-sm); --glyph-fill: var(--c-weapon-timer); }
+.hud-weapon-timer .track { width: var(--s-hud-bar-length); }
+.hud-weapon-timer .fill { background: var(--c-weapon-timer); }
+.hud-weapon-timer.is-warning .fill { background: var(--c-warning); }   /* blink "on" phase */
+
+.hud-bell-toast {
+  position: absolute; display: flex; align-items: center; gap: var(--s-2); white-space: nowrap;
+  left: calc(var(--s-hud-bar-length) + var(--s-4));
+  top: calc(var(--s-hud-icon) / 2); transform: translateY(-50%);
+  color: var(--c-text-primary); text-shadow: var(--hud-text-ring);
+  font-size: var(--t-ui-sm); font-weight: 500; line-height: 1.3; letter-spacing: 0.02em;
+}
+.hud-bell-toast .icon { width: var(--s-hud-icon-sm); height: var(--s-hud-icon-sm); --glyph-fill: var(--c-text-primary); }
+
+.hud-mute-indicator {
+  position: absolute; top: var(--s-safe-margin); right: var(--s-safe-margin);
+  width: var(--s-hud-icon); height: var(--s-hud-icon);
+  --glyph-fill: var(--c-text-primary); --glyph-w: 2px;
+}
+
+.hud-warden-bar {
+  position: absolute; top: var(--s-safe-margin); left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: var(--s-2);
+}
+.hud-warden-bar .label {
+  color: var(--c-text-primary); text-shadow: var(--hud-text-ring); white-space: nowrap;
+  font-size: var(--t-ui-sm); font-weight: 500; line-height: 1.3; letter-spacing: 0.02em;
+}
+.hud-warden-bar .track { width: var(--s-bar-long); }
+.hud-warden-bar .fill { background: var(--c-warden-bar); }
+/* notch at the half mark (15 of 30 HP). Notch width not specified: {spacing.hud-outline} chosen. */
+.hud-warden-bar .notch {
+  position: absolute; top: 0; bottom: 0; left: 50%; width: var(--s-hud-outline);
+  transform: translateX(-50%); background: var(--c-hud-outline);
+}
+
+/* state strip (outside any frame) */
+.state-strip { display: flex; gap: 24px; margin-top: 10px; }
+.swatch { position: relative; width: 300px; height: 96px; overflow: hidden; outline: 1px solid var(--anno-rule); background: var(--w-sky); }
+.swatch .w-bright { position: absolute; inset: 0; }
+.swatch-cap { margin: 4px 0 0; font-size: 12px; color: var(--anno-muted); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="i-heart" vector-effect="non-scaling-stroke"
+      d="M12 20.6 C10.2 19.3 2.6 14.2 2.6 8.7 C2.6 5.7 4.9 3.6 7.6 3.6 C9.5 3.6 11.1 4.6 12 6.2 C12.9 4.6 14.5 3.6 16.4 3.6 C19.1 3.6 21.4 5.7 21.4 8.7 C21.4 14.2 13.8 19.3 12 20.6 Z"/>
+    <g id="i-bell">
+      <rect x="10.6" y="1.9" width="2.8" height="2.4" vector-effect="non-scaling-stroke"/>
+      <path vector-effect="non-scaling-stroke"
+        d="M12 4 C8.4 4 6.6 6.6 6.6 10.1 V13.6 C6.6 15.3 5.4 16.6 4 17.4 V18.8 H20 V17.4 C18.6 16.6 17.4 15.3 17.4 13.6 V10.1 C17.4 6.6 15.6 4 12 4 Z"/>
+      <circle cx="12" cy="20.7" r="1.9" vector-effect="non-scaling-stroke"/>
+    </g>
+    <g id="i-triple">
+      <path vector-effect="non-scaling-stroke" transform="rotate(-22 -4 12)" d="M5 12 L16.6 9.8 A2.2 2.2 0 1 1 16.6 14.2 Z"/>
+      <path vector-effect="non-scaling-stroke" d="M5 12 L16.6 9.8 A2.2 2.2 0 1 1 16.6 14.2 Z"/>
+      <path vector-effect="non-scaling-stroke" transform="rotate(22 -4 12)" d="M5 12 L16.6 9.8 A2.2 2.2 0 1 1 16.6 14.2 Z"/>
+    </g>
+    <g id="i-speaker-off">
+      <path vector-effect="non-scaling-stroke" d="M3 9 H7 L12.5 4.5 V19.5 L7 15 H3 Z"/>
+      <path vector-effect="non-scaling-stroke" fill="none" d="M15.6 9.2 L20.8 14.4 M20.8 9.2 L15.6 14.4"/>
+    </g>
+  </defs>
+</svg>
+
+<p class="mock-caption">Layout reference — provisional greyscale tokens. Final look from STYLE_GUIDE.md at Epic 0.</p>
+
+<header class="page-head">
+  <h1>Key screen: in-play HUD, 1280 × 720 (itch.io embed)</h1>
+  <p>Two frames, each exactly 1280 × 720. Labels sit outside the frames. The world is a flat greyscale stand-in for the 19 × 10.4-tile play box. Striped pale blocks are the bright, busy backdrop test for the HUD backing.</p>
+</header>
+
+<!-- ===================== A: canonical ===================== -->
+<section class="sheet">
+  <h2>A · Canonical: Emberwood, mid-level, weapon active</h2>
+  <p class="sub">EXPERIENCE.md State Patterns: Playing / Normal. Top-left cluster only, nothing else persistent (D4).</p>
+
+  <div class="anno-band">
+    <div class="anno-zone is-left" style="--x0:0.25; --x1:3.08">
+      <ul class="anno-text">
+        <li><code>hud-hearts</code>: 2 of 3; the lost heart is a <code>heart-empty</code> outline on <code>hud-track</code></li>
+        <li><code>hud-ember-meter</code>: 31 of 50, by length; <code>ember</code> fill</li>
+        <li><code>hud-weapon-timer</code>: triple shot, 13 of 20 s, drains right to left</li>
+      </ul>
+    </div>
+    <div class="anno-zone is-centre" style="--x0:6.5; --x1:12.5">
+      <ul class="anno-text"><li class="absent">Top-centre empty: <code>hud-warden-bar</code> appears only from <code>arenaEntered</code></li></ul>
+    </div>
+    <div class="anno-zone is-right" style="--x0:18.41; --x1:18.75">
+      <ul class="anno-text"><li class="absent">Top-right empty: <code>hud-mute-indicator</code> shows only while muted</li></ul>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="world" aria-hidden="true">
+      <i class="w w-bright" style="--x:-0.3; --y:-0.4; --w:3.2; --h:2.7"></i>
+      <i class="w w-far" style="--x:4.2; --y:-0.4; --w:0.7; --h:9.2"></i>
+      <i class="w w-far" style="--x:8.1; --y:-0.4; --w:0.9; --h:9.2"></i>
+      <i class="w w-far" style="--x:12.6; --y:-0.4; --w:0.6; --h:9.2"></i>
+      <i class="w w-far" style="--x:16.8; --y:-0.4; --w:0.8; --h:9.2"></i>
+      <i class="w w-plat" style="--x:3.5; --y:6.2; --w:3; --h:0.45"></i>
+      <i class="w w-plat" style="--x:8.6; --y:4.7; --w:2.6; --h:0.45"></i>
+      <i class="w w-plat" style="--x:13.4; --y:6.5; --w:2.8; --h:0.45"></i>
+      <i class="w w-ground" style="--x:-0.3; --y:8.6; --w:19.6; --h:2.2"></i>
+      <i class="w w-rowan" style="--x:4.6; --y:5.05; --w:0.6; --h:1.15"></i>
+    </div>
+
+    <div class="hud">
+      <div class="hud-cluster">
+        <div class="hud-hearts">
+          <svg class="icon hud-heart" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+          <svg class="icon hud-heart" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+          <svg class="icon hud-heart is-lost" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+        </div>
+        <div class="hud-ember-meter" style="--fill:0.62"><span class="fill"></span></div>
+        <div class="hud-weapon-timer" style="--fill:0.65">
+          <svg class="icon" viewBox="0 0 24 24"><use href="#i-triple" class="ring"/><use href="#i-triple" class="body"/></svg>
+          <div class="track"><span class="fill"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ruler"></div>
+
+  <ol class="anno-notes">
+    <li>Tick marks under the frame are one tile apart (<code>--tile</code> = min(1280/19, 720/10.4) = 67.4 px). The cluster is about 2.8 × 0.6 tiles. DESIGN.md allows up to about 3 × 0.75.</li>
+    <li>Backdrop test: hearts, meter and weapon icon sit on the pale striped block. The right part of the weapon bar sits on the dark sky. There is no plate, only the <code>hud-outline</code> ring, a soft shadow and opaque tracks.</li>
+    <li class="muted">Spine refs: DESIGN.md Components (hud-hearts, hud-ember-meter, hud-weapon-timer), Layout &amp; Spacing (HUD anchors); EXPERIENCE.md HUD &amp; Diegetic UI, Key Flows Marta 5 and Tomás 2.</li>
+  </ol>
+</section>
+
+<!-- ===================== B: warden arena ===================== -->
+<section class="sheet">
+  <h2>B · Load-bearing alternate: The Drowned Mill, warden arena, phase 2</h2>
+  <p class="sub">EXPERIENCE.md State Patterns: Low health, Weapon running out; Key Flow Tomás 3–5. Every transient HUD element is visible at once.</p>
+
+  <div class="anno-band">
+    <div class="anno-zone is-left" style="--x0:0.25; --x1:3.08">
+      <ul class="anno-text">
+        <li><code>hud-hearts</code>: last heart; pulses by scale at ≤ 2 Hz, shown static here</li>
+        <li><code>hud-ember-meter</code>: 44 of 50, no glow (see note 1)</li>
+        <li><code>hud-weapon-timer</code>: warning at 3 s left; blinks ≤ 3 Hz with the sound; the <code>warning</code> phase is shown</li>
+        <li><code>hud-bell-toast</code>: "Bell 2 of 3", about 2 s, then fades</li>
+      </ul>
+    </div>
+    <div class="anno-zone is-centre" style="--x0:6.5; --x1:12.5">
+      <ul class="anno-text">
+        <li><code>hud-warden-bar</code>: phase 2, 11 of 30 HP, fill below the half notch</li>
+        <li class="absent">Label is the approved vocabulary; the given name is not shown</li>
+      </ul>
+    </div>
+    <div class="anno-zone is-right" style="--x0:18.41; --x1:18.75">
+      <ul class="anno-text"><li><code>hud-mute-indicator</code>: shown (M is on)</li></ul>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="world" aria-hidden="true">
+      <i class="w w-wheel" style="--x:10.2; --y:0.6; --w:7.2; --h:7.2"></i>
+      <i class="w w-bright is-diagonal" style="--x:8.6; --y:-0.4; --w:10.8; --h:2.9"></i>
+      <i class="w w-dark" style="--x:-0.3; --y:-0.4; --w:1.2; --h:11.2"></i>
+      <i class="w w-door" style="--x:0.9; --y:5.6; --w:0.45; --h:3"></i>
+      <i class="w w-dark" style="--x:18.2; --y:2.5; --w:1.1; --h:8.4"></i>
+      <i class="w w-plat" style="--x:5.4; --y:5.6; --w:2.4; --h:0.45"></i>
+      <i class="w w-ground" style="--x:-0.3; --y:8.6; --w:19.6; --h:2.2"></i>
+      <i class="w w-dark" style="--x:12.6; --y:4.5; --w:3; --h:4.1"></i>
+      <i class="w w-rowan" style="--x:4.4; --y:7.45; --w:0.6; --h:1.15"></i>
+    </div>
+
+    <div class="hud">
+      <div class="hud-cluster">
+        <div class="hud-hearts">
+          <svg class="icon hud-heart is-last" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+          <svg class="icon hud-heart is-lost" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+          <svg class="icon hud-heart is-lost" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+        </div>
+        <div class="hud-ember-meter" style="--fill:0.88"><span class="fill"></span></div>
+        <div class="hud-weapon-timer is-warning" style="--fill:0.15">
+          <svg class="icon" viewBox="0 0 24 24"><use href="#i-triple" class="ring"/><use href="#i-triple" class="body"/></svg>
+          <div class="track"><span class="fill"></span></div>
+        </div>
+        <div class="hud-bell-toast">
+          <svg class="icon" viewBox="0 0 24 24"><use href="#i-bell" class="ring"/><use href="#i-bell" class="body"/></svg>
+          <span>Bell 2 of 3</span>
+        </div>
+      </div>
+
+      <div class="hud-warden-bar">
+        <span class="label">The Warden</span>
+        <div class="track" style="--fill:0.37"><span class="fill"></span><span class="notch"></span></div>
+      </div>
+
+      <svg class="icon hud-mute-indicator" viewBox="0 0 24 24"><use href="#i-speaker-off" class="ring"/><use href="#i-speaker-off" class="body"/></svg>
+    </div>
+  </div>
+  <div class="ruler"></div>
+
+  <ol class="anno-notes">
+    <li><strong>Note 1, spine conflict:</strong> the brief asked for the meter "full and waiting" next to a single heart. EXPERIENCE.md allows the waiting glow only with full hearts (Component Patterns, hud-ember-meter; State Patterns, "Full meter, full hearts"). With hearts missing, a full meter transfers into a heart at once (Marta 6). Frame B therefore shows 44 of 50. The glow appears in the state strip below.</li>
+    <li>Backdrop test: the hearts sit on the dark wall. The warden label and bar cross from dark sky onto the pale diagonal block. The mute icon sits on the pale block. The arena floor stays clear of HUD (gdd.md:413).</li>
+    <li>This frame is a composite stress state: the toast lasts about 2 s, so all of these elements are rarely on screen together.</li>
+    <li class="muted">Spine refs: DESIGN.md Components (all six hud-* rows), Colors (HUD backing treatment); EXPERIENCE.md HUD &amp; Diegetic UI, Component Patterns hud-*, Game Feel &amp; Juice (pulse, blink), Key Flows Tomás 3–5, Ines 4.</li>
+  </ol>
+
+  <div class="state-strip" aria-label="Component state, not a screen">
+    <div>
+      <div class="swatch">
+        <div class="hud" style="position:absolute">
+          <div class="hud-cluster">
+            <div class="hud-hearts">
+              <svg class="icon hud-heart" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+              <svg class="icon hud-heart" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+              <svg class="icon hud-heart" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+            </div>
+            <div class="hud-ember-meter is-waiting" style="--fill:1"><span class="fill"></span></div>
+          </div>
+        </div>
+      </div>
+      <p class="swatch-cap">On a dark backdrop</p>
+    </div>
+    <div>
+      <div class="swatch">
+        <i class="w-bright"></i>
+        <div class="hud" style="position:absolute">
+          <div class="hud-cluster">
+            <div class="hud-hearts">
+              <svg class="icon hud-heart" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+              <svg class="icon hud-heart" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+              <svg class="icon hud-heart" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+            </div>
+            <div class="hud-ember-meter is-waiting" style="--fill:1"><span class="fill"></span></div>
+          </div>
+        </div>
+      </div>
+      <p class="swatch-cap">On the bright, busy backdrop</p>
+    </div>
+    <p class="swatch-cap" style="max-width:520px; margin-top:0">
+      <strong>State strip, a component state rather than a screen, shown at 1:1.</strong> <code>hud-ember-meter</code> full and waiting: three full hearts, meter at 50 of 50, a steady soft <code>ember</code> glow with no pulse. When the next heart is lost it refills at once through the transfer.
+    </p>
+  </div>
+</section>
+
+</body>
+</html>

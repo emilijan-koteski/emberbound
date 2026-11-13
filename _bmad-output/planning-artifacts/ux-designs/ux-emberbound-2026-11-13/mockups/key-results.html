@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Key screen: results</title>
+<style>
+/*
+  key-results.html: results screen over the dimmed world, 1280 x 720. Layout reference only.
+
+  Governing spine sections
+    DESIGN.md
+      - Colors: surface-scrim, surface-panel, border-subtle, surface-focus, focus-ring, text-primary, text-muted (provisional)
+      - Typography: ui-md (labels), numeric-lg (values, tabular), ui-sm (tag), ui-lg (menu item)
+      - Layout & Spacing: menus = one centred column in a panel of {spacing.panel-width}; menu-item-height
+      - Elevation & Depth: canvas -> HUD -> scrim -> panel; no drop shadows on panels
+      - Shapes: rounded.sm on panel, menu item and the "New best" tag
+      - Components: scrim, panel, results-stat, menu-item
+    EXPERIENCE.md
+      - Information Architecture: Results row
+      - Component Patterns: results-stat, menu-item, panel, scrim ("The HUD stays under it")
+      - State Patterns: Results / Stagger, first play, beaten best
+      - Voice and Tone: Results strings
+      - Interaction Primitives: Guards (two-press results screen)
+      - Key Flows: Marta step 8 (climax); Ines step 6
+    .decision-log.md: D11, D13; draft review ("Continue")
+
+  Token mapping: --c-* = DESIGN.md colors, --s-* = spacing, --t-* = typography sizes.
+  {spacing.tile} is min(100vw / 19, 100vh / 10.4); each frame stands in for the 1280 x 720 viewport.
+  --w-* = placeholder world greys and --anno-* = annotation chrome; neither is a product token.
+*/
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  --anno-ground: #E4E5E7; --anno-ink: #1F2023; --anno-muted: #55585E; --anno-rule: #7A7D83;
+  background: var(--anno-ground); color: var(--anno-ink);
+  font: 13px/1.45 system-ui, sans-serif;
+  padding: 28px 40px 96px; min-width: 1360px;
+}
+code { font-family: ui-monospace, monospace; font-size: 0.95em; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; }
+
+.mock-caption {
+  position: fixed; top: 10px; right: 12px; z-index: 10; margin: 0;
+  max-width: 300px; padding: 6px 8px;
+  font-size: 11px; line-height: 1.35; color: var(--anno-muted);
+  background: var(--anno-ground); border: 1px solid var(--anno-rule);
+}
+.page-head { width: 1280px; margin: 0 auto 8px; padding-right: 330px; }
+.page-head h1 { font-size: 18px; margin: 0 0 4px; }
+.page-head p { margin: 0; color: var(--anno-muted); }
+
+/* ---------- tokens ---------- */
+.sheet {
+  --vw: 1280px; --vh: 720px;
+  --tile: min(var(--vw) / 19, var(--vh) / 10.4);
+
+  --c-surface-screen: #0E0F11; --c-surface-scrim: #0E0F11BF; --c-surface-panel: #18191C;
+  --c-surface-focus: #2B2E33; --c-border-subtle: #3A3D43; --c-text-primary: #ECECEC;
+  --c-text-muted: #A3A6AB; --c-focus-ring: #AEBBC9; --c-hud-outline: #0E0F11; --c-hud-track: #232529;
+  --c-heart-fill: #E6E6E6; --c-heart-empty: #8E9196; --c-ember: #E8902E;
+
+  --s-1: calc(var(--tile) * 0.05); --s-2: calc(var(--tile) * 0.1); --s-3: calc(var(--tile) * 0.15);
+  --s-4: calc(var(--tile) * 0.25); --s-5: calc(var(--tile) * 0.4); --s-6: calc(var(--tile) * 0.6);
+  --s-safe-margin: calc(var(--tile) * 0.25);
+  --s-hud-icon: calc(var(--tile) * 0.34);
+  --s-hud-bar-length: calc(var(--tile) * 1.12);
+  --s-hud-bar-thickness: max(4px, calc(var(--tile) * 0.09));
+  --s-hud-outline: max(1.5px, calc(var(--tile) * 0.02));
+  --s-focus-ring: max(2px, calc(var(--tile) * 0.03));
+  --s-menu-item-height: max(36px, calc(var(--tile) * 0.5));
+  --s-panel-width: min(calc(var(--vw) * 0.9), calc(var(--tile) * 7));
+  --r-sm: max(2px, calc(var(--tile) * 0.04));
+
+  --t-ui-lg: max(16px, calc(var(--tile) * 0.28));
+  --t-ui-md: max(14px, calc(var(--tile) * 0.22));
+  --t-ui-sm: max(13px, calc(var(--tile) * 0.18));
+  --t-numeric-lg: max(18px, calc(var(--tile) * 0.36));
+
+  --hud-soft: var(--s-1);
+  --hud-ring: 0 0 0 var(--s-hud-outline) var(--c-hud-outline), 0 0 var(--hud-soft) var(--s-hud-outline) var(--c-hud-outline);
+
+  --w-sky: #303236; --w-far: #383B3F; --w-plat: #4B4E53; --w-plat-top: #5F6369;
+  --w-ground: #3C3F44; --w-ground-top: #555960; --w-rowan: #9A9EA3;
+  --w-bright: #D7D9DC; --w-bright-2: #B3B6BA; --w-bright-3: #EEF0F1; --w-bright-4: #9FA3A8;
+
+  width: 1280px; margin: 40px auto 0;
+}
+.sheet h2 { font-size: 15px; margin: 0 0 2px; }
+.sheet > .sub { margin: 0 0 6px; color: var(--anno-muted); }
+
+/* ---------- annotation band (outside the frame) ---------- */
+.anno-band { position: relative; height: 92px; font-size: 12px; line-height: 1.35; }
+.anno-zone {
+  position: absolute; bottom: 0; height: 8px;
+  left: calc(var(--x0) * var(--tile)); width: calc((var(--x1) - var(--x0)) * var(--tile));
+  border: 1px solid var(--anno-rule); border-top: 0;
+}
+.anno-text { position: absolute; bottom: 14px; margin: 0; padding: 0; list-style: none; }
+.anno-zone.is-left .anno-text { left: 0; width: 330px; }
+.anno-zone.is-centre .anno-text { left: 50%; transform: translateX(-50%); text-align: center; width: 680px; }
+.anno-text li + li { margin-top: 2px; }
+.anno-text .absent { color: var(--anno-muted); }
+.anno-notes { margin: 8px 0 0; padding-left: 18px; }
+.anno-notes li { margin-top: 3px; }
+.anno-notes .muted { color: var(--anno-muted); }
+
+/* ---------- frame: exactly 1280 x 720 ---------- */
+.frame {
+  position: relative; width: 1280px; height: 720px; overflow: hidden;
+  outline: 1px solid var(--anno-rule); background: var(--w-sky);
+  font-family: system-ui, sans-serif;
+}
+
+/* placeholder world: Emberwood, the garland arch at the wedding glade */
+.world { position: absolute; left: 0; top: calc((var(--vh) - var(--tile) * 10.4) / 2); width: calc(var(--tile) * 19); height: calc(var(--tile) * 10.4); }
+.w { position: absolute; display: block; left: calc(var(--x) * var(--tile)); top: calc(var(--y) * var(--tile)); width: calc(var(--w) * var(--tile)); height: calc(var(--h) * var(--tile)); }
+.w-far { background: var(--w-far); }
+.w-plat { background: var(--w-plat); box-shadow: inset 0 calc(var(--tile) * 0.08) 0 var(--w-plat-top); }
+.w-ground { background: var(--w-ground); box-shadow: inset 0 calc(var(--tile) * 0.08) 0 var(--w-ground-top); }
+.w-rowan { background: var(--w-rowan); border-radius: calc(var(--tile) * 0.2) calc(var(--tile) * 0.2) 0 0; }
+.w-arch { border: calc(var(--tile) * 0.35) solid var(--w-plat); border-bottom: 0; border-radius: 50% 50% 0 0 / 100% 100% 0 0; }
+.w-bright {
+  background: repeating-linear-gradient(90deg,
+    var(--w-bright) 0 11px, var(--w-bright-2) 11px 15px, var(--w-bright-3) 15px 24px,
+    var(--w-bright-4) 24px 27px, var(--w-bright) 27px 33px, var(--w-bright-3) 33px 38px);
+}
+
+/* HUD layer, under the scrim (EXPERIENCE.md scrim: "The HUD stays under it") */
+.hud { position: absolute; inset: 0; }
+.icon { display: block; overflow: visible; filter: drop-shadow(0 0 var(--hud-soft) var(--c-hud-outline)); }
+.icon .ring { fill: var(--c-hud-outline); stroke: var(--c-hud-outline); stroke-width: calc(2 * var(--s-hud-outline)); stroke-linejoin: round; }
+.icon .body { fill: var(--c-heart-fill); }
+.hud-cluster { position: absolute; left: var(--s-safe-margin); top: var(--s-safe-margin); }
+.hud-hearts { display: flex; gap: var(--s-1); }
+.hud-heart { width: var(--s-hud-icon); height: var(--s-hud-icon); }
+.hud-ember-meter { position: relative; margin-top: var(--s-2); width: var(--s-hud-bar-length); height: var(--s-hud-bar-thickness); background: var(--c-hud-track); box-shadow: var(--hud-ring); }
+.hud-ember-meter .fill { position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--fill) * 100%); background: var(--c-ember); }
+
+/* scrim + panel */
+.scrim { position: absolute; inset: 0; background: var(--c-surface-scrim); }
+.panel {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: var(--s-panel-width); padding: var(--s-5);
+  background: var(--c-surface-panel); border: 1px solid var(--c-border-subtle); border-radius: var(--r-sm);
+  color: var(--c-text-primary);
+}
+
+/* results-stat: label left (ui-md, muted), value right (numeric-lg, primary). Row gap not specified: {spacing.3}. */
+.results-stats { margin: 0; display: flex; flex-direction: column; gap: var(--s-3); }
+.results-stat { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-4); }
+.results-stat dt { font-size: var(--t-ui-md); font-weight: 400; line-height: 1.35; color: var(--c-text-muted); }
+.results-stat dd {
+  margin: 0; display: flex; align-items: center; gap: var(--s-2);
+  font-size: var(--t-numeric-lg); font-weight: 600; line-height: 1.2;
+  font-variant-numeric: tabular-nums; color: var(--c-text-primary);
+}
+/* "New best" tag after the clear time. Tag padding not specified: {spacing.1} x {spacing.2}. */
+.results-tag {
+  font-size: var(--t-ui-sm); font-weight: 500; line-height: 1.3; letter-spacing: 0.02em;
+  color: var(--c-surface-panel); background: var(--c-text-primary);
+  border-radius: var(--r-sm); padding: var(--s-1) var(--s-2);
+}
+
+/* menu-item */
+.menu-item {
+  display: flex; align-items: center; justify-content: center; width: 100%;
+  min-height: var(--s-menu-item-height); border-radius: var(--r-sm);
+  font-size: var(--t-ui-lg); font-weight: 500; line-height: 1.3; color: var(--c-text-primary);
+}
+.menu-item.is-focused { background: var(--c-surface-focus); outline: var(--s-focus-ring) solid var(--c-focus-ring); outline-offset: 0; }
+.results-actions { margin-top: var(--s-5); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="i-heart" vector-effect="non-scaling-stroke"
+      d="M12 20.6 C10.2 19.3 2.6 14.2 2.6 8.7 C2.6 5.7 4.9 3.6 7.6 3.6 C9.5 3.6 11.1 4.6 12 6.2 C12.9 4.6 14.5 3.6 16.4 3.6 C19.1 3.6 21.4 5.7 21.4 8.7 C21.4 14.2 13.8 19.3 12 20.6 Z"/>
+  </defs>
+</svg>
+
+<p class="mock-caption">Layout reference — provisional greyscale tokens. Final look from STYLE_GUIDE.md at Epic 0.</p>
+
+<header class="page-head">
+  <h1>Key screen: results, 1280 × 720</h1>
+  <p>Two frames, each exactly 1280 × 720. Labels sit outside the frames. Layer order: placeholder world, HUD, scrim, panel (DESIGN.md Elevation &amp; Depth).</p>
+</header>
+
+<!-- ===================== A: first play ===================== -->
+<section class="sheet">
+  <h2>A · First play: Emberwood (Marta, Key Flow step 8)</h2>
+  <p class="sub">EXPERIENCE.md State Patterns: Results / first play, no tag. The stagger has finished and Continue is focused.</p>
+
+  <div class="anno-band">
+    <div class="anno-zone is-left" style="--x0:0.25; --x1:1.37">
+      <ul class="anno-text">
+        <li class="absent">HUD stays under the scrim (dimmed)</li>
+      </ul>
+    </div>
+    <div class="anno-zone is-centre" style="--x0:6; --x1:13">
+      <ul class="anno-text">
+        <li><code>panel</code> at <code>{spacing.panel-width}</code> = 7 tiles · 4 × <code>results-stat</code> in order: clear time, bells, respawns, embers</li>
+        <li>"Respawns" uses the same type and colour as every other row, with no comment</li>
+        <li><code>menu-item</code> "Continue" focused: <code>surface-focus</code> fill and <code>focus-ring</code> ring</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="world" aria-hidden="true">
+      <i class="w w-bright" style="--x:9.6; --y:-0.4; --w:9.8; --h:4.4"></i>
+      <i class="w w-far" style="--x:2.1; --y:-0.4; --w:0.8; --h:9.2"></i>
+      <i class="w w-far" style="--x:5.6; --y:-0.4; --w:0.6; --h:9.2"></i>
+      <i class="w w-far" style="--x:17.4; --y:3.6; --w:0.7; --h:5.2"></i>
+      <i class="w w-plat" style="--x:3.2; --y:6.4; --w:2.6; --h:0.45"></i>
+      <i class="w w-arch" style="--x:12.2; --y:3.6; --w:3.2; --h:1.6"></i>
+      <i class="w w-plat" style="--x:12.2; --y:5.2; --w:0.35; --h:3.4"></i>
+      <i class="w w-plat" style="--x:15.05; --y:5.2; --w:0.35; --h:3.4"></i>
+      <i class="w w-ground" style="--x:-0.3; --y:8.6; --w:19.6; --h:2.2"></i>
+      <i class="w w-rowan" style="--x:13.5; --y:7.45; --w:0.6; --h:1.15"></i>
+    </div>
+    <div class="hud" aria-hidden="true">
+      <div class="hud-cluster">
+        <div class="hud-hearts">
+          <svg class="icon hud-heart" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+          <svg class="icon hud-heart" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+          <svg class="icon hud-heart" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+        </div>
+        <div class="hud-ember-meter" style="--fill:0.4"><span class="fill"></span></div>
+      </div>
+    </div>
+
+    <div class="scrim"></div>
+    <div class="panel results">
+      <dl class="results-stats">
+        <div class="results-stat"><dt>Clear time</dt><dd>7:48.3</dd></div>
+        <div class="results-stat"><dt>Bells</dt><dd>1 of 3</dd></div>
+        <div class="results-stat"><dt>Respawns</dt><dd>2</dd></div>
+        <div class="results-stat"><dt>Embers</dt><dd>96 of 132</dd></div>
+      </dl>
+      <div class="results-actions">
+        <button class="menu-item is-focused" type="button">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <ol class="anno-notes">
+    <li>Values have finished their stagger of 0.6 s or less. A confirm during the stagger completes it; the confirm on Continue leaves. After this first play, Continue goes to the loading card for The Drowned Mill (Marta step 9).</li>
+    <li>The panel has no heading: Voice and Tone lists no results title, so none was added. The panel has no drop shadow; it separates from the scrim by tone and a <code>border-subtle</code> hairline.</li>
+    <li class="muted">Spine refs: DESIGN.md Components (scrim, panel, results-stat, menu-item), Elevation &amp; Depth; EXPERIENCE.md Component Patterns results-stat, State Patterns Results, Key Flow Marta 8.</li>
+  </ol>
+</section>
+
+<!-- ===================== B: replay, new best ===================== -->
+<section class="sheet">
+  <h2>B · Replay with a new best: Emberwood (Ines, Key Flow step 6)</h2>
+  <p class="sub">EXPERIENCE.md State Patterns: Results / beaten best. The "New best" tag follows the clear time; the ninth bell has been found.</p>
+
+  <div class="anno-band">
+    <div class="anno-zone is-centre" style="--x0:6; --x1:13">
+      <ul class="anno-text">
+        <li>"New best" tag: <code>ui-sm</code>, <code>surface-panel</code> text on <code>text-primary</code>, <code>rounded.sm</code>; shown only on a replay that beats the stored best</li>
+        <li>"Bells" 3 of 3 completes 9 of 9, so the all-bells card plays after Continue (Ines step 7)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="world" aria-hidden="true">
+      <i class="w w-bright" style="--x:9.6; --y:-0.4; --w:9.8; --h:4.4"></i>
+      <i class="w w-far" style="--x:2.1; --y:-0.4; --w:0.8; --h:9.2"></i>
+      <i class="w w-far" style="--x:5.6; --y:-0.4; --w:0.6; --h:9.2"></i>
+      <i class="w w-far" style="--x:17.4; --y:3.6; --w:0.7; --h:5.2"></i>
+      <i class="w w-plat" style="--x:3.2; --y:6.4; --w:2.6; --h:0.45"></i>
+      <i class="w w-arch" style="--x:12.2; --y:3.6; --w:3.2; --h:1.6"></i>
+      <i class="w w-plat" style="--x:12.2; --y:5.2; --w:0.35; --h:3.4"></i>
+      <i class="w w-plat" style="--x:15.05; --y:5.2; --w:0.35; --h:3.4"></i>
+      <i class="w w-ground" style="--x:-0.3; --y:8.6; --w:19.6; --h:2.2"></i>
+      <i class="w w-rowan" style="--x:13.5; --y:7.45; --w:0.6; --h:1.15"></i>
+    </div>
+    <div class="hud" aria-hidden="true">
+      <div class="hud-cluster">
+        <div class="hud-hearts">
+          <svg class="icon hud-heart" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+          <svg class="icon hud-heart" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+          <svg class="icon hud-heart" viewBox="0 0 24 24"><use href="#i-heart" class="ring"/><use href="#i-heart" class="body"/></svg>
+        </div>
+        <div class="hud-ember-meter" style="--fill:0.7"><span class="fill"></span></div>
+      </div>
+    </div>
+
+    <div class="scrim"></div>
+    <div class="panel results">
+      <dl class="results-stats">
+        <div class="results-stat"><dt>Clear time</dt><dd>6:52.4<span class="results-tag">New best</span></dd></div>
+        <div class="results-stat"><dt>Bells</dt><dd>3 of 3</dd></div>
+        <div class="results-stat"><dt>Respawns</dt><dd>1</dd></div>
+        <div class="results-stat"><dt>Embers</dt><dd>118 of 132</dd></div>
+      </dl>
+      <div class="results-actions">
+        <button class="menu-item is-focused" type="button">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <ol class="anno-notes">
+    <li>Placeholder data: 6:52.4, 1 respawn and 118 embers are illustrative replay values. The spine gives values only for the first play. For continuity across mocks, the previous best in key-level-select.html reuses the first-play time, 7:48.3.</li>
+    <li>The tag sits after the value, so the clear-time value moves left of the shared right edge on this row only. The spine does not say whether the tag goes after the value or after the label.</li>
+    <li class="muted">Spine refs: DESIGN.md Components results-stat (tag), Shapes (rounded.sm on the tag); EXPERIENCE.md Component Patterns results-stat ("New best"), Key Flow Ines 6–7.</li>
+  </ol>
+</section>
+
+</body>
+</html>
