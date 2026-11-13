@@ -15,8 +15,12 @@ A small 2.5D side-scrolling platformer for the browser. One developer, working t
 | 3D meshes | Tripo, from reference images |
 | Cleanup, rigging, animation, glTF export | Blender, driven through Blender MCP |
 | Planning, code, review | Claude models, through Claude Code and the BMad workflows |
+| Level editor | Tiled 1.12.x; levels compiled into the game's own format |
+| Lint and format | ESLint with typescript-eslint; Prettier |
+| Local tools | mise pins tool versions; a Makefile is the single entry point; any service runs in Docker |
+| Binary assets | Git LFS |
 
-Still open: the image model for reference art, the audio tools, and the level editor (LDtk or Tiled). Do not pick these silently.
+Still open: the image model for reference art and the audio tools. Do not pick these silently.
 
 ## How to work
 
@@ -27,6 +31,7 @@ Still open: the image model for reference art, the audio tools, and the level ed
 - Keep answers direct and technical. Skip basics. Mention trade-offs briefly.
 - When something is a guess, say so. When something is untested, say so.
 - Before using a three.js, Vite, Blender or Tripo API, check its current documentation. Do not rely on memory for version-specific details.
+- Run project commands through `make` targets (`make help` lists them), not raw npm, npx or vite commands.
 
 ## Where things live
 
@@ -37,6 +42,11 @@ Still open: the image model for reference art, the audio tools, and the level ed
 | `_bmad-output/implementation-artifacts/` | Sprint status and story files |
 | `_bmad/` | BMad install, managed by its installer. Overrides go in `_bmad/custom/` |
 | `prototype/sprout-demo.html` | The Sprout prototype the tuning numbers came from. Reference only, not part of the build |
+| `src/` | Game code; layers and boundaries are in the architecture document |
+| `levels/` | Tiled level sources |
+| `public/assets/` | Shipped runtime assets |
+| `art-src/` | Source art, in Git LFS; never loaded by the game |
+| `scripts/` | Node TypeScript tools run by the Makefile |
 
 ## Code rules
 
