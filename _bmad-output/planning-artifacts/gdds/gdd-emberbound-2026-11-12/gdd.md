@@ -313,7 +313,7 @@ Durations convert to whole steps by rounding to the nearest step.
 
 - Looks ahead 1.2 tiles in the facing direction, or 2.4 tiles while running.
 - In the air, the camera holds still vertically until Rowan moves more than 1.8 tiles below or 2.4 tiles above the framing point. It re-centres when he lands.
-- Stops at the level edges.
+- Stops at the level edges. On windows wider or taller than the 19 × 10.4 view, the margin shows the level's dressing up to 3 tiles † past its edges, then plain bands. In the 19-tile warden arena the camera holds still.
 - Always shows at least 19 × 10.4 tiles in landscape.
 
 ### Combat System
@@ -405,9 +405,10 @@ Durations convert to whole steps by rounding to the nearest step.
 
 - **Arena:** one screen, 19 tiles wide, with a flat floor and two one-way ledges 3 tiles up †.
 - **Door:** a checkpoint sits at the door, with a triple shot pickup just before it. The warden stays dormant until Rowan enters the arena, so the checkpoint is safe. The door shuts behind him.
-- **Body:** the warden is 3 × 4 tiles † and stands at the arena's right side. Its body is its hurtbox.
-- **Health:** 30 HP. Each ember hit does 1 damage, a triple shot can land 3 hits, and the warden can be hit at any time.
-- **Health bar:** a HUD bar labelled "The Warden" appears when the door shuts and drops with each hit. A notch at 15 HP marks where phase 2 starts. It empties and fades when the warden falls.
+- **Body:** the warden is 3 × 4 tiles † and stands at the arena's right side. Shots that hit the body splash off with a clear blocked cue and do no damage.
+- **Weak point:** the seal at the wheel's hub, a 1 × 1 tile † target near the top of the body, is the only hurtbox. It glows open for 1.5 s † at the start of each gap between attacks and is shut the rest of the time; a shot at the shut hub splashes off like a body hit. The open hub can be hit with aim-up from the floor or with straight shots from the ledges.
+- **Health:** 30 HP †. Each ember hit on the open hub does 1 damage, and a triple shot can land 3 hits. HP and the window length are tuned together in Epic 4 so a first-time player's fight lands in 60 to 120 s.
+- **Health bar:** a HUD bar labelled "The Warden" appears when the door shuts and drops with each hit. A notch at half health marks where phase 2 starts. It empties and fades when the warden falls.
 - **Stomp:** the warden has spikes, so it cannot be stomped. Touching its body costs 1 heart.
 - **On respawn:** the warden returns to full health when Rowan respawns at the door. A fight of 120 s or less stays within pillar 2's replay limit.
 - **Target length:** 60 to 120 s for a first-time player.
@@ -417,16 +418,16 @@ Durations convert to whole steps by rounding to the nearest step.
 | Attack | Phase | Warning | Dodge | Numbers † |
 | --- | --- | --- | --- | --- |
 | Wheel wash: a wave of water sweeps along the floor | 1 and 2 | The wheel spins up and glows, 0.8 s | Jump over it | 1 tile tall, 8 tiles/s across the arena |
-| Millstone fall: debris drops from above | 1 and 2 | Shadows mark the floor 0.8 s before impact | Walk out of the marked spots | 1 tile wide each; 3 pieces in phase 1, 5 in phase 2. One lands where Rowan stands when the warning starts, and the rest are at least 2 tiles apart. A 3-tile gap is always left clear. |
-| Wheel roll: the warden curls into a wheel and rolls across the arena | 2 only | Rears back and vents steam, 0.6 s | Jump over it | A 2 × 1.5 wheel at 12 tiles/s. It rolls to the far wall, then walks back to its side. |
+| Millstone fall: debris drops from above | 1 and 2 | Shadows mark the floor 0.8 s before impact | Walk out of the marked spots | 1 tile wide each; 3 pieces in phase 1, 5 in phase 2. One lands where Rowan stands when the warning starts, and the rest have at least 2 tiles of clear floor between them. A 3-tile gap is always left clear. A millstone lands on the first surface below it, a ledge or the floor, and its shadow marks that surface. |
+| Wheel roll: the warden curls into a wheel and rolls across the arena | 2 only | Rears back and vents steam, 0.6 s | Jump over it | A 2 × 1.5 wheel at 12 tiles/s. It rolls to the far wall, then rolls back to its side: two passes, each jumped the same way. |
 
 *Pacing:*
 
 - **Order:**
   - Phase 1 alternates wheel wash and millstone fall.
   - Phase 2 cycles wheel wash, millstone fall, wheel roll.
-- **No overlap.** Attacks never run at the same time. The gap before the next attack starts counts from the end of the previous one: 2.5 s † in phase 1, 1.8 s † in phase 2.
-- **Phase 2** begins at 15 HP: the warden flinches and the music shifts.
+- **No overlap.** Attacks never run at the same time. The gap before the next attack's warning counts from the end of the previous attack's hazard (the wave leaving the arena, the last millstone landing, the roll back reaching his side): 2.5 s † in phase 1, 1.8 s † in phase 2. The hub window opens at the start of each gap.
+- **Phase 2** begins at half health (15 HP while HP is 30 †), once the current attack has ended: the warden flinches and the music shifts. It never cuts an attack short.
 - **Warnings** are never shorter than 0.6 s, and each attack has its own warning sound.
 
 *Seal-break moment:*

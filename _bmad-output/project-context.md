@@ -31,6 +31,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **ESLint 10.x** (flat config only) with **typescript-eslint 8.72.x** `strictTypeChecked`, plus **Prettier 3.x**.
 - **Node.js 26.13.x**, pinned in `mise.toml`. It runs `scripts/*.ts` natively, with no runner.
 - **`@gltf-transform/cli` 4.5.x** (development only) and **`@types/node`**.
+- **`yaml`** (development only, the token drift test, approved 2026-11-13).
 - **Outside npm:**
   - Tiled 1.12.x, the level editor.
   - Blender, version pinned in Epic 2.
@@ -52,7 +53,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
   - Interpolate from `prevX`/`prevY` to `x`/`y` with the alpha.
   - Key views by entity id (view-sync pattern); never keep a simulation object between frames.
   - Dispose geometry, materials and textures when a view or a level goes away.
-- **Animation:** the clip comes from simulation state through `CLIP_FOR_STATE` and `chooseHeroClip` (spit and land overlays). `AnimationMixer` advances on real frame time; it is visual only.
+- **Animation:** the clip comes from simulation state through `CLIP_FOR_STATE` and `chooseHeroClip` (spit clips are upper-body overlays played over the base clip; land replaces the idle clip briefly). `AnimationMixer` advances on real frame time; it is visual only.
 - **"On screen" is the simulation's logical view** (at least 19 × 10.4 tiles, owned by `sim/camera.ts`), never the canvas size. The view camera only frames it.
 - **Hit-stop lives in the simulation,** counted in steps. **Shake lives in rendering:**
   - driven by events, through `shake.raise()`, which takes the higher value and never adds
@@ -86,6 +87,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
   - 30 MB in total; per-asset budgets are enforced by `make build`.
   - Models are `.glb` with meshopt (`make models`).
   - Each level loads behind its level-line card, and the previous level is disposed.
+  - The manifest is built from `public/assets/` before Vite. Test levels never ship: the release manifest leaves them out and `make build` deletes them from `dist/`.
 
 ### Code Organization Rules
 
@@ -95,6 +97,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
   - `render/`, `audio/` and `ui/` import types from `sim/` and *values* from `sim/config.ts` only.
   - `app/` hosts the simulation.
   - `debug/` is imported only by `main.ts`, behind `import.meta.env.DEV`.
+  - `lookdev/` imports `render/`, `ui/`, `content/` and `core/`.
   - ESLint enforces the full boundary table in the architecture.
 - **Where things go:**
 
@@ -111,6 +114,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 | Shipped assets | `public/assets/`, referenced by **manifest id**, never by path |
 
 - **Wiring:** everything is wired explicitly in `main.ts`. No singletons and no service locator.
+  - Loading goes through the `AssetLoader` port in `core/loading.ts`, implemented by `render/assets/loader.ts` and passed in by `main.ts`. The app owns loading state, progress and the one silent retry.
   - Two typed channels: `SimEvent` (past tense, simulation to presentation) and `AppCommand` (imperative, into the app).
   - Presentation reads settings, the last-used device and feature status (`isAudioLocked`, `isFullscreen`, features turned off) only from the per-frame `PresentationSettings` snapshot.
 - **Entities:** plain objects with `kind`, `state` and `stateSteps`.
@@ -158,7 +162,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
   - The look-dev page is excluded.
   - Development-only code sits behind `import.meta.env.DEV`; only `?perf=1` ships.
 - **Input:**
-  - One `InputFrame` per step.
+  - One `InputFrame` per step. During play, confirm also latches `InputFrame.confirmPressed`; only the story director reads it (the replay skip).
   - Presses are latched until consumed, and hit-stop never counts input buffers down.
   - Stick thresholds: 0.35 sideways, 0.5 up and down.
   - Menu, pause and mute actions go to the app, never to the simulation. Menu actions: up, down, left, right, confirm, back. Esc pauses in play and means Back elsewhere.

@@ -3,7 +3,7 @@ title: 'Game Architecture'
 project: 'Emberbound (working title)'
 date: '2026-11-13'
 author: 'Emilijan'
-version: '1.1'
+version: '1.2'
 stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8, 9]
 status: 'complete'
 engine: 'three.js r187 (WebGLRenderer, GLSL), TypeScript 6.0, Vite 8.3'
@@ -40,7 +40,7 @@ planning_doc: 'docs/PROJECT_BRIEF.md'
 
 **Implementation Patterns:** 8 patterns (4 standard, 4 novel) and 24 consistency rules.
 
-**Ready for:** epics and stories (`gds-create-epics-and-stories`), after the two follow-ups in Architecture Validation (CLAUDE.md and the GDD).
+**Ready for:** implementation readiness (`gds-check-implementation-readiness`). Epics and stories are written; the follow-ups in Architecture Validation are done.
 
 ## Document Status
 
@@ -90,7 +90,7 @@ This architecture document was created through the GDS Architecture Workflow on 
 | Bodies and tile collision (solid, one-way, drop-through, moving and circular waterwheel platforms, spikes, pits) | High | Movement System; Combat System |
 | Combat and damage (ember spit, aiming, triple and piercing shots, hitbox rules, thorn rule, knockback, invulnerability, pit rule, death and respawn) | High | Combat System |
 | Enemies: walker, thorn flyer, rooted spitter, with the on-screen-only attack rule | Medium | Enemy roster |
-| The warden (dormant until entry, 2 phases, attack scheduler, warnings, millstone targeting, reset on respawn) | Medium-high | The Warden of the First Seal |
+| The warden (dormant until entry, 2 phases, attack scheduler, warnings, millstone targeting, the hub weak point and its damage windows, reset on respawn) | Medium-high | The Warden of the First Seal |
 | Ledge grab (from Epic 4) | Medium | Player Abilities and Unlocks |
 | Hit feedback (hit-stop, trauma-based shake, blink, flash, reduced motion) | Medium | Hit feedback |
 | Camera (look-ahead, vertical dead zone, re-centring, clamping, minimum 19 × 10.4 tiles at any aspect ratio) | Medium | Camera |
@@ -212,6 +212,7 @@ This architecture document was created through the GDS Architecture Workflow on 
 | Prettier | 3.x (3.9, or 3.10 once two weeks old) | `package.json` | Formatting, so agents' code looks the same. Approved by the developer on 2026-11-13. |
 | `@gltf-transform/cli` | 4.5.x | `package.json` | Model compression, development only. Approved 2026-11-13. |
 | `@types/node` | Matching Node 26 | `package.json` | Types for `scripts/` and Node-side tests; types only. Approved 2026-11-13. |
+| `yaml` | Exact version, the newest patch at least two weeks old | `package.json` | Development only: the DESIGN.md token drift test reads its frontmatter. Approved by the developer on 2026-11-13. |
 | Vitest | 5.x | `package.json` | Simulation tests in Node. Needs Vite 6.4+ and Node 22.12+. |
 | Playwright (`@playwright/test`) | 1.65.x | `package.json` | Screenshot harness and browser checks. Pin the exact version. Its browsers are installed by `make setup`. |
 
@@ -446,13 +447,14 @@ frame(now):
 - The camera's position, look-ahead, vertical dead zone, re-centring and clamping are simulation state, following the GDD's camera rules.
 - **The logical view** is a box at least 19 × 10.4 tiles, centred on the simulation camera. It defines "on screen" for the attack rule and the spitter's range.
 - The renderer frames at least that box at any aspect ratio. Extra width on wide screens is visual only, so behaviour doesn't change with window size.
+- **Beyond the level's edges:** the simulation camera stops at the level edges, so in the 19-tile warden arena it holds still with the arena filling the logical view's width. Where the window is wider or taller than the logical view, the margin shows the level's dressing up to 3 tiles † past its edges (every kit carries that margin); past that, the view camera shows plain bands in the level palette's darkest slot.
 
 ### Story Director
 
 - **In the simulation:** `story` is `none`, `sealBreak` or `heldBeat`, with a start step.
   - **Triggers:** the warden reaching 0 HP starts `sealBreak`; Rowan touching Level 3's exit starts `heldBeat`.
   - **While active:**
-    - Player input is ignored, except the skip action (jump or confirm) when `params.isStorySkippable` is set (replays).
+    - Player input is ignored, except the skip action (`jumpPressed` or `confirmPressed`) when `params.isStorySkippable` is set (replays).
     - Rowan can't be hurt.
     - At the start, enemy shots, seeds and attacks in progress are removed.
   - **Timelines** are data in `CONFIG.story`, in steps: a total length plus named cues.
@@ -488,7 +490,7 @@ frame(now):
 | --- | --- | --- |
 | `collision` | Tile layer | Collision only, from the tileset class: empty, solid, one-way, spike. Art never defines collision (CLAUDE.md). |
 | `entities` | Object layer | `PlayerStart`, enemies, the `Warden`, pickups, embers, bells, checkpoints, the exit, moving and waterwheel platforms, `ControlSign`s; each a typed Tiled class |
-| `regions` | Object layer | Typed rectangles: `KillZone` (a pit or deep water, which triggers the pit rule; falling below the level's bottom edge counts too), `ArenaTrigger` (wakes the warden), `Door` (tiles the simulation makes solid when the arena is entered), `MusicFade` (Level 3), `AudioAnchor` (the great wheel) |
+| `regions` | Object layer | Typed rectangles: `KillZone` (a pit or deep water, which triggers the pit rule; falling below the level's bottom edge counts too), `ArenaTrigger` (wakes the warden), `Door` (tiles the simulation makes solid when the arena is entered), `AudioFade` (fades the music or the ambience bus to the region's target gain: Level 3's music drop-out, Emberwood's hushed glade), `AudioAnchor` (the great wheel) |
 | `dressing` | Object layer | Kit props and story props by kit id: the glade, the sacks, the fallen bell |
 | `jumps` | Object layer | Marked jumps: from-point, to-area, tier (standard or challenge), required ability |
 
@@ -499,7 +501,7 @@ frame(now):
   - challenge-tier jumps within the level's cap
   - typed entity fields
 - **Kit pieces:** ground and ledge pieces are picked automatically from the collision grid at compile time, by neighbour rules. Props are placed by hand in `dressing`.
-- **Test levels:** `levels/test-*.tmj`, such as `test-ledge-grab.tmj` and Epic 4's standalone `test-warden-arena.tmj`, compile like the others but are left out of the release build and the level select. Epic 5 joins the arena to `drowned-mill.tmj`.
+- **Test levels:** `levels/test-*.tmj`, such as `test-ledge-grab.tmj` and Epic 4's standalone `test-warden-arena.tmj`, compile like the others into `public/assets/levels/`. The release manifest leaves them out, `make build` deletes them from `dist/`, and the budget check fails if one remains; they never appear in the level select. Epic 5 joins the arena to `drowned-mill.tmj` and deletes `test-warden-arena.tmj`.
 - **Tiled itself** is a desktop app. It's pinned in `mise.toml` if a mise backend can install it (checked in Epic 1). If not, the required version is recorded and `make setup` checks `tiled --version`.
 
 ### Jump Verification
@@ -521,12 +523,15 @@ frame(now):
 
 **Loading strategy:** shared assets load at boot; each level's assets load behind its level-line card.
 
+- **Who loads:** `core/loading.ts` defines the `AssetLoader` port: `loadShared(onProgress)` and `loadLevel(levelId, onProgress)`, each returning `Promise<Result<…, LoadError>>`, with `onProgress(loaded, total)` counted in files. `render/assets/loader.ts` implements it and is the only code that fetches: it decodes models and textures itself, returns audio files as bytes for `audio/` to decode, and returns the level file as raw JSON. `main.ts` passes the port to the app.
+- **The app owns loading state:** it calls the port, keeps the progress in app state (the boot bar and the loading card read it), parses the level with `parseLevel`, retries a failed load once silently, then enters the Retry state (UX Q8). A level file that fails `parseLevel` counts as a failed load.
+
 - **Models:** `.glb` exported from Blender, then compressed (meshopt) and quantized with `@gltf-transform/cli`, a development-only dependency. The loader uses three.js's `MeshoptDecoder`.
 - **Model conventions:** 1 unit = 1 tile; +Y up; characters' origin at the feet (bottom centre), facing +X (screen right); kit pieces' origin at the bottom-left of their tile cell. `optimizeModels.ts` checks scale and origin and rejects a model that breaks them.
 - **Generated materials are stripped on load** and replaced by `render/materials` factories (the renderer owns the style).
 - **Textures:** few. The look comes from flat palette regions and simple masks: PNG or WebP. KTX2 only if the budget needs it.
 - **Audio formats:** chosen in Epic 3 with the audio tool. Constraint: they must loop without gaps through Web Audio in Chrome, Edge and Firefox.
-- **Manifest:** `assets/manifest.json` is generated at build time, with a shared bundle plus one bundle per level.
+- **Manifest:** `scripts/buildManifest.ts` writes `public/assets/manifest.json` from the files in `public/assets/`, with a shared bundle plus one bundle per level. It runs before Vite, in `make dev`, `make shots`, `make test` and `make build`. Vite copies `public/` unchanged, so the manifest's paths stay valid in `dist/`. Development manifests list the test levels; the release manifest that `make build` writes leaves them out.
 - **Changing levels** disposes the previous level's geometries, materials and textures.
 
 **Budgets (†, enforced by `make build`):**
@@ -563,12 +568,12 @@ frame(now):
 
 ### Input
 
-- `input/` turns keyboard events and polled gamepads into one action state. **The simulation receives one `InputFrame` per step:** `moveX` (-1, 0 or 1), `up`, `down`, `jumpPressed`, `jumpHeld`, `spitPressed` and `spitHeld`.
+- `input/` turns keyboard events and polled gamepads into one action state. **The simulation receives one `InputFrame` per step:** `moveX` (-1, 0 or 1), `up`, `down`, `jumpPressed`, `jumpHeld`, `spitPressed`, `spitHeld` and `confirmPressed`. `confirmPressed` is latched from the confirm keys and button (Enter, Space, gamepad south) during play; only the story director reads it, as the replay skip, so recorded input still replays exactly.
 - A press is latched until the next step consumes it, so a tap shorter than one step is never lost (GDD).
 - Stick thresholds: 0.35 sideways and 0.5 up and down (GDD).
 - **Gamepad reads are wrapped in try/catch.** The first error turns the gamepad off for the session, logs once, and the keyboard keeps working. This is the prototype bug inside an embedded iframe.
 - The last-used device (keyboard or gamepad) goes into the `PresentationSettings` snapshot, which picks the icons on the control signs and the card advance hint. A key press or a click sets keyboard; a gamepad button, or a stick past the play thresholds above, sets gamepad (UX).
-- **App-level actions** (pause, mute, and menu up, down, left, right, confirm and back) go to the app, never to the simulation. Menus can be navigated with a gamepad.
+- **App-level actions** (pause, mute, and menu up, down, left, right, confirm and back) go to the app, never to the simulation, while a menu or card is up. During play, a confirm press reaches the simulation only as `confirmPressed`. Menus can be navigated with a gamepad.
   - Esc pauses during play; in menus and on cards it means Back. Back on the pause menu resumes; on the title menu it does nothing (UX).
   - **Hold-to-repeat:** a held menu direction, on lists and sliders, repeats after 0.4 s at 8 steps per second (UX). The values live in `core/uiTimings.ts`, which every layer may import (UX DN-2).
   - **Card guard:** menu actions are presses, never held state. When a card appears, presses latched before it are dropped, so only a press that began on the card counts. The app ignores all card input, Back included, before the GDD's card minimum (about 1.5 s †, in `core/uiTimings.ts`) (UX).
@@ -600,7 +605,7 @@ frame(now):
   - the warden arrangement crossfades in on the `wardenPhaseChanged` event
   - stingers play once
   - at the seal break, the music cuts and the stinger plays on `storyCueReached`
-  - in Level 3, the music fades out on the `regionEntered` event for the `MusicFade` region
+  - on the `regionEntered` event for an `AudioFade` region, its bus (`music` or `ambience`, a Tiled property) fades to the region's target gain (Level 3's music to 0; Emberwood's glade ambience lowered); a respawn outside the region restores the bus
 - **Ambience:** one looping bed per level. The great wheel's loop gain follows Rowan's distance from the arena anchor, read from the snapshot.
 - **Failure:** if creating or resuming the `AudioContext` throws or is rejected, audio stays off for the session and the game runs, with no notice (UX Q7). A context still waiting for a key press or click is locked, not failed.
 
@@ -610,10 +615,11 @@ frame(now):
 - **`make build` runs:**
   1. the level compile and validation
   2. type checking
-  3. the tests
-  4. the Vite build
-  5. the manifest (`scripts/buildManifest.ts`)
-  6. the budget checks: total size 30 MB or less, 1,000 files or fewer, the per-asset budgets
+  3. the tests (which write the development manifest)
+  4. the release manifest (`scripts/buildManifest.ts --release`), without the test levels, overwriting it
+  5. the Vite build
+  6. removing the test levels from `dist/assets/levels/`
+  7. the budget checks: total size 30 MB or less, 1,000 files or fewer, the per-asset budgets, and no test level left in `dist/`
 - **`make release`** uploads `dist/` to itch.io with `butler`, pinned in `mise.toml` in Epic 6. Before the public release, a private itch.io upload checks the iframe behaviour: gamepad, storage, audio, fullscreen, plus the UX's browser checks: audio unlock after a gamepad-passed gate, fullscreen refused from a gamepad, the Esc that leaves browser fullscreen, iframe focus, page scrolling, and the 1280 × 720 embed with itch.io's fullscreen button (UX A1-A3, Q9).
 
 ### Debug Tools (development builds only)
@@ -898,7 +904,9 @@ export type SimEvent =
   | { type: 'arenaEntered' }                                 // door shut, warden awake
   | { type: 'wardenWarned'; attack: WardenAttack }
   | { type: 'wardenAttacked'; attack: WardenAttack }
-  | { type: 'wardenHit' }
+  | { type: 'wardenHit' }                                    // a shot hit the open hub
+  | { type: 'wardenShotBlocked'; x: number; y: number }     // a shot splashed off the body or the shut hub
+  | { type: 'wardenHubOpened' }                              // the hub window opened (start of a gap)
   | { type: 'wardenPhaseChanged'; phase: 2 }
   | { type: 'wardenDefeated' }
   // story and level
@@ -1181,7 +1189,7 @@ src/
   - Enemies: `move`, `idle`, `swell_fire`, `hurt`, `death`.
   - Warden: `idle`, `wash_warn`, `wash`, `millstone_warn`, `millstone`, `roll_warn`, `roll`, `hurt`, `phase_change`, `defeat`.
 - **Kit pieces** inside a kit `.glb`: `<kind>_<variant>`, such as `ground_top`, `ledge_oneway`, `prop_lantern`, `story_glade_arch`.
-- **Tiled:** layer names as in Level Data (`collision`, `entities`, `regions`, `dressing`, `jumps`). Classes are PascalCase (`PlayerStart`, `Walker`, `ThornFlyer`, `RootedSpitter`, `Warden`, `Checkpoint`, `Bell`, `Ember`, `WeaponPickup`, `Exit`, `MovingPlatform`, `WaterwheelPlatform`, `ControlSign`, `KillZone`, `ArenaTrigger`, `Door`, `MusicFade`, `AudioAnchor`, `Jump`); custom properties are camelCase.
+- **Tiled:** layer names as in Level Data (`collision`, `entities`, `regions`, `dressing`, `jumps`). Classes are PascalCase (`PlayerStart`, `Walker`, `ThornFlyer`, `RootedSpitter`, `Warden`, `Checkpoint`, `Bell`, `Ember`, `WeaponPickup`, `Exit`, `MovingPlatform`, `WaterwheelPlatform`, `ControlSign`, `KillZone`, `ArenaTrigger`, `Door`, `AudioFade`, `AudioAnchor`, `Jump`); custom properties are camelCase.
 
 ### Architectural Boundaries
 
@@ -1198,7 +1206,7 @@ src/
 | `audio/` | `core/`, `platform/`, `content/`, types from `sim/`, values from `sim/config.ts` | three.js, `render/`, `ui/` |
 | `ui/` | `core/`, `content/`, the command and read-only state types from `app/`, types from `sim/`, values from `sim/config.ts` | three.js, `render/`, `audio/` |
 | `debug/` | Anything | Nothing imports `debug/`, except `main.ts` behind `import.meta.env.DEV` |
-| `lookdev/` | `render/`, `content/`, `core/` | `sim/`, `app/` |
+| `lookdev/` | `render/`, `ui/` (overlay root, styles, components, so the overlay is judged on the look-dev page), `content/`, `core/` | `sim/`, `app/` |
 | `scripts/` | Node, `core/`, `sim/level/`, values from `sim/config.ts` | Runtime presentation layers |
 
 `sim/config.ts` is constant data, so presentation layers and scripts may import its values. They still never mutate the `World`.
@@ -1306,7 +1314,7 @@ export function stepStory(world: World, input: InputFrame): void {
   const t = world.step - s.startStep;
   const timeline = CONFIG.story[s.kind];
   if (s.kind === 'sealBreak' && t === timeline.cues.rowanChange) applyStage(world, 'changed');
-  const skipped = world.params.isStorySkippable && input.jumpPressed;
+  const skipped = world.params.isStorySkippable && (input.jumpPressed || input.confirmPressed);
   if (t >= timeline.totalSteps || skipped) endStory(world); // applies remaining cues first
 }
 ```
@@ -1474,16 +1482,19 @@ const CLIP_FOR_STATE: Record<PlayerState, HeroClip> = {
   hang: 'hang', climb: 'climb_up', hurt: 'hurt', dead: 'death',
 };
 
-// The one place overlays are chosen: spitting and landing win over the base clip briefly
-export function chooseHeroClip(p: DeepReadonly<Player>): HeroClip {
+// The one place clips are chosen. Spit clips key only the upper body and play as a
+// second action over the base clip, so the legs keep running, jumping or crouching.
+export function chooseHeroClip(p: DeepReadonly<Player>): { base: HeroClip; overlay: HeroOverlayClip | null } {
+  const base = p.state === 'idle' && p.landSteps < CONFIG.feedback.landClipSteps ? 'land' : CLIP_FOR_STATE[p.state];
   const canSpitOverlay = p.state === 'idle' || p.state === 'run' || p.state === 'jump' || p.state === 'fall' || p.state === 'crouch';
-  if (canSpitOverlay && p.spitSteps < CONFIG.feedback.spitClipSteps) {
-    return p.aim === 'up' ? 'spit_up' : p.aim === 'down' ? 'spit_down' : 'spit';
-  }
-  if (p.state === 'idle' && p.landSteps < CONFIG.feedback.landClipSteps) return 'land';
-  return CLIP_FOR_STATE[p.state];
+  const overlay = canSpitOverlay && p.spitSteps < CONFIG.feedback.spitClipSteps
+    ? (p.aim === 'up' ? 'spit_up' : p.aim === 'down' ? 'spit_down' : 'spit')
+    : null;
+  return { base, overlay };
 }
 ```
+
+Spit as an upper-body overlay was decided by the developer on 2026-11-13 (sprint change proposal 2026-11-13, A8).
 
 ### Data Patterns
 
@@ -1557,7 +1568,7 @@ ui.loadingCard.show(STORY_TEXT.levelLine['drowned-mill']);
 ### Issues Resolved
 
 1. Presentation layers and scripts may import values from `sim/config.ts`. Hit feedback lives in `CONFIG.feedback`; shake raises and never adds.
-2. Level data gained `PlayerStart`, `Warden`, `ControlSign`, `KillZone`, `ArenaTrigger`, `Door`, `MusicFade` and `AudioAnchor`.
+2. Level data gained `PlayerStart`, `Warden`, `ControlSign`, `KillZone`, `ArenaTrigger`, `Door`, `MusicFade` and `AudioAnchor`. (`MusicFade` became `AudioFade` in v1.2.)
 3. Presses are written into input buffers, which hit-stop doesn't count down.
 4. Validation accepts a door checkpoint, and either an exit or a warden.
 5. Story cues apply during the timeline and emit `storyCueReached`; `endStory` applies any cue not yet reached.
@@ -1584,11 +1595,15 @@ ui.loadingCard.show(STORY_TEXT.levelLine['drowned-mill']);
 - After the fixes, a second independent pass failed with an API authentication error.
 - Every fix was then re-verified with targeted searches of the document.
 
+**v1.2 (2026-11-13):** the sprint change proposal `sprint-change-proposal-2026-11-13-planning-gaps.md` settled the gaps found during story creation: the `AssetLoader` port (Asset Management), the manifest built before Vite and test levels kept out of releases (Asset Management, Build and Release, Level Data), `InputFrame.confirmPressed` as the replay skip (Input, Story Director), framing beyond the level's edges (Gameplay Camera), the warden's hub weak point (Project Context), `lookdev/` importing `ui/` (Architectural Boundaries), `yaml` (Toolchain), spit as an upper-body overlay (Implementation Patterns) and `AudioFade` (Level Data, Audio).
+
 ### Follow-ups Outside This Document
 
-- **CLAUDE.md** still lists the level editor as open, and doesn't mention the mise, Makefile and Docker rule. Update it with the developer's approval.
-- **The GDD's Dependencies table** still lists the level editor as "not chosen". Update it through `gds-gdd` (update) or `gds-correct-course`.
-- **`_bmad-output/project-context.md`** is generated from this document. Refresh it after the 1.1 revision (the UX fold-in), with `gds-generate-project-context` or by applying the listed rule edits.
+All three are done (checked 2026-11-13, sprint change proposal `sprint-change-proposal-2026-11-13-planning-gaps.md`):
+
+- **CLAUDE.md** names Tiled 1.12.x in its Settled stack and carries the mise, Makefile and Docker rule.
+- **The GDD's Dependencies table** records Tiled 1.12.x as chosen (gdd.md, Dependencies).
+- **`_bmad-output/project-context.md`** matches v1.1, and takes the v1.2 rule edits from that proposal.
 
 ### Validation Date
 
