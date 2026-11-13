@@ -14,6 +14,7 @@ test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
+.playwright-mcp/
 
 # Blender backup files (scene.blend1, scene.blend2, ...)
 *.blend[0-9]*
