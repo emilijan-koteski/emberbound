@@ -119,7 +119,7 @@ Version one is therefore free in the browser. Figures and sources are in the bri
 **Team, budget and prototype.**
 
 - One developer, working through Claude Code and the BMad workflows, about 8 to 10 hours a week with no fixed deadline.
-- The budget is tool subscriptions only; amounts are not set yet.
+- The budget is tool subscriptions only: the image model on the developer's Google AI Pro plan (student offer, no extra cost while it lasts), and Tripo Pro at $20 a month from Epic 2. Dependencies has the details (tools decision 2026-11-13).
 - The Sprout prototype proved the movement and camera numbers used throughout this document.
 
 ---
@@ -933,13 +933,13 @@ Playtests use 3 to 5 first-time players from the primary audience, watched witho
 
 | Dependency | Needed by | Notes |
 | --- | --- | --- |
-| Image model for reference art and Tripo's input views | Before Epic 0 starts | Not chosen. Check commercial-use terms and log them in `docs/ASSETS.md`. |
+| Image model for reference art and concepts | Before Epic 0 starts | Chosen 2026-11-13: the Gemini app with Nano Banana Pro, on the developer's Google AI Pro plan (student offer). Story 0.4 logs its terms in `docs/ASSETS.md` before the first image. Tripo's input views come from Tripo's own multiview tool, with the Gemini app as the fallback (story 2.2). |
 | Art style lock and `docs/STYLE_GUIDE.md` | End of Epic 0 | Chosen from generated references, then reproduced in the engine. Also confirms the silhouette story-card style on a sample card, the cards' warm-light exception, and where the card shapes come from. |
 | Hero design sign-off | Epic 0 (concept), Epic 2 (model) | None |
 | Level editor | Epic 1, for loading levels | Tiled 1.12.x, chosen 2026-11-13 (game-architecture.md, decision 9) |
-| Tripo licence and commercial-use terms | Epic 2 | Log in `docs/ASSETS.md` |
+| Tripo licence and commercial-use terms | Epic 2 | Plan chosen 2026-11-13: Pro, $20 a month, 3,000 credits a month, taken monthly from story 2.1. Story 2.1 logs its terms in `docs/ASSETS.md` before any upload. |
 | Audio tools | Epic 3 | Not chosen. The developer chooses them and the audio formats at the start of story 3.15, before any audio asset. Check licence terms. |
-| Tool budgets | Epic 0 | Tool subscriptions only; amounts not set |
+| Tool budgets | Epic 0 | Set 2026-11-13. **Image model:** the Google AI Pro plan's included use, at no extra cost during the student offer; renewing at its end is the developer's call; at most 5 † generations or edits per kept image, then stop and ask. **Tripo:** Pro, $20 a month, from story 2.1; the month's 3,000 credits are the limit. **Both:** no top-up credits, API spend, plan upgrade or other paid tool without the developer's approval. **Audio tools:** set with their choice in story 3.15. |
 | Warden name, look and story | Epic 4 art | Done: the Drowned Miller (narrative design, 2026-11-13). His placeholder given name needs an originality check only if it ever appears on screen. |
 | Ending decided (`gds-create-narrative`) | Epic 5 (closing card) | Done (narrative design, 2026-11-13). The closing card text is written. |
 | Originality check of story names and symbols | Symbols: Epic 4. Names: before any public build or page. | See Originality and Legal Constraints |
@@ -967,7 +967,7 @@ This is not legal advice. Get proper advice before selling.
 | Risk | Mitigation |
 | --- | --- |
 | Turning AI-generated models into cleanly animated characters. The chain from image to Tripo mesh to Blender rig to animation is new to the developer. | Prove the pipeline on Rowan alone in Epic 2, before any level art. Use a simpler hand-built model as the fallback, for the hero and for enemies. |
-| No image model chosen. Epic 0's style lock and Tripo's input views both depend on it. | Choose it before Epic 0 starts. |
+| Generated views disagree with each other (horn shape, scarf side, proportions) and warp Tripo's mesh. | Make the views with Tripo's own multiview tool from the signed-off concept, and have the developer approve them before mesh credits are spent. The Gemini app is the fallback (tools decision 2026-11-13). |
 | Time and scope. At 8 to 10 hours a week, every extra feature delays the finish. | The MVP is Level 1. Reject scope growth unless the developer asks for it. |
 | The story hook depends on visuals. If players don't read the story from Rowan's changes and the places he passes through, it doesn't land. | Epic 3's exit criteria check that players can say who Rowan is and what he wants. |
 | Version one runs short of 20 minutes. | Level length is a time target, set from the pace measured in Epic 1 and checked in Epic 5's exit criteria. |

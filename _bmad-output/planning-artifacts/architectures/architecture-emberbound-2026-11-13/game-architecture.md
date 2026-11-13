@@ -3,7 +3,7 @@ title: 'Game Architecture'
 project: 'Emberbound (working title)'
 date: '2026-11-13'
 author: 'Emilijan'
-version: '1.3'
+version: '1.4'
 stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8, 9]
 status: 'complete'
 engine: 'three.js r187 (WebGLRenderer, GLSL), TypeScript 6.0, Vite 8.3'
@@ -79,7 +79,7 @@ This architecture document was created through the GDS Architecture Workflow on 
 - three.js on WebGL, TypeScript (strict), Vite.
 - Vitest for the simulation; Playwright for screenshots.
 - Tripo, then Blender (through MCP), then glTF.
-- Open when this document started: the level editor, the audio tools, the image model. The level editor is now settled as Tiled (Architectural Decisions); the other two remain open.
+- Open when this document started: the level editor, the audio tools, the image model. The level editor is now settled as Tiled (Architectural Decisions). The image model is the Gemini app with Nano Banana Pro, and Tripo makes its own input views (2026-11-13); both are web apps the developer runs, outside the build. The audio tools are chosen in story 3.15.
 
 ### Core Systems
 
@@ -1607,6 +1607,8 @@ ui.loadingCard.show(STORY_TEXT.levelLine['drowned-mill']);
 
 **v1.3 (2026-11-13):** the sprint change proposal `sprint-change-proposal-2026-11-13-readiness.md` closed gaps the implementation readiness check found: the arena camera lock and the respawn snap (Gameplay Camera, Level Data), the World's last step at `levelCompleted` (State Management), bundle membership and two budget groups (Asset Management), when `regionEntered` fires (Event System), the debug-URL bypass, `reducedMotion=1` and `?perf=1` segments (Debug Tools), and the look-dev checks run by `make shots` (Testing Strategy).
 
+**v1.4 (2026-11-13):** the sprint change proposal `sprint-change-proposal-2026-11-13-tools.md` recorded the tool choices: the image model and Tripo's input views (Settled stack, First Steps).
+
 ### Follow-ups Outside This Document
 
 All three are done (checked 2026-11-13, sprint change proposal `sprint-change-proposal-2026-11-13-planning-gaps.md`):
@@ -1671,4 +1673,4 @@ make check           # lint, format check, type check, tests
 1. **Epic 0, story 1:** scaffold the repository as in Project Initialization: `mise.toml`, the `Makefile`, the Vite `vanilla-ts` template, ESLint, Prettier, Vitest, Playwright, `.gitattributes` for Git LFS, and the DOM-free `src/sim/tsconfig.json`.
 2. **Before the first binary is committed:** check GitHub's LFS quota and turn LFS on.
 3. **Authorize Context7** with `/mcp`.
-4. **Choose the image model** and log its terms in `docs/ASSETS.md`. It blocks Epic 0's reference art (GDD Dependencies).
+4. **Log the image model's terms** in `docs/ASSETS.md` (the Gemini app with Nano Banana Pro, chosen 2026-11-13). Story 0.4 does this before the first image.

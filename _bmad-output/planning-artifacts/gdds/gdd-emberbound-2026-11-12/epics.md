@@ -482,7 +482,7 @@ Seven epics, one per milestone (M0 to M6), in order. Each delivers something pla
 
 The developer can open a look-dev page and a test scene that show the game's chosen look rendered in the engine, with the repository, tooling and overlay tokens in place, so every later asset inherits one look.
 **Covers:** FR167, FR208, FR210 (concept), FR216 (sample card); NR14–NR15, NR100–NR104 (palette rules); NFR1–NFR3 and NFR5 (budget checks on the test scene), NFR9, NFR14, NFR27–NFR28, NFR33–NFR34; PR7, PR14, PR22–PR26, PR33; AR1–AR12, AR14–AR37, AR152, AR157–AR158, AR160–AR165, AR168–AR170, AR177–AR179, AR203–AR206, AR215–AR217, AR219, AR222–AR230, AR233; UX-DR1–UX-DR8, UX-DR10–UX-DR11, UX-DR15–UX-DR16, UX-DR31 (placement), UX-DR61, UX-DR91, UX-DR111; X-C6.
-**Depends on:** the image model chosen and its terms logged; tool budgets.
+**Depends on:** the image model, chosen 2026-11-13 (the Gemini app with Nano Banana Pro, on the developer's Google AI Pro plan), with its terms logged in story 0.4 before the first image; the tool budgets in the GDD's Dependencies table (tools decision 2026-11-13).
 
 ### Epic 1: Grey-box core
 
@@ -527,7 +527,7 @@ The developer can open a look-dev page and a test scene that show the game's cho
 - Repository scaffold on the settled stack and the architecture's toolchain: `mise.toml`, the `Makefile`, the Vite `vanilla-ts` template, TypeScript (strict, with the DOM-free `src/sim/tsconfig.json`), ESLint with the layer boundaries, Prettier, Vitest, Playwright, `.gitattributes` for Git LFS, `core/log.ts` and `README.md`.
 - The budget checker in `make build`: the 30 MB total, itch.io's file limits and the per-asset budgets. The manifest step joins `make build` in Epic 1.
 - The DESIGN.md tokens as `--{group}-{name}` CSS custom properties, with a test that keeps them in step with DESIGN.md and a contrast check.
-- **Reference art:** the hero design sheet and Emberwood key art, in each candidate style (dark fantasy, comic, mix), from the reference prompts in `docs/PROJECT_BRIEF.md` §5. The key art keeps:
+- **Reference art:** the hero design sheet and Emberwood key art, in each candidate style (dark fantasy, comic, mix), from the reference prompts in `docs/PROJECT_BRIEF.md` §5. The agent adapts the prompts; the developer runs them in the Gemini app and saves the images; the agent looks at each one and logs it (tools decision 2026-11-13). The key art keeps:
   - the hero small in the lower third
   - a clear walkable ground line, a gap and a raised platform
   - layered depth
@@ -557,7 +557,7 @@ The developer can open a look-dev page and a test scene that show the game's cho
 
 **Out of scope:** gameplay and the simulation beyond `CONFIG.view`; the hero model; level layout; the asset loader and the manifest (Epic 1); the `?shot=` screenshot mode, gameplay spots and the other debug tools (Epic 1); the HUD and every other overlay surface (Epic 1 onward); card input, card timings and the other six cards (Epics 3 and 5); the `?perf=1` recorder and the performance pass on the reference machines (Epic 6).
 
-**Depends on:** the image model chosen and its terms logged; tool budgets.
+**Depends on:** the image model, chosen 2026-11-13 (the Gemini app with Nano Banana Pro, on the developer's Google AI Pro plan), with its terms logged in story 0.4 before the first image; the tool budgets in the GDD's Dependencies table (tools decision 2026-11-13).
 
 **Playable deliverable:** the look-dev page and the test scene, running in the browser.
 
@@ -712,17 +712,18 @@ I want a hero design sheet and Emberwood key art in each candidate style,
 So that I choose the game's look from images of my own hero and first level, not from placeholder scenes.
 
 **Requirements:** FR210 (concept), NFR34, PR22, PR26 (image model and tool budgets), AR158
-**Depends on:** the image model the developer chose, with its terms, commercial use included, logged in `docs/ASSETS.md`; the tool budget the developer set for it
+**Depends on:** the image model the developer chose (the Gemini app with Nano Banana Pro, on his Google AI Pro plan; tools decision 2026-11-13), with its terms, commercial use included, logged in `docs/ASSETS.md`; the tool budget in the GDD's Dependencies table
 
 **Acceptance Criteria:**
 
 **Given** the image model the developer chose
 **When** the story starts
 **Then** `docs/ASSETS.md` exists with a tools table (tool, version or plan, licence and commercial-use terms, date checked) and an assets table (file, tool, licence, AI-generated yes or no, date), and the image model's row is filled in
+**And** that row records, from Google's official pages: the plan and when the student offer ends; who owns the images and whether they may be used commercially; whether prompts and uploads may be read by people or used for training, and the activity setting the developer chose; any visible watermark the plan adds; the date checked; and the page addresses (tools decision 2026-11-13)
 **And** if the terms don't allow commercial use of the images, or the tool budget isn't set, the story stops and the developer decides
 
-**Given** the reference prompts in `docs/PROJECT_BRIEF.md` §5, adapted to the chosen model
-**When** the references are generated
+**Given** the reference prompts in `docs/PROJECT_BRIEF.md` §5, adapted to the chosen model by the agent
+**When** the developer runs them in the Gemini app and saves the results where the agent can open them (tools decision 2026-11-13)
 **Then** each candidate style gets one hero design sheet and one Emberwood key art: stylised dark fantasy (a cold teal and plum palette, fog, a pale glow behind trees, simple flat shapes with soft gradients); comic illustration (flat colours, banded shading, dark ink outlines, one dominant colour per level); and the mix (comic shading and outlines with the dark-fantasy palette)
 **And** every hero sheet is full body, in a neutral standing pose on a plain light background, and shows Rowan's cursed form: a horned ember-beast, clearly not an ape; upright, with two legs and two arms, about 3 heads tall; two bone horns sweeping back; a furnace glow in the chest; ember-bright eyes; charcoal skin with glowing seams; a torn red woodsman's scarf; determined, not monstrous
 **And** every key art is a side-on 2.5D platformer view of Emberwood at dusk, with the hero small in the lower third, a clear walkable ground line, a gap, one raised platform, hanging lanterns, drifting embers and layered depth (dark foreground plants, the play area, misty trees, distant ridges)
@@ -731,7 +732,7 @@ So that I choose the game's look from images of my own hero and first level, not
 **Given** each generated image
 **When** it comes back from the model
 **Then** it is opened and looked at before it is described or kept; one that misses a rule above is regenerated, within the tool budget
-**And** if the tool budget runs out before every image meets the rules, the story stops, reports the spend and the rules each image still fails, and the developer decides (readiness proposal 2026-11-13, Q9)
+**And** if the tool budget runs out before every image meets the rules, the story stops, reports the spend and the rules each image still fails, and the developer decides (readiness proposal 2026-11-13, Q9); on the flat-rate plan, the budget for an image runs out after 5 † generations or edits (tools decision 2026-11-13)
 **And** the prompts name no other game, studio or artist, and no image takes a name, character or layout from Toki or any other game, or anything Dungeons & Dragons invented
 
 **Given** the kept images
@@ -2538,9 +2539,10 @@ The player sees Rowan, stage 1, fully animated and matching his concept, playing
 **In scope:**
 
 - **Tools, before any mesh:** Tripo's licence and commercial-use terms checked and logged in `docs/ASSETS.md` (PR26); Blender pinned; the Blender MCP set up from its current documentation (AR159).
+- **Who runs the generators** (tools decision 2026-11-13): on the Tripo Pro plan, the developer runs Tripo in its web app, and the Gemini app for any fallback views, and saves each file in `art-src/`. The agent prepares the prompts and inputs, checks every result and logs it. Driving Tripo through its API, its MCP server or its CLI needs the developer's approval, its spend in the budget and its terms logged first.
 - **The asset pipeline** from `docs/PROJECT_BRIEF.md` §7 (PB59), run for Rowan in stage 1:
   1. the reference concept signed off in Epic 0
-  2. four views (front, back, left, right) from the image model the developer chose
+  2. four views (front, back, left, right) made from that concept with Tripo's own multiview tool, or in the Gemini app if Tripo's views don't agree (tools decision 2026-11-13)
   3. the Tripo mesh
   4. clean-up in Blender through the MCP: scale and origin, polygons, materials, named parts
   5. rig
@@ -2561,8 +2563,8 @@ The player sees Rowan, stage 1, fully animated and matching his concept, playing
 
 - Epic 1, done and approved: grey-box Level 1 with a placeholder Rowan, view sync by entity id, asset loading and the manifest, the F1 debug overlay, the dev handle and screenshot mode.
 - Epic 0: the signed-off hero concept, `docs/STYLE_GUIDE.md`, the materials factories, palettes and lighting, the look-dev page with renderer statistics, the screenshot harness and the budget checker.
-- The image model the developer chose, with its terms logged in `docs/ASSETS.md`.
-- A Tripo plan within the tool budgets set in Epic 0, with Tripo's terms logged (Story 2.1) before any mesh is generated.
+- The image model the developer chose (the Gemini app), with its terms logged in `docs/ASSETS.md`.
+- The Tripo Pro plan ($20 a month, 3,000 credits a month), taken monthly from Story 2.1, with Tripo's terms logged (Story 2.1) before any image is uploaded or mesh generated (tools decision 2026-11-13).
 
 **Playable deliverable:** Rowan, stage 1 with all 11 base animations, playing grey-box Level 1 in the browser, and shown under the game's look on the look-dev page.
 
@@ -2575,18 +2577,19 @@ I want Tripo's terms checked and logged, Blender pinned, and Claude Code able to
 So that no mesh is made under terms the game can't ship with, and every later pipeline step runs on known, repeatable tools.
 
 **Requirements:** PR26 (Tripo), AR159 (Blender MCP set-up), PB59 (step 7, tool logging), NFR43
-**Depends on:** a Tripo plan within the tool budgets set in Epic 0.
+**Depends on:** the Tripo Pro plan in the GDD's tool budgets ($20 a month), which the developer takes, billed monthly, at the start of this story (tools decision 2026-11-13).
 
 **Acceptance Criteria:**
 
 **Given** Tripo is the planned mesh tool and nothing has been uploaded to it yet
 **When** the developer and the agent read Tripo's current terms of service, licence and pricing pages
 **Then** `docs/ASSETS.md` has a Tripo entry that records: the plan used; whether that plan's outputs may be used in a game sold commercially; who owns the outputs; any attribution requirement; whether that plan makes outputs or uploaded images public or uses them for training; the date checked; and the page addresses
-**And** the entry exists before any image is uploaded to Tripo (PR26).
+**And** the entry exists before any image is uploaded to Tripo (PR26)
+**And** it also records whether the terms cover the images Tripo's own image tools make (the four views come from its multiview tool), whether the plan's credits pay for API, MCP or CLI use or only for the web app, and whether the commercial rights to outputs made on the plan survive cancelling it (tools decision 2026-11-13).
 
 **Given** the terms don't allow the use on a plan within the tool budget, or carry a condition the developer rejects
 **When** the check ends
-**Then** nothing is uploaded to Tripo, `docs/ASSETS.md` records why, and the epic continues on the hand-built route: a simpler model built in Blender from the reference views
+**Then** nothing is uploaded to Tripo, `docs/ASSETS.md` records why, and the epic continues on the hand-built route: a simpler model built in Blender from the reference views, which are then made in the Gemini app, since Tripo's multiview tool is ruled out too (tools decision 2026-11-13)
 **And** the story still closes, because every later story in this epic works on either route.
 
 **Given** Blender is needed for clean-up, rigging, animation and export
@@ -2611,19 +2614,20 @@ I want front, back, left and right views of Rowan drawn from his signed-off conc
 So that the pipeline starts from one consistent design, and the mesh is judged fit for rigging before any clean-up work.
 
 **Requirements:** FR210 (model input), NR56, NR58 (stage 1), PB59 (steps 1 to 3, and 7), AR154, AR158
-**Depends on:** the image model the developer chose before Epic 0, with its terms logged in `docs/ASSETS.md`.
+**Depends on:** Tripo's terms logged and the Pro plan taken (Story 2.1); the Gemini app, with its terms logged in `docs/ASSETS.md` (Story 0.4), for fallback views (tools decision 2026-11-13).
 
 **Acceptance Criteria:**
 
 **Given** the hero concept signed off in Epic 0, in the locked style
-**When** the four views are generated from it with the image model the developer chose, using the brief's view prompt (the same character and outfit, arms slightly away from the body, a plain background)
+**When** the developer makes the four views from it in Tripo's web app with Tripo's multiview tool, uploading the concept with any visible watermark cropped out, and choosing the options from Tripo's current documentation (tools decision 2026-11-13)
 **Then** the front, back, left and right views are saved in `art-src/hero/` under kebab-case names (AR154)
-**And** each is logged in `docs/ASSETS.md` as AI-generated, with the tool, the prompt and the date (AR158).
+**And** each is logged in `docs/ASSETS.md` as AI-generated, with the tool, the prompt or settings, and the date (AR158).
 
 **Given** the four views
 **When** the agent looks at each one beside the concept, and the developer reviews them
 **Then** all four show every feature of the design: a horned ember-beast, clearly not an ape; upright, with two legs and two arms, about 3 heads tall, on a human-shaped skeleton; two bone horns sweeping back; a furnace glow in the chest; ember-bright eyes; charcoal skin with glowing seams; the torn red woodsman's scarf; determined, not monstrous (FR210, NR56, NR58)
-**And** any views that disagree with each other (horn shape, scarf side, proportions, claws) are regenerated until the set agrees, within the tool budget set in Epic 0, and the developer approves the set
+**And** any views that disagree with each other (horn shape, scarf side, proportions, claws) are regenerated until the set agrees, within the tool budget in the GDD's Dependencies table, and the developer approves the set
+**And** if Tripo's views still disagree after the regenerations the developer allows, the views are made in the Gemini app instead, from the concept with the brief's view prompt (the same character and outfit, arms slightly away from the body, a plain background), at most 5 † attempts per kept view (tools decision 2026-11-13)
 **And** if the budget runs out before the set agrees, the story stops, reports the spend and what still disagrees, and the developer decides (readiness proposal 2026-11-13, Q9).
 
 **Given** Tripo's terms are logged and permit the use (Story 2.1)

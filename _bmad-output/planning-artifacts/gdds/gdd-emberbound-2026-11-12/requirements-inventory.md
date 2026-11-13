@@ -1815,7 +1815,7 @@ All in `_bmad-output/planning-artifacts/ux-designs/ux-emberbound-2026-11-13/mock
 Everything else in the brief is superseded by the GDD or repeated by another source (Appendix A, brief vs GDD). These four add detail no other source carries.
 
 - PB52: Sub-step visual springs or use a stable integrator (squash-and-stretch went unstable at low frame rates). (PROJECT_BRIEF.md:213)
-- PB59: Pipeline: (1) reference concept image in the locked style (image model OPEN); (2) front, back, left and right views from the same image model; (3) mesh in Tripo from those views; (4) cleanup in Blender through MCP: fix scale and origin (feet at the origin, 1 unit = 1 tile), reduce polygons, check materials, name parts; (5) rig and animate in Blender: one shared human-shaped skeleton for the hero and human-shaped enemies with a common motion library, creatures get their own; (6) export glTF, assign the game's shared materials and palette, drop the generator's shading, view on the look-dev page, screenshot, compare with the style guide; (7) log the asset, tool and licence in `docs/ASSETS.md`. (PROJECT_BRIEF.md:223-229)
+- PB59: Pipeline: (1) reference concept image in the locked style (image model OPEN; decided 2026-11-13: the Gemini app with Nano Banana Pro); (2) front, back, left and right views from the same image model (decided 2026-11-13: from Tripo's own multiview tool, with the Gemini app as the fallback); (3) mesh in Tripo from those views; (4) cleanup in Blender through MCP: fix scale and origin (feet at the origin, 1 unit = 1 tile), reduce polygons, check materials, name parts; (5) rig and animate in Blender: one shared human-shaped skeleton for the hero and human-shaped enemies with a common motion library, creatures get their own; (6) export glTF, assign the game's shared materials and palette, drop the generator's shading, view on the look-dev page, screenshot, compare with the style guide; (7) log the asset, tool and licence in `docs/ASSETS.md`. (PROJECT_BRIEF.md:223-229)
 - PB61: Environment art is a kit of reusable pieces snapping to the tile grid (ground chunks, ledges, props, background layers). Art dresses a layout that already plays well. (PROJECT_BRIEF.md:233)
 - PB62: Raw generated meshes are fine for background props; the hero and enemies must deform cleanly when animated. (PROJECT_BRIEF.md:235)
 
@@ -1854,11 +1854,11 @@ Everything else in the brief is superseded by the GDD or repeated by another sou
 
 
 - Art style not locked: all final-art stories after Epic 0 depend on the Epic 0 pick recorded in `docs/STYLE_GUIDE.md`. (gdd.md:708, 935)
-- Image model for reference art and Tripo input views not chosen; needed before Epic 0 starts; commercial-use terms to be logged. (gdd.md:934, 968)
+- Image model: chosen 2026-11-13, the Gemini app with Nano Banana Pro on the developer's Google AI Pro plan; Tripo's input views come from Tripo's multiview tool; commercial-use terms logged in story 0.4. (gdd.md:936, 970)
 - Story-card warm-light exception and card style pending Epic 0 sample card; card-shape source (hand-made vs generated) undecided. (gdd.md:670-671, 719)
 - Audio tools not chosen; needed by Epic 3 (Level 1 audio). (gdd.md:777, 939)
-- Tripo licence and commercial-use terms to be checked by Epic 2. (gdd.md:938)
-- Tool budgets not set; needed by Epic 0. (gdd.md:122, 940)
+- Tripo licence and commercial-use terms to be checked by Epic 2 (story 2.1), on the Pro plan chosen 2026-11-13. (gdd.md:940)
+- Tool budgets: set 2026-11-13. Image model: the Google AI Pro plan's included use, at most 5 † attempts per kept image. Tripo: Pro, $20 a month from story 2.1. Nothing paid beyond them without the developer's approval. (gdd.md:121, 942)
 - Reference test machines not named; needed before Epic 6 performance stories. (gdd.md:786, 944)
 - Release-success measurement undecided (analytics with consent / proxy signal / none); decide before Epic 6. Analytics would add a consent-prompt story. (gdd.md:897, 982)
 - Final title not chosen; needed before any public page and for the Epic 6 release ("released under the final title"). (gdd.md:859, 945, 958)

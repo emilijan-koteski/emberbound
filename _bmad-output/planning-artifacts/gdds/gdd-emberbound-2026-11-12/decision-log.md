@@ -249,3 +249,13 @@ Canonical record of decisions, changes and version transitions made while writin
   - The piercing shot follows the hub rule against the warden.
   - After a respawn or a pit return the camera snaps to Rowan during the fade, and shots and seeds in flight are cleared.
   - The audio tools and formats are chosen at the start of story 3.15.
+
+### Update from tool choices (2026-11-13)
+
+- **Intent: update, through `gds-correct-course`.** Change signal: the developer's tool choices, the two items the readiness check left open before Epic 0. Proposal: `sprint-change-proposal-2026-11-13-tools.md`.
+- **Developer decisions:**
+  - **Image model: the Gemini app with Nano Banana Pro,** on his Google AI Pro plan (student offer). Recommended over ChatGPT, Midjourney and the Gemini API: no extra cost, and strong at keeping one character consistent across edits. Google's Terms of Service (effective 30 July 2026) claim no ownership of generated content and don't limit it to non-commercial use. Google Flow, a video tool, is not used.
+  - **Tripo: the Pro plan, $20 a month,** taken monthly from story 2.1, not before. Pro is the lowest plan with multi-view input, private models and commercial-use rights.
+  - **The four views come from Tripo's own multiview tool,** made from the signed-off concept, with the Gemini app as the fallback. Views made one at a time can disagree and warp the mesh.
+  - **The developer runs both web apps by hand** and saves the files in `art-src/`; the agent writes the prompts, checks each result and logs it. Tripo's web credits probably don't pay for its API (unverified), so the API, its MCP server and its CLI stay off unless he approves them.
+- **Settled without a design choice:** at most 5 † image generations or edits per kept image, then stop and ask, since a flat-rate plan never runs out of money; a visible watermark the plan adds stays on the references, which never ship, and is cropped out of the concept before it goes to Tripo.

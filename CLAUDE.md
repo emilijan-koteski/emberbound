@@ -12,7 +12,8 @@ A small 2.5D side-scrolling platformer for the browser. One developer, working t
 | --- | --- |
 | Game and renderer | three.js on WebGL, TypeScript (strict), Vite |
 | Tests | Vitest for the simulation, Playwright for screenshot checks |
-| 3D meshes | Tripo, from reference images |
+| Reference art and concepts | The Gemini app with Nano Banana Pro, on the developer's Google AI Pro plan |
+| 3D meshes | Tripo (Pro plan), from four views made by its own multiview tool |
 | Cleanup, rigging, animation, glTF export | Blender, driven through Blender MCP |
 | Planning, code, review | Claude models, through Claude Code and the BMad workflows |
 | Level editor | Tiled 1.12.x; levels compiled into the game's own format |
@@ -20,7 +21,7 @@ A small 2.5D side-scrolling platformer for the browser. One developer, working t
 | Local tools | mise pins tool versions; a Makefile is the single entry point; any service runs in Docker |
 | Binary assets | Git LFS |
 
-Still open: the image model for reference art and the audio tools. Do not pick these silently.
+Still open: the audio tools, chosen at the start of story 3.15. Do not pick them silently.
 
 ## How to work
 

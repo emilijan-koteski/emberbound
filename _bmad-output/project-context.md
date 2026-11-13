@@ -5,7 +5,7 @@ date: '2026-11-13'
 sections_completed: ['technology_stack', 'engine_rules', 'performance_rules', 'organization_rules', 'testing_rules', 'platform_rules', 'anti_patterns']
 existing_patterns_found: 0
 status: 'complete'
-rule_count: 129
+rule_count: 130
 optimized_for_llm: true
 source: '_bmad-output/planning-artifacts/architectures/architecture-emberbound-2026-11-13/game-architecture.md'
 ---
@@ -36,6 +36,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
   - Tiled 1.12.x, the level editor.
   - Blender, version pinned in Epic 2.
   - git-lfs.
+  - Web apps the developer runs by hand, outside the build: the Gemini app (Nano Banana Pro) for reference art and concepts, and Tripo (Pro plan) for the four views and the meshes. Agents write the prompts and check the results; they never call these services or handle their keys unless the developer approves it.
   - Docker, only if a service is ever needed.
 - **Nothing else.** Ask the developer before adding any dependency, library or tool.
 
