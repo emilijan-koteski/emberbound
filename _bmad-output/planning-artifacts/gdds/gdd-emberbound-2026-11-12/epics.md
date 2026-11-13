@@ -41,8 +41,13 @@ updated: 2026-11-13
   - lighting rule
   - what warm light is reserved for
   - the reference images
+  - the story-card style: layered paper-cut silhouettes built in the engine, and whether cards may also use warm light for Elin and home (see the narrative design document, Narrative Delivery)
 - The game's own look, applied to everything: materials for ground, foliage, characters, props and effects; a palette per level; lighting per level; and outlines and colour grading if the style uses them.
 - A look-dev page that shows any asset under the game's look, next to the style-guide swatches.
+- **A sample story card** on the look-dev page: intro card 2, the glowing crack.
+  - It confirms the silhouette style and the cards' warm-light exception. If the exception is refused, the forge glow on cards turns pale and cold.
+  - It sets the palette for story scenes outside the levels: the village and the hollow chamber.
+  - It settles where the card shapes come from (made by hand or generated), logged in `docs/ASSETS.md`.
 - A test scene built from simple shapes that reproduces the chosen look.
 
 **Out of scope:** gameplay, the hero model, level layout.
@@ -57,11 +62,12 @@ updated: 2026-11-13
 
 1. Scaffold the repository and test tooling.
 2. Generate the hero and Emberwood references in each candidate style.
-3. Run the style review with the developer and write `docs/STYLE_GUIDE.md`.
+3. Run the style review with the developer and write `docs/STYLE_GUIDE.md`, including the story-card style.
 4. Build the palette and the shared materials.
 5. Build the per-level lighting, plus outlines and grading if the style uses them.
 6. Build the look-dev page.
 7. Build the test scene and run the critic loop.
+8. Build the sample story card and confirm the card style.
 
 ---
 
@@ -175,15 +181,23 @@ updated: 2026-11-13
   - 3 checkpoints, 3 bells, 100 to 150 embers †, a triple shot pickup
   - a length that gives 6 to 8 minutes of first play
 - **The Emberwood art kit:** ground pieces, ledges, one-way ledges, moving platform, spikes, props, lanterns, 3 or 4 backdrop layers.
+- **Emberwood story props** (narrative design document, Environmental Storytelling):
+  - the empty wedding glade with benches and a garland arch, the level's exit
+  - carved woodsman's waymarkers that carry the control signs
+  - the cold chimney of Elin's foundry in the far-distance layer
 - **Enemy models and animations** for the walker, the thorn flyer and the rooted spitter, each checked for clean deformation, with a hand-built fallback.
 - **Pickup and marker art:** ember, bell, triple shot, checkpoint, exit. Collectable embers must look different from Rowan's shots.
 - **Control-sign icons** for keyboard and gamepad.
 - **The final HUD:** hearts, ember meter, weapon timer.
 - **Audio:**
-  - the Level 1 tune
+  - the Level 1 tune, carrying Elin's bell motif, which the bell pickup sound also plays
+  - the end-of-level stinger and the Emberwood ambience
   - the hero, enemy, world and interface sounds used in Level 1
   - the mute key
-- **Story:** the intro cards and Level 1's story line. The intro may use placeholders until narrative design is done.
+- **Story:**
+  - The story text, the 5 intro cards, and Level 1's line on its loading card.
+  - The text is final (narrative design document, Narrative Delivery).
+  - The cards are layered silhouettes built in the engine. Placeholder silhouettes are acceptable for the playtest; placeholder text is not, because the playtest checks whether players can say who Rowan is and what he wants.
 - **Readability checks:** pits read as dark, hazards contrast, aiming spots have clear lines of sight, control signs stay clear of the play area.
 - **A playtest** with 3 to 5 first-time players from the primary audience, which also checks whether they can say who Rowan is and what he wants, and whether they want to play Level 2.
 
@@ -209,7 +223,7 @@ updated: 2026-11-13
 6. Make the pickup, marker and control-sign art.
 7. Build the final HUD.
 8. Add the Level 1 tune and sound effects.
-9. Add the intro and the Level 1 story line.
+9. Add the story text, the intro silhouette cards, and the Level 1 line on its loading card.
 10. Run the critic loop on the Level 1 camera spots.
 11. Run the playtest and fix what it finds.
 
@@ -221,7 +235,7 @@ updated: 2026-11-13
 
 **In scope:**
 
-- The warden's concept, name and look, reworked through narrative design.
+- **The warden is the Drowned Miller.** The concept is settled in narrative design. This epic builds his look, with the seal at the wheel's hub, plus decals for Harrowmere's mark and the Tithe's sign. Both symbols are checked for originality before they are drawn.
 - **The warden's behaviour, as specified in the GDD:**
   - 30 HP
   - 2 phases with a set attack order
@@ -231,14 +245,20 @@ updated: 2026-11-13
   - a full reset when Rowan respawns
 - The arena: one screen, ledges 3 tiles up †, a checkpoint at the door, a triple shot pickup before it.
 - The warden's model and animations, and the arena art. The arena art is built standalone and joined to Level 2 in Epic 5.
-- The seal-break moment: in the engine, 15 s or less †, no text, skippable on replays only.
+- The seal-break moment: in the engine, 15 s or less †, no text, skippable on replays only. It follows the staging in the narrative design document (Gameplay Integration):
+  1. the seal shatters
+  2. the wheel stops
+  3. the Miller sinks, at rest
+  4. Rowan changes under a flash of embers
+
+  Rowan can't be hurt during it, and attacks already in flight are removed; this has a unit test.
 - **Rowan stage 2:** one horn broken and a human hand, on the same rig.
 - **Ledge grab:** simulation, tests including a reach of 4 tiles or less †, and the hang and climb-up animations.
-- **Audio:** the Level 2 tune and its warden arrangement, and the warden sounds.
+- **Audio:** the Level 2 tune and its warden arrangement, the warden sounds, and the seal-break stinger. The tune and the stinger carry Elin's motif.
 
 **Out of scope:** the Level 2 layout, the piercing shot.
 
-**Depends on:** Epic 3; the warden concept from narrative design.
+**Depends on:** Epic 3. The warden concept from narrative design is done.
 
 **Playable deliverable:** the warden fight in its arena, ending in the seal-break moment. Rowan stage 2 can try out ledge grab in a test room.
 
@@ -250,7 +270,7 @@ updated: 2026-11-13
 
 **Draft stories:**
 
-1. Finalise the warden concept (narrative design).
+1. Check the two symbols for originality.
 2. Build the warden's behaviour and attack order, with tests.
 3. Build the arena layout and the door checkpoint.
 4. Build the warden model and animations.
@@ -276,22 +296,30 @@ updated: 2026-11-13
   - deep water that works like a pit
   - the piercing shot pickup
   - the level leads into the Epic 4 arena
+  - story props: drowned carts and fences, decorative waterwheels, the millhouse, and grain sacks marked with Harrowmere's mark at the warden's door checkpoint
 - **Level 3, Harrowmere ruins:**
   - grey box, then final layout, built around ledge grab
   - the Harrowmere art kit
-  - a final stretch of mixed enemies
+  - the level starts at the old siege line outside the walls: a rotted siege camp and a scorched circle
+  - the burned gate with Harrowmere's mark, which pairs with the mill's sacks; household props left in the streets
+  - a final stretch of mixed enemies, then a short calm walk to the exit, the town's fallen fire bell below its collapsed tower
 - Both levels follow the GDD's difficulty caps and the 6 to 8 minute target.
+- Bell hints in Levels 2 and 3 use ember trails and gaps, not lanterns.
 - The three enemies in each level's palette.
-- The Level 3 tune.
+- **Audio:**
+  - the Level 3 tune, which fades to wind in the last calm stretch
+  - the Drowned Mill and Harrowmere ambiences, with the great wheel growing louder near the arena
+  - the closing-card stinger, carrying Elin's motif
 - **Story:**
-  - the story lines for Levels 2 and 3
-  - the closing card, which must show Rowan facing Harrowmere and a sign that Elin is acting on her own
-  - the all-bells card
+  - the story lines for Levels 2 and 3, on their loading cards
+  - the held beat at the fallen bell: about 3 s †, no text, skippable on replays only. Rowan can't be hurt during it.
+  - the closing card and the all-bells card. Their text is final (narrative design document); the cards are silhouettes built in the engine.
+  - Level 3's end order: the held beat, the closing card, the all-bells card if earned, then the results
 - **A full playthrough test** of version one.
 
 **Out of scope:** new enemy types, Levels 4 to 6.
 
-**Depends on:** Epic 4; the ending decided through `gds-create-narrative`.
+**Depends on:** Epic 4. The ending is decided (narrative design, 2026-11-13).
 
 **Playable deliverable:** version one from start to finish.
 
@@ -306,8 +334,8 @@ updated: 2026-11-13
 5. Connect Level 2 to the warden arena.
 6. Grey-box Level 3 around ledge grab and add its jump tests.
 7. Build the Harrowmere kit and dress Level 3.
-8. Add the Level 3 tune.
-9. Add the story lines, the closing card and the all-bells card.
+8. Add the Level 3 tune, the two ambiences and the closing-card stinger.
+9. Add the story lines, the held beat, the closing card and the all-bells card, in Level 3's end order.
 10. Playtest the full version one.
 
 ---
@@ -319,7 +347,7 @@ updated: 2026-11-13
 **In scope:**
 
 - **Session flow:**
-  - Title screen: Continue, Level select, Settings.
+  - Title screen: Continue, Level select, Settings. The first Continue of a new save plays the intro once.
   - Pause menu: resume, restart level, settings, quit to level select.
   - Level select: finished levels plus the next unlocked one, with best time and bells found. Replays follow the replay-form rule (the form and abilities Rowan had on first arrival).
   - The all-bells card when the ninth bell is found on a replay, and watching it again from the level select.
@@ -330,6 +358,7 @@ updated: 2026-11-13
 - **A performance pass** on the reference machines: median frame time 16.7 ms or less, and 99th percentile 20 ms or less.
 - **The release:**
   - the final title, checked against existing games and trademarks
+  - the story names in the GDD's originality list, checked the same way
   - the itch.io page
   - an HTML5 build within itch.io's limits
   - asset credits from `docs/ASSETS.md`
@@ -350,7 +379,7 @@ updated: 2026-11-13
 3. Build the settings screen.
 4. Add the phone and tablet note.
 5. Run the performance pass on real hardware.
-6. Choose and check the title, and build the itch.io page.
+6. Choose and check the title, check the story names, and build the itch.io page.
 7. Package the release build and check it against itch.io's limits.
 8. Release.
 
@@ -375,6 +404,11 @@ updated: 2026-11-13
 | Results screen | 1 (basic), 6 (final) |
 | Title, Continue, pause, level select, replay-form rule, saving, settings | 6 |
 | Intro, level story lines, closing card, all-bells card | 3, 5 (all-bells on replay: 6) |
-| Music | 3 (Level 1), 4 (Level 2 and warden), 5 (Level 3) |
+| Story-card style (silhouettes, warm-light exception) | 0 (style), 3 and 5 (cards) |
+| Held beat and Level 3's end order | 5 |
+| Story props per level | 3 (Emberwood), 4 (seal and decals), 5 (Drowned Mill, Harrowmere) |
+| Originality checks of story names and symbols | 4 (symbols), 6 (names, before release) |
+| Music and stingers | 3 (Level 1, end-of-level stinger), 4 (Level 2, warden, seal-break stinger), 5 (Level 3, closing-card stinger) |
+| Ambience | 3 (Emberwood), 5 (Drowned Mill, Harrowmere) |
 | Sound effects | 3, 4 |
 | Performance targets | 6 |

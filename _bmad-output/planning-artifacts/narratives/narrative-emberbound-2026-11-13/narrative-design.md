@@ -499,7 +499,7 @@ The road: Maldrek takes Elin down the old road the Tithe walks, through places w
 - A river valley drowned into marsh: black water, fog, drowned fields and fence lines.
 - Smaller waterwheels turn everywhere as the bargain spreads.
 - The great wheel can be heard throughout the level, louder as Rowan nears the arena.
-- Sacks of grain marked with Harrowmere's sign rot in the mill.
+- Sacks of grain marked with Harrowmere's mark rot in the mill.
 
 **Narrative Significance:** Someone else's bargain, and the first warden, both mirror and victim. The first seal breaks here.
 **Atmosphere:** Cold fog and the endless sound of turning. After the seal breaks: silence and still water.
@@ -684,7 +684,7 @@ Version one tells most of its story here. The text sets the frame; the places, t
 - **Start:** the valley rim, looking down on the drowned valley in fog.
 - **The drowning:** fence lines and fields under black water. Grain carts half-sunk on the drowned road, which still points toward Harrowmere.
 - **The spreading wheels:** small waterwheels on posts turn everywhere. The bargain spreads. These are the GDD's waterwheel platforms, so the mechanic has a story reason.
-- **At the warden's door checkpoint:** rotting grain sacks marked with Harrowmere's sign, stacked by the millhouse door. This is the hidden link between the Miller's ruin and Rowan's fire. It is never stated, and it sits where the player pauses before the fight.
+- **At the warden's door checkpoint:** rotting grain sacks marked with Harrowmere's mark, stacked by the millhouse door. This is the hidden link between the Miller's ruin and Rowan's fire. It is never stated, and it sits where the player pauses before the fight.
 - **The arena:** inside the millhouse, the Miller fused with the great wheel.
 - **The seal:** the hub of the great wheel, marked with the Tithe's sign. When it shatters, the wheel stops.
 
@@ -698,7 +698,7 @@ Version one tells most of its story here. The text sets the frame; the places, t
   - No bodies and no child imagery. Dark, not grim.
 - **The climb:** ledge-grab routes through the ruins. The hand the seal gave back is what gets him through the town he burned.
 - **Bells:** Elin passed through here too, not knowing whose ruin it was. Hints use ember trails and gaps; no lanterns, because no one is left to light them.
-- **Exit: the fallen fire bell.** After the last hard section, a short calm stretch with no enemies leads to the square. Harrowmere's fire bell lies cracked where its tower fell. That is where Rowan stops. The last in-engine frame and the closing card should match.
+- **Exit: the fallen fire bell.** After the last hard section, a short calm stretch with no enemies leads to the square. Harrowmere's fire bell lies cracked where its tower fell. That is where Rowan stops. The held beat ends on him at the bell; the closing card then cuts away to Elin far below.
 
 *Rowan (all levels)*
 

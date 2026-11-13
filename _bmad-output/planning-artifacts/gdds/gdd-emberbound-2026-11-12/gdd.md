@@ -11,6 +11,7 @@ inputs:
   - _bmad-output/planning-artifacts/briefs/brief-emberbound-2026-11-12/addendum.md
   - docs/PROJECT_BRIEF.md
   - prototype/sprout-demo.html
+  - _bmad-output/planning-artifacts/narratives/narrative-emberbound-2026-11-13/narrative-design.md
 ---
 
 # Emberbound (working title) - Game Design Document
@@ -24,6 +25,7 @@ inputs:
 - **Source of truth.** This GDD supersedes the design defaults in `docs/PROJECT_BRIEF.md` (the planning doc). Vision, audience and scope come from the game brief. Decisions and their reasons are in `decision-log.md`; the detailed epic breakdown is in `epics.md`.
 - **Units and timing.** Numbers are in tiles and seconds. One tile is one world unit. The game updates 60 times a second, and each update is one "step".
 - **Status of numbers.** Unmarked numbers were proven in the Sprout prototype (`prototype/sprout-demo.html`) or decided by the developer. Numbers marked † are starting guesses, tuned with the developer in the epic named. No proven number changes without the developer.
+- **Narrative.** The story content lives in the narrative design document (`_bmad-output/planning-artifacts/narratives/narrative-emberbound-2026-11-13/narrative-design.md`): characters, world, every line of story text, environmental storytelling and the seal-break staging. This GDD keeps the rules and decisions that affect play and production.
 
 ---
 
@@ -187,7 +189,7 @@ The section ends in a calm spot before the next one builds tension.
 **Per level (6 to 8 minutes).**
 
 1. Reach the exit, or beat the warden at the end of Level 2.
-2. The results screen shows clear time, bells out of 3, respawns and embers.
+2. The results screen shows clear time, bells out of 3, respawns and embers. In Level 3 the closing story comes first; see Session flow.
 3. The game auto-saves.
 4. One line of story introduces the next level.
 
@@ -354,6 +356,7 @@ Durations convert to whole steps by rounding to the nearest step.
 **Enemy roster (version one).**
 
 - There are three enemy types in total. Levels 2 and 3 reuse them, coloured by each level's palette and arranged in harder combinations. The warden is the only new enemy after Level 1.
+- In the story, enemies are creatures twisted by a bargain made or paid nearby: the land pays too. That is why each level recolours them. No rule changes.
 - The names are internal working names. Check them for originality before any appears on screen.
 
 | Enemy | First seen | HP | Movement | Attack | Stomp | Hitbox |
@@ -377,13 +380,20 @@ Durations convert to whole steps by rounding to the nearest step.
 
 #### The Warden of the First Seal (Level 2 boss)
 
-*Concept (working; for narrative design to rework):*
+*Concept: the Drowned Miller.* Settled in narrative design on 2026-11-13; the full description is in the narrative design document.
 
-- A former debtor who bargained so that his mill would never stop turning.
-- He is now fused with the great waterwheel of the Drowned Mill.
-- Like Rowan, he once paid with what he held dearest.
-
-[NOTE FOR DESIGNER: name, look and story are placeholders. Rework them in `gds-create-narrative` before Epic 4 art starts.]
+- **Who:**
+  - Harrowmere's miller. When Rowan burned the town, the grain stopped and the mill was ruined.
+  - He bargained that his wheel would never stop. The river rose and drowned the valley, and the mill he loved took him in.
+  - Maldrek bound him to hold the first seal.
+- **Look:**
+  - A hunched miller fused with the great waterwheel, which rises from his back like a shell.
+  - Iron cog teeth along his back and shoulders are the spikes that make him unstompable.
+  - Water pours from him: pale and cold, with no warm light. His face is tired, not cruel.
+- **The seal** is the hub of the great wheel, marked with the Tithe's sign.
+- **Fate:** released, not killed. When the seal breaks, the wheel stops for the first time in ten years and he sinks, at rest.
+- **The link to Rowan** (his fire caused the ruin) is never stated. Grain sacks marked with Harrowmere's mark, at the door checkpoint, show it to players who look.
+- **Name:** "the Drowned Miller" is the working title. His given name (placeholder: Tobin Weir) needs an originality check before it appears on screen.
 
 *Arena and rules:*
 
@@ -415,10 +425,11 @@ Durations convert to whole steps by rounding to the nearest step.
 *Seal-break moment:*
 
 - After the warden falls, an in-engine sequence of 15 s or less † plays, with no text.
-- The seal shatters, and one of Rowan's horns breaks.
-- His right claw becomes a human hand, and the ember glow in his chest dims slightly.
-- The Level 3 story line follows.
+- The seal at the wheel's hub shatters and the great wheel grinds to a stop. The water stills, and the Miller sinks, at rest.
+- One of Rowan's horns breaks, his right claw becomes a human hand, and the ember glow in his chest dims slightly. A flash of embers from his chest covers the change, so no transformation animation is needed.
+- The results screen follows, then the Level 3 story line.
 - The sequence can be skipped on replays only.
+- Beat-by-beat staging, with timings †, is in the narrative design document (Gameplay Integration).
 
 ### Level Design Patterns
 
@@ -460,7 +471,9 @@ Level features, such as Level 2's waterwheel platforms and the warden, follow th
 
 - Three per level.
 - Each is reachable with the abilities Rowan has on first arrival, which are also the abilities he has on replays.
-- Each has at least one visual hint: an ember trail leading off the path, a lantern, or a gap in the foliage.
+- Each has at least one visual hint: an ember trail leading off the path, a lantern, or a gap in foliage or rubble.
+- Lanterns appear only in Emberwood, where people hung them for the wedding. Levels 2 and 3 use ember trails and gaps.
+- In the story, the bells are Elin's wedding bells, left along the road as a trail while Maldrek carried her off.
 - Good hiding spots:
   - behind foreground scenery
   - above the usual camera view
@@ -554,7 +567,7 @@ There is one difficulty setting, tuned generous. Intensity rises across version 
 | Start to checkpoint 1 | Run on flat ground; small step; tall step that needs a held jump; gap; stompable walkers; low thorn flyer to shoot; high flyer that needs aim-up |
 | Checkpoint 1 to 2 | Rooted spitter on flat ground (duck, jump or shoot); moving platform over a pit; one-way ledges to climb |
 | Checkpoint 2 to 3 | Spikes on a cliff top; a bridge that must be dropped through; triple shot below it |
-| Checkpoint 3 to exit | Mixed enemies, using the triple shot; exit |
+| Checkpoint 3 to exit | Mixed enemies, using the triple shot; a calm exit through the empty wedding glade, under its garland arch |
 
 - Control signs appear at the first use of each action.
 - Embers trace jump arcs from the first gap onward, and the first ember heal becomes possible by mid-level.
@@ -581,9 +594,9 @@ There is no shop and no score.
 
 | Type | Used in | Shape |
 | --- | --- | --- |
-| Standard level | Levels 1 and 3 | Side-scrolling and linear, left to right, 18 to 24 tiles tall †. 3 checkpoints, 3 bells, an exit marker. |
+| Standard level | Levels 1 and 3 | Side-scrolling and linear, left to right, 18 to 24 tiles tall †. 3 checkpoints, 3 bells, an exit marker. In Levels 1 and 3 the marker sits at a story prop: the wedding glade's arch, and the fallen fire bell. |
 | Level with warden | Level 2 | A standard level whose exit leads into the one-screen warden arena, with a checkpoint at the door |
-| Story moment | Between levels and after the warden | Intro, one line before each level, the seal-break moment, the closing card, the all-bells card |
+| Story moment | Between levels, after the warden, and at Level 3's exit | Intro, one line before each level, the seal-break moment, the held beat at the fallen bell, the closing card, the all-bells card |
 
 **Level length** is a time target: 6 to 8 minutes on a first play. The tile length comes from the pace measured on grey-box Level 1 in Epic 1. The prototype's 146 tiles are the starting point.
 
@@ -591,9 +604,9 @@ There is no shop and no score.
 
 | # | Level | Place and look | New element | Ends with | First-play target |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Emberwood | Rowan's home forest at dusk: old trees, mossy rock, wooden ledges, hanging lanterns. He learns his new body. | Base moves, 3 enemies, triple shot, ember meter | Exit | 6 to 8 min |
+| 1 | Emberwood | Rowan's home forest at dusk: old trees, mossy rock, wooden ledges, lanterns hung for his wedding. He learns his new body. | Base moves, 3 enemies, triple shot, ember meter | Exit under the wedding glade's arch | 6 to 8 min |
 | 2 | The Drowned Mill | Marsh and waterwheels. Deep water works like a pit. | Piercing shot; waterwheel platforms | The first warden, then the seal-break moment | 6 to 8 min, plus 1 to 2 min of warden fight |
-| 3 | Harrowmere ruins | The town Rowan burned ten years ago: charred walls, fallen beams, empty streets | Ledge grab | A last mixed-enemy stretch, then the closing card. Version one ends here. | 6 to 8 min |
+| 3 | Harrowmere ruins | The town Rowan burned ten years ago. It starts at the old siege line outside the walls, then charred walls, fallen beams, empty streets. | Ledge grab | A last mixed-enemy stretch, then a short calm walk (about 15 to 25 tiles †) to the town's fallen fire bell, the held beat and the closing card. Version one ends here. | 6 to 8 min |
 | 4 | Bellspire Pass | Ice and wind | Later | Not in version one | None |
 | 5 | The Tithe Road | The way down | Later | Not in version one | None |
 | 6 | The Hollow Court | Maldrek, then the pact | Later | Not in version one | None |
@@ -610,6 +623,10 @@ Six seals are held by six wardens. How wardens 2 to 6 map onto Levels 3 to 6 is 
 - **Level select:**
   - Lists the finished levels plus the next unlocked one, each with best clear time and bells found.
   - Any listed level can be played. Replays follow the replay-form rule.
+- **Intro:** plays once, on the first Continue of a new save. Skippable.
+- **Order at the end of a level:**
+  - Levels 1 and 2: the results, then, on a first play, the next level's line on its loading card. In Level 2 the seal break comes before the results.
+  - Level 3: the held beat, the closing card, the all-bells card if earned, then the results. Clear time and respawns arrive after the story lands, not between the bell and the card.
 - **Results screen**, after each level:
   - clear time in m:ss.s, not counting pauses or story moments
   - bells found in this run, out of 3
@@ -617,7 +634,7 @@ Six seals are held by six wardens. How wardens 2 to 6 map onto Levels 3 to 6 is 
   - embers collected, out of the level total
 - **All-bells card:**
   - Plays after the closing card if all 9 bells have been found by then.
-  - If the ninth bell is found on a replay, the card plays after that level's results.
+  - If the ninth bell is found on a Level 1 or 2 replay, the card plays after that level's results. On a Level 3 replay it follows the closing card, as above.
   - It can be watched again from the level select.
 
 ---
@@ -626,18 +643,25 @@ Six seals are held by six wardens. How wardens 2 to 6 map onto Levels 3 to 6 is 
 
 **Rules:**
 
-- A short intro: 5 or fewer illustrated cards, one line each, about 60 s at most, skippable.
-- One line of text before each level.
+- A short intro: 5 cards, one line each, about 60 s at most, skippable. It plays once, on the first Continue of a new save.
+- One line of text before each level, shown on the level's loading card for at least about 3 s † of reading time. Loading happens behind the card; the 3 s transition limit applies to loading, not to reading.
 - No dialogue during play.
 - The seal break is shown in the engine without text.
+- **The held beat:** at Level 3's exit, the fallen fire bell, control stops for about 3 s † while Rowan stands at the bell. Then the closing card. No text; skippable on replays only.
+- **Story moments are safe.** While control is stopped (the seal break, the held beat), Rowan can't be hurt, and enemy attacks already in progress are removed. This is a simulation rule with its own unit test.
 - The closing card after Level 3 must deliver two things:
   1. Rowan facing Harrowmere, his first payment for what he did.
   2. A sign that Elin is acting on her own, not waiting.
-
-  The exact content is written in `gds-create-narrative`.
 - The all-bells card, a memory of Elin the bell-maker, appears if all 9 bells are found.
+- **Story cards** (intro, closing, all-bells):
+  - They are layered paper-cut silhouettes, built in the engine from flat layers in the game's palettes, so the renderer owns their style.
+  - Card text is drawn over the art, never baked into it, so the text can change without redrawing.
+  - Cards advance on confirm, after a minimum of about 1.5 s † so a double press can't skip one. The closing and all-bells cards can be skipped on replays.
+  - On cards only, warm light may also mark Elin and home. Epic 0 confirms this exception, and the card style, on a sample card rendered in the engine. If the exception is refused, the forge glow on cards turns pale and cold.
+  - Where the shapes come from (made by hand or generated) is decided in Epic 0, together with the image model, and logged in `docs/ASSETS.md`. About 3 to 5 layers per card †.
+- **The text is written.** All of version one's story text and its voice rules are in the narrative design document (Narrative Delivery): 141 words over 5 intro cards, 3 level lines, the closing card and the all-bells card.
 
-**Backstory (input for narrative design):**
+**Backstory (summary; the full version is in the narrative design document):**
 
 - Ten years ago Rowan Ashby was a hired fire-caster, one of the Cindersworn. On a lord's order he burned the granary town of Harrowmere to end a siege.
 - The fire came from a bargain with the Ember Below, sealed with one line: *I will pay with what I hold dearest when the debt is called.* He had nothing dear then.
@@ -646,7 +670,7 @@ Six seals are held by six wardens. How wardens 2 to 6 map onto Levels 3 to 6 is 
 - Rowan reaches for the old fire to stop him, and the bargain claims him too: horns, cinder skin, a furnace in his chest. The curse leaves one gift: he can spit embers.
 - Six seals bind the bargain. Each is held by one of Maldrek's wardens, who were once debtors like Rowan. Each broken seal loosens the curse.
 
-**Words used on screen:**
+**Terms approved for on-screen use:**
 
 | Idea | Term |
 | --- | --- |
@@ -657,13 +681,13 @@ Six seals are held by six wardens. How wardens 2 to 6 map onto Levels 3 to 6 is 
 | The magic | Emberfire |
 | The bosses | Wardens of the six seals |
 
-**Full-game ending (not in version one):** not decided. The candidates:
+**Full-game ending (not in version one):** decided in narrative design on 2026-11-13. It combines two of the three earlier candidates, "Rowan gives up the fire" and "Elin learns the truth and chooses". The third, a simple win, was dropped because Elin must take part.
 
-1. Rowan gives up the fire, and Elin's bell breaks the last seal.
-2. Elin learns the truth, which Rowan hid, and chooses.
-3. A simple win.
-
-The fixed constraint is that Elin takes part in the ending; she does not just wait. Settle the ending in `gds-create-narrative` before Epic 5 writes the closing card, because the card must point toward it.
+- Elin learns that Rowan burned Harrowmere, and rings the bell that breaks the last seal anyway, by her own choice. The Tithe has no hold on her, because she never bargained.
+- Rowan gives up the fire as his payment, and becomes human.
+- Whether Elin stays with him is her choice; the player never makes it for her. There is one ending, with no branches.
+- Version one's closing card points toward it: far below, Elin is making a bell of her own.
+- Open for after version one: giving up the fire removes Rowan's only attack, so the final fight needs another way to play.
 
 ---
 
@@ -682,7 +706,7 @@ The fixed constraint is that Elin takes part in the ending; she does not just wa
 **Fixed rules, whatever the style:**
 
 - 3D characters on a 2D play plane, in front of layered backdrops: foreground, play layer, middle distance, far distance.
-- **Warm light belongs only to the hero, embers and lanterns.** Rowan, his shots and the collectables are always the warmest things on screen.
+- **Warm light belongs only to the hero, embers and lanterns.** Rowan, his shots and the collectables are always the warmest things on screen. Lanterns appear only in Emberwood. The story cards may be an exception, pending Epic 0 (see Story Delivery).
 - The hero, enemies, hazards and pickups can each be told apart from the background at a glance.
 - The look comes from the game, not from the image generator. Every asset takes the game's own look (its materials, its palette per level, its lighting per level) and is judged in the engine against the style guide, not against a newly generated image. The architecture document defines how.
 
@@ -719,6 +743,14 @@ Design sign-off happens in Epic 0 (concept) and Epic 2 (model).
 - The warden fight uses a more intense arrangement of the Level 2 tune, shifting when phase 2 starts.
 - The title screen reuses the Level 1 tune.
 - Short stingers mark the end of a level, the seal break and the closing card.
+- **Elin's motif:** a bell-like phrase of 3 or 4 notes runs through every level tune and the closing-card stinger. The bell pickup sound plays its first notes, so players link the bell, the music and Elin without words.
+- In Level 3 the music fades out on the last calm stretch before the fallen bell, leaving only wind until the closing-card stinger.
+
+**Ambience:** one bed per level, under the music.
+
+- Emberwood: dusk forest, wind in the leaves, creaking lanterns.
+- The Drowned Mill: lapping water and creaking wheels. The great wheel's rush grows louder as Rowan nears the arena.
+- Harrowmere: wind, settling ash and timber creak. No birds and no water.
 
 **Sound effects:**
 
@@ -779,11 +811,11 @@ Design sign-off happens in Epic 0 (concept) and Epic 2 (model).
 | Hero model | 1 rig, 2 visual stages | Animations: idle, run, jump, fall, land, spit, spit aiming up, spit aiming down, crouch, hurt, death, hang, climb-up (13). Stage 2 reuses the rig and the animations. |
 | Enemies | 3 | Walker: move, death. Thorn flyer: move, death. Both have 1 HP, so they need no hurt animation. Spitter: idle, swell and fire, hurt, death. |
 | Warden | 1 | Idle, three attacks with their warnings, the roll curl, hurt, phase change, defeat |
-| Environment kits | 3 (one per level) | Snap to the tile grid: ground pieces, solid ledges, one-way ledges, moving platforms (waterwheel platforms in Level 2), spikes, props, lanterns, 3 or 4 backdrop layers |
+| Environment kits | 3 (one per level) | Snap to the tile grid: ground pieces, solid ledges, one-way ledges, moving platforms (waterwheel platforms in Level 2), spikes, props, lanterns (Emberwood only), 3 or 4 backdrop layers. Story props per level are listed in the narrative design document (Environmental Storytelling), for example the wedding glade, the marked grain sacks, the siege camp and the fallen fire bell. |
 | Pickups and markers | 6 | Ember, bell, triple shot, piercing shot, checkpoint, exit |
 | Interface | 1 set | HUD (hearts, ember meter, weapon timer), title, pause, level select, results, settings, story cards, control signs (keyboard and gamepad icons for about 6 actions) |
-| Story art | Up to 7 cards | Intro (5 or fewer), closing card, all-bells card |
-| Music | 3 tunes, a warden arrangement and stingers | See Audio and Music |
+| Story art | 7 cards | Intro (5), closing card, all-bells card. Layered silhouettes built in the engine, so no models of Elin, Maldrek or the village are needed. |
+| Music and ambience | 3 tunes, a warden arrangement, stingers, 3 ambience beds and the great wheel's loop | See Audio and Music |
 | Sound effects | About 30 | See Audio and Music |
 
 **Asset rules:**
@@ -886,14 +918,15 @@ Playtests use 3 to 5 first-time players from the primary audience, watched witho
 | Dependency | Needed by | Notes |
 | --- | --- | --- |
 | Image model for reference art and Tripo's input views | Before Epic 0 starts | Not chosen. Check commercial-use terms and log them in `docs/ASSETS.md`. |
-| Art style lock and `docs/STYLE_GUIDE.md` | End of Epic 0 | Chosen from generated references, then reproduced in the engine |
+| Art style lock and `docs/STYLE_GUIDE.md` | End of Epic 0 | Chosen from generated references, then reproduced in the engine. Also confirms the silhouette story-card style on a sample card, the cards' warm-light exception, and where the card shapes come from. |
 | Hero design sign-off | Epic 0 (concept), Epic 2 (model) | None |
 | Level editor (LDtk or Tiled) | Epic 1, for loading levels | Not chosen |
 | Tripo licence and commercial-use terms | Epic 2 | Log in `docs/ASSETS.md` |
 | Audio tools | Epic 3 | Not chosen. Check licence terms. |
 | Tool budgets | Epic 0 | Tool subscriptions only; amounts not set |
-| Warden name, look and story | Epic 4 art | Placeholder concept in this document |
-| Ending decided (`gds-create-narrative`) | Epic 5 (closing card) | Elin must take part |
+| Warden name, look and story | Epic 4 art | Done: the Drowned Miller (narrative design, 2026-11-13). His placeholder given name needs an originality check only if it ever appears on screen. |
+| Ending decided (`gds-create-narrative`) | Epic 5 (closing card) | Done (narrative design, 2026-11-13). The closing card text is written. |
+| Originality check of story names and symbols | Symbols: Epic 4. Names: before any public build or page. | See Originality and Legal Constraints |
 | Reference test machines | Epic 6 | See Performance Requirements |
 | Final title | Before any public page | "Emberbound" is used by at least six other games. Check trademarks too. |
 
@@ -909,6 +942,9 @@ This is not legal advice. Get proper advice before selling.
   - Elin's active role
 - The licence and commercial-use terms of every tool and asset are checked and logged in `docs/ASSETS.md`, along with which assets are AI-generated.
 - The final title is checked against existing games and trademarks before any public page goes up.
+- Story names and symbols are checked the same way:
+  - **Names:** Rowan Ashby, Elin, Lord Maldrek, Harrowmere, Emberwood, Cindersworn, the Tithe, the Ember Below, Emberfire, the Drowned Mill, the Drowned Miller, Bellspire Pass, the Tithe Road, the Hollow Court, and Tobin Weir (the Miller's placeholder given name, only if it ever appears on screen). Check before any public build or page.
+  - **Symbols:** Harrowmere's mark and the Tithe's sign. Check before they are drawn, in Epic 4.
 
 ### Risks
 
@@ -929,8 +965,7 @@ None open. The ten assumptions in the first draft were confirmed by the develope
 
 | Question | Decide by |
 | --- | --- |
-| Full-game ending (three candidates; Elin takes part) | Before Epic 5's closing card |
-| Warden name, look and story | Before Epic 4 art |
 | How to measure release success (the note in Success Metrics) | Before Epic 6 |
+| Full-game details left open by narrative design: the final fight once Rowan gives up the fire, what Maldrek owes, whether Elin is ever playable | After version one |
 | Which levels hold wardens 2 to 6, and the ability each later seal returns | After version one |
-| Everything under Dependencies | As listed there |
+| The open rows under Dependencies | As listed there |

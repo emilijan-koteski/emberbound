@@ -124,3 +124,98 @@ Canonical record of decisions, changes and version transitions made while writin
 - **Finalize step 6, narrative:** the action-platformer guide carries no narrative flag, so `needs_narrative` was not set. `gds-create-narrative` is still needed later: the warden concept before Epic 4 art, and the ending and closing card before Epic 5. It is not the immediate next step.
 - **Finalize step 7, external handoffs:** none configured.
 - **Status: final.** `gdd.md` and `epics.md` are final for handoff to `gds-game-architecture`.
+
+### Update from narrative design (2026-11-13)
+
+- **Intent: update.** Change signal: the narrative design document, `narratives/narrative-emberbound-2026-11-13/narrative-design.md` (complete, moderate complexity), section "Production Planning, Updates the GDD needs".
+- **Conflict check:** no pillar, core-loop or tuned-number change, so this is a targeted update, not a rewrite. Four changes alter stated decisions:
+  - story cards are no longer "illustrated"
+  - Level 3 shows its cards before its results (amends 2026-11-13 item 5, session flow)
+  - Level 3 ends with a calm walk to the fallen bell (amends 2026-11-12 decision 1)
+  - lantern bell hints only in Emberwood (narrows the Secrets rule)
+- **Working mode: Express.** Developer approved all 8 listed changes plus 5 follow-on edits:
+  - E1: level lines on the loading card
+  - E2: a pointer to the narrative document
+  - E3: originality checks for story names and symbols
+  - E4: `epics.md` updates for Epics 3 to 5
+  - E5: Epic 0 confirms the card style and the cards' warm-light exception
+- **Applied to `gdd.md`:**
+  1. **Warden:** the placeholder concept and its `[NOTE FOR DESIGNER]` are replaced by the Drowned Miller: who he is, his look, the seal at the wheel's hub, his release, and the unstated link to Rowan. The seal-break bullets gain the wheel stopping, the Miller sinking and the ember flash, and point to the staging in the narrative document. Dependencies row marked done; Open Questions row removed.
+  2. **Full-game ending:** decided (candidates 1 and 2 combined). Dependencies row marked done; Open Questions row removed. A new Open Questions row holds the full-game details left open: the final fight without fire, what Maldrek owes, whether Elin is ever playable.
+  3. **Story cards:**
+     - "illustrated" becomes layered silhouettes built in the engine, with text drawn over the art.
+     - The cards-only warm-light exception is pending Epic 0, noted in Story Delivery, the art rules and the Dependencies style-lock row.
+     - The Story art asset row notes that no models of Elin, Maldrek or the village are needed.
+  4. **Level 3 end order:** held beat, closing card, all-bells card if earned, then results. Added to the results-screen bullet in Session flow.
+  5. **Held beat:** added to the Story Delivery rules and the Story moment level type.
+  6. **Layouts:**
+     - Level 1: a calm exit through the wedding glade (teaching-order table and Level Progression).
+     - Level 3: starts at the siege line, and its end gains a calm walk to the fallen fire bell (Level Progression).
+  7. **Bell hints:** lanterns only in Emberwood; "gap in the foliage" becomes "gap in foliage or rubble". Bells are Elin's wedding bells in the story.
+  8. **Enemy concept:** twisted creatures, the land paying for bargains. Story reason only; no rule change.
+  - **E1:** level lines shown on the loading card.
+  - **E2:** "How to Read" points to the narrative document. Story Delivery records that the text is written (141 words). The environment kits row points to the story props.
+  - **E3:** the originality checks for story names and symbols, added to Originality and Legal Constraints and to Dependencies.
+  - Frontmatter `inputs` gains the narrative document.
+- **Applied to `epics.md`:**
+  - **E5, Epic 0:** the style guide records the story-card style and the warm-light exception (scope and story 3).
+  - **E4, Epic 3:**
+    - Emberwood story props: glade, waymarkers, foundry chimney.
+    - Elin's motif in the Level 1 tune and the bell pickup.
+    - The story bullet: the text is final; placeholder silhouettes are acceptable, placeholder text is not.
+    - Story 9 updated.
+  - **E4, Epic 4:**
+    - The warden is the Drowned Miller, with the seal at the hub and the two decals.
+    - Originality checks before drawing.
+    - The seal-break staging order.
+    - The motif in the Level 2 tune and the stinger.
+    - Depends-on and story 1 updated.
+  - **E4, Epic 5:**
+    - Drowned Mill story props.
+    - Harrowmere's siege-line start and fallen-bell exit.
+    - No lantern hints in Levels 2 and 3.
+    - Level 3's music drop-out.
+    - The held beat and the end order.
+    - Card text final.
+    - Depends-on and story 9 updated.
+  - **Coverage table:** four rows added.
+- **Finalize, step 2: input reconciliation** (a subagent compared the narrative document with `gdd.md` and `epics.md`). No stale statements remained. Fixed:
+  - ambience and Elin's motif added to Audio and Music, the asset table and Epics 3 and 5
+  - stingers assigned to epics
+  - all-bells order on a Level 3 replay
+  - intro trigger: once, on the first Continue of a new save
+  - "lanterns (Emberwood only)" in the kits row
+  - story-name checks added to Epic 6
+  - card build rules: a minimum display of about 1.5 s †, the closing and all-bells cards skippable on replays, text drawn over the art
+  - a reading time of about 3 s † on the level-line card; loading happens behind it, and the 3 s transition limit applies to loading
+  - Epic 5 props: the marked gate, household props, decorative wheels, the millhouse
+  - cards use "the game's palettes", not "the level palettes"
+  - exit markers sit at the arch and the fallen bell
+  - Level 3 order noted in the core loop
+  - "the open rows under Dependencies"
+  - the narrative document's own held-beat and closing-card contradiction
+- **Finalize, step 3: discipline pass** (validator subagent with the checklist and the action-platformer guide). No blockers. Autofixed:
+  - the ending's reference to "the first two candidates"
+  - "Words used on screen" renamed "Terms approved for on-screen use"
+  - "Harrowmere's mark" used everywhere, in the narrative document too
+  - the seal-break wording no longer describes how it is built
+  - "5 cards" and "7 cards" replace the old maximums
+  - bells "left along the road as a trail"
+  - Backstory marked as a summary
+  - `epics.md` says "story text", not "story text module", and "far-distance layer"
+  - the Miller's given name is checked only if it appears on screen, so it is out of Epic 4
+  - a guessed length for Level 3's calm walk: 15 to 25 tiles †
+  - Session flow gains an explicit end-of-level order
+- **Developer decisions on the judgment calls:**
+  - **Story moments are safe:** Rowan can't be hurt during the seal break or the held beat, and attacks in progress are removed. A new simulation rule with a unit test (GDD Story Delivery; Epics 4 and 5).
+  - **Card shape source:** decided in Epic 0 together with the image model, logged in `docs/ASSETS.md`; about 3 to 5 layers per card †.
+  - **Epic 0 renders a sample story card** (intro card 2) on the look-dev page. It sets the palette for story scenes outside levels; if the warm-light exception is refused, the forge glow turns pale and cold.
+  - **Story comprehension in the Epic 4 and 5 playtests: left as is.** Only Epic 3 checks comprehension. The Success Metrics measures stay, but they gate nothing.
+  - **Not adopted:** checking story names before Epic 3's playtest. The playtest is private, and names appear only in text, which is cheap to change. The check stays before any public build.
+- **Finalize, step 4: open items.**
+  - No `[ASSUMPTION]` tags.
+  - One `[NOTE FOR DESIGNER]` remains: release-success measurement, before Epic 6.
+  - Open Questions: release measurement (before Epic 6); the full-game details left open by narrative design (after version one); the open rows under Dependencies.
+  - Nothing blocks architecture.
+- **Finalize, steps 5 to 7:** no `doc_standards` and no external handoffs are configured. The narrative is already done.
+- **Status: final.** `gdd.md` and `epics.md` are updated from narrative design and ready for `gds-game-architecture`.
