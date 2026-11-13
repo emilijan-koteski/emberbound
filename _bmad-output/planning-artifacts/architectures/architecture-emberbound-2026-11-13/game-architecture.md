@@ -3,7 +3,7 @@ title: 'Game Architecture'
 project: 'Emberbound (working title)'
 date: '2026-11-13'
 author: 'Emilijan'
-version: '1.2'
+version: '1.3'
 stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8, 9]
 status: 'complete'
 engine: 'three.js r187 (WebGLRenderer, GLSL), TypeScript 6.0, Vite 8.3'
@@ -409,6 +409,8 @@ All of these are resolved in Architectural Decisions (2026-11-13). The list stay
 11. Camera.
 12. Statistics: clear time counts only steps outside story moments.
 
+**The last step:** the step that emits `levelCompleted` is the World's last. From then on `step()` returns at once, so steps the loop still runs in the same frame change nothing and the clear time is final. The exit can't trigger while Rowan is dead or fading after a pit. (readiness proposal 2026-11-13, Q5)
+
 **Determinism rules:**
 
 - No `Date`, `performance.now` or `Math.random` inside `sim/`.
@@ -447,7 +449,9 @@ frame(now):
 - The camera's position, look-ahead, vertical dead zone, re-centring and clamping are simulation state, following the GDD's camera rules.
 - **The logical view** is a box at least 19 × 10.4 tiles, centred on the simulation camera. It defines "on screen" for the attack rule and the spitter's range.
 - The renderer frames at least that box at any aspect ratio. Extra width on wide screens is visual only, so behaviour doesn't change with window size.
-- **Beyond the level's edges:** the simulation camera stops at the level edges, so in the 19-tile warden arena it holds still with the arena filling the logical view's width. Where the window is wider or taller than the logical view, the margin shows the level's dressing up to 3 tiles † past its edges (every kit carries that margin); past that, the view camera shows plain bands in the level palette's darkest slot.
+- **Beyond the level's edges:** the simulation camera stops at the level edges. Where the window is wider or taller than the logical view, the margin shows the level's dressing up to 3 tiles † past its edges (every kit carries that margin); past that, the view camera shows plain bands in the level palette's darkest slot.
+- **The warden arena:** its door side opens onto the rest of the level, so the level edge alone can't hold the camera. `ArenaTrigger` spans the arena's 19-tile inside; on `arenaEntered` the simulation camera locks to it, centred horizontally, and holds still until Rowan respawns or the level ends. (readiness proposal 2026-11-13, Q2)
+- **Respawns and pit returns:** the camera snaps to Rowan while the screen is faded; it never glides from where he fell. (readiness proposal 2026-11-13, Q13)
 
 ### Story Director
 
@@ -490,7 +494,7 @@ frame(now):
 | --- | --- | --- |
 | `collision` | Tile layer | Collision only, from the tileset class: empty, solid, one-way, spike. Art never defines collision (CLAUDE.md). |
 | `entities` | Object layer | `PlayerStart`, enemies, the `Warden`, pickups, embers, bells, checkpoints, the exit, moving and waterwheel platforms, `ControlSign`s; each a typed Tiled class |
-| `regions` | Object layer | Typed rectangles: `KillZone` (a pit or deep water, which triggers the pit rule; falling below the level's bottom edge counts too), `ArenaTrigger` (wakes the warden), `Door` (tiles the simulation makes solid when the arena is entered), `AudioFade` (fades the music or the ambience bus to the region's target gain: Level 3's music drop-out, Emberwood's hushed glade), `AudioAnchor` (the great wheel) |
+| `regions` | Object layer | Typed rectangles: `KillZone` (a pit or deep water, which triggers the pit rule; falling below the level's bottom edge counts too), `ArenaTrigger` (spans the arena's inside; entering it wakes the warden and locks the camera), `Door` (tiles the simulation makes solid when the arena is entered), `AudioFade` (fades the music or the ambience bus to the region's target gain: Level 3's music drop-out, Emberwood's hushed glade), `AudioAnchor` (the great wheel) |
 | `dressing` | Object layer | Kit props and story props by kit id: the glade, the sacks, the fallen bell |
 | `jumps` | Object layer | Marked jumps: from-point, to-area, tier (standard or challenge), required ability |
 
@@ -525,6 +529,7 @@ frame(now):
 
 - **Who loads:** `core/loading.ts` defines the `AssetLoader` port: `loadShared(onProgress)` and `loadLevel(levelId, onProgress)`, each returning `Promise<Result<…, LoadError>>`, with `onProgress(loaded, total)` counted in files. `render/assets/loader.ts` implements it and is the only code that fetches: it decodes models and textures itself, returns audio files as bytes for `audio/` to decode, and returns the level file as raw JSON. `main.ts` passes the port to the app.
 - **The app owns loading state:** it calls the port, keeps the progress in app state (the boot bar and the loading card read it), parses the level with `parseLevel`, retries a failed load once silently, then enters the Retry state (UX Q8). A level file that fails `parseLevel` counts as a failed load.
+- **Bundle membership:** `scripts/buildManifest.ts` assigns each file by its kind prefix. The shared bundle, loaded at boot, holds what is used before a level or in every level: fonts, `icon-` files, every `sfx-` file, Emberwood's music (the title reuses the Level 1 tune), the hero, the three enemies, pickups and markers, and the story cards. Each level's bundle, loaded behind its loading card, holds the compiled level, its kit and backdrops, its ambience, its music (Levels 2 and 3) and, for the Drowned Mill and the test arena, the warden. (readiness proposal 2026-11-13, Q10)
 
 - **Models:** `.glb` exported from Blender, then compressed (meshopt) and quantized with `@gltf-transform/cli`, a development-only dependency. The loader uses three.js's `MeshoptDecoder`.
 - **Model conventions:** 1 unit = 1 tile; +Y up; characters' origin at the feet (bottom centre), facing +X (screen right); kit pieces' origin at the bottom-left of their tile cell. `optimizeModels.ts` checks scale and origin and rejects a model that breaks them.
@@ -546,9 +551,11 @@ frame(now):
 | Pickups and markers, all 6 | 0.5 MB |
 | Music and ambience | 8.5 MB |
 | Sound effects | 2 MB |
-| Code, gzipped | 1 MB |
+| Code, gzipped: the JavaScript and CSS bundles and `index.html` | 1 MB |
+| Level data: the compiled levels and `manifest.json` | 0.25 MB |
+| Interface icons (`icon-` files) | 0.05 MB |
 | Fonts | 0.3 MB |
-| **Total** | **30 MB or less** (about 29.6 MB planned) |
+| **Total** | **30 MB or less** (about 29.9 MB planned) |
 
 ### Rendering Structure
 
@@ -629,7 +636,7 @@ frame(now):
   - hitboxes, the collision grid and the logical-view box
   - the step counter, the player's state, the story state
   - frame-time graph and percentiles
-- **URL parameters:** `?level=drowned-mill&checkpoint=cp-2&form=changed`, to start at any spot (they set `params.spawnAt`).
+- **URL parameters:** `?level=drowned-mill&checkpoint=cp-2&form=changed`, to start at any spot (they set `params.spawnAt`). They also skip the title gate, the intro and the loading card's reading floor.
 - **Input recording to a file, and replay from it,** to reproduce bugs.
 
 ### Testing Strategy
@@ -641,7 +648,8 @@ frame(now):
 | Levels | Vitest | `tests/levels/` | Node | Compile validation, the marked-jump search, coverage, static metric checks |
 | App and input logic | Vitest | `src/app/*.test.ts`, `src/input/*.test.ts` | Node | Save validation and migration, the app state machine (the UX states, the confirm dialog and auto-pause included), the reduced-motion default, and input latching, hold-to-repeat and the card guard, with synthetic events |
 | Browser smoke checks | Playwright | `tests/e2e/smoke.spec.ts` | Headless Chromium and Firefox | Boot, the title gate, title, level, pause and the restart confirm; no console errors; a gamepad error doesn't stop the frame loop; refused storage falls back |
-| Screenshots | Playwright | `tests/e2e/shots.spec.ts` | Headless Chromium, against the dev server | The critic loop's spots |
+| Development checks | Playwright | `tests/e2e/dev/` | Headless Chromium, against the dev server | Checks that need development tools (the dev handle, URL parameters); `make smoke` runs them after the production-build spec (readiness proposal 2026-11-13, Q12) |
+| Screenshots and look-dev checks | Playwright | `tests/e2e/lookdev/`, then `tests/e2e/shots.spec.ts` | Headless Chromium, against the dev server | `make shots` first runs the look-dev checks (fonts, framing, render budgets) and stops on a failure, then captures the critic loop's spots (readiness proposal 2026-11-13, Q12) |
 | Performance | `?perf=1` | Release build | Real hardware | The GDD's frame-time pass marks; level load times |
 | First load | Browser developer tools | Release build | Real hardware, network throttled to 50 Mbit/s | First input within 10 s (GDD) |
 
@@ -899,7 +907,7 @@ export type SimEvent =
   | { type: 'weaponRunningOut' }                             // 3 s left
   | { type: 'weaponExpired' }
   | { type: 'checkpointReached'; checkpointId: string }
-  | { type: 'regionEntered'; regionId: string; kind: RegionKind }
+  | { type: 'regionEntered'; regionId: string; kind: RegionKind }  // once per entry; again only after Rowan leaves; a respawn or pit return clears it
   // the warden
   | { type: 'arenaEntered' }                                 // door shut, warden awake
   | { type: 'wardenWarned'; attack: WardenAttack }
@@ -938,12 +946,12 @@ for (const ev of frameEvents) {
 | Tool | Builds | Purpose |
 | --- | --- | --- |
 | Debug overlay (F1) | Development | Hitboxes, the collision grid, the logical-view box, step counter, player and story state, frame-time graph |
-| URL parameters `?level=…&checkpoint=…&form=…` | Development | Start at any spot |
+| URL parameters `?level=…&checkpoint=…&form=…`, plus `reducedMotion=1` | Development | Start at any spot. Any of `level`, `checkpoint` or `shot` also skips the title gate, the intro and the loading card's reading floor; audio stays locked until a key press. `reducedMotion=1` sets the snapshot's reduced motion before Epic 6's setting exists. (readiness proposal 2026-11-13, Q12) |
 | Cheats: invulnerable, set hearts, grant ledge grab | Development | Testing. They call `sim/debugCommands.ts`, so only `sim/` mutates the `World`. |
 | Input recording and replay (file) | Development | Reproduce bugs exactly; the jump search uses the same path |
 | `window.__emberbound` handle: `isReady()`, `getState()`, `gotoSpot(id)`, `pause()`, `stepFrames(n)` | Development | Lets the Playwright MCP and the screenshot harness, which runs against the dev server, drive and inspect the game |
 | **Screenshot mode** `?shot=<spotId>` | Development | Deterministic captures for the critic loop: the simulation set to a stored spot, animations frozen at a fixed time, particles seeded. Spots are listed in `src/debug/spots.ts`. |
-| **Frame-time recorder** `?perf=1` | **All builds, release included** | Records frame times and level load times over a run and shows the median and 99th percentile. `app/perf.ts` records; `ui/screens/perfReport.ts` shows the result. The GDD's performance pass must measure the real build on real hardware. |
+| **Frame-time recorder** `?perf=1` | **All builds, release included** | Records frame times and level load times over a run, split into segments at each `checkpointReached` and at `arenaEntered`, and shows the median and 99th percentile for the whole level and for each segment. `app/perf.ts` records; `ui/screens/perfReport.ts` shows the result. The GDD's performance pass must measure the real build on real hardware. |
 
 **Activation:**
 
@@ -1331,7 +1339,7 @@ export function stepStory(world: World, input: InputFrame): void {
 
 **Components:** a `Map<entityId, View>` per entity family in `render/actors/`; a `createXView(kind)` factory; `view.update(entity, alpha)`; `view.dispose()`.
 
-**Data flow:** each frame, for each live entity, the matching view is created if missing, then updated with the interpolated position and the state-driven clip. Views whose entity is gone are disposed and removed.
+**Data flow:** each frame, for each live entity, the matching view is created if missing, then updated with the interpolated position and the state-driven clip. Views whose entity is gone are disposed and removed, with one exception: a killed enemy's view, told by `enemyKilled`, plays its `death` clip to the end first and never reads the World for it again. (readiness proposal 2026-11-13, Q7)
 
 **Implementation guide:**
 
@@ -1596,6 +1604,8 @@ ui.loadingCard.show(STORY_TEXT.levelLine['drowned-mill']);
 - Every fix was then re-verified with targeted searches of the document.
 
 **v1.2 (2026-11-13):** the sprint change proposal `sprint-change-proposal-2026-11-13-planning-gaps.md` settled the gaps found during story creation: the `AssetLoader` port (Asset Management), the manifest built before Vite and test levels kept out of releases (Asset Management, Build and Release, Level Data), `InputFrame.confirmPressed` as the replay skip (Input, Story Director), framing beyond the level's edges (Gameplay Camera), the warden's hub weak point (Project Context), `lookdev/` importing `ui/` (Architectural Boundaries), `yaml` (Toolchain), spit as an upper-body overlay (Implementation Patterns) and `AudioFade` (Level Data, Audio).
+
+**v1.3 (2026-11-13):** the sprint change proposal `sprint-change-proposal-2026-11-13-readiness.md` closed gaps the implementation readiness check found: the arena camera lock and the respawn snap (Gameplay Camera, Level Data), the World's last step at `levelCompleted` (State Management), bundle membership and two budget groups (Asset Management), when `regionEntered` fires (Event System), the debug-URL bypass, `reducedMotion=1` and `?perf=1` segments (Debug Tools), and the look-dev checks run by `make shots` (Testing Strategy).
 
 ### Follow-ups Outside This Document
 

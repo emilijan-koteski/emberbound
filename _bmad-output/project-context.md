@@ -62,6 +62,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **Story moments** (the seal break, the held beat) are simulation state, with cues in `CONFIG.story`.
   - Rendering stages them from the cues and keeps no timings of its own.
   - Rowan can't be hurt during them, and attacks already in flight are cleared.
+- **The step that emits `levelCompleted` is the World's last.** `step()` does nothing afterwards, so the clear time is final even when the loop runs more steps that frame.
 - **Known three.js traps:**
   - Give `InstancedMesh` bounding volumes, or culling drops it.
   - Snap the shadow camera to texel steps, or edges crawl.
@@ -86,7 +87,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **Assets:**
   - 30 MB in total; per-asset budgets are enforced by `make build`.
   - Models are `.glb` with meshopt (`make models`).
-  - Each level loads behind its level-line card, and the previous level is disposed.
+  - Shared assets (fonts, icons, sound effects, Emberwood's music, the hero, enemies, pickups and markers, story cards) load at boot; each level's own assets load behind its level-line card, and the previous level is disposed. Bundles are assigned by kind prefix (architecture, Asset Management).
   - The manifest is built from `public/assets/` before Vite. Test levels never ship: the release manifest leaves them out and `make build` deletes them from `dist/`.
 
 ### Code Organization Rules
@@ -140,7 +141,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 ### Testing Rules
 
 - **Every simulation rule has a unit test,** beside the code (`x.test.ts`). Tests import `CONFIG` values and never repeat literal numbers.
-- **The feel regression test** (full jump 3.30 tiles, tap jump about 0.8, about 52 steps in the air) must stay green. Never "fix" it by changing numbers.
+- **The feel regression test** (full jump 3.30 tiles; a tap, jump held for exactly one step, about 0.8; about 52 steps in the air) must stay green. Never "fix" it by changing numbers.
 - **The determinism test:** a recorded input stream run twice gives identical state hashes. Any new randomness goes through `world.rng`.
 - **Levels:**
   - Every break or rise on the main path needs a mark in the `jumps` layer.
@@ -148,7 +149,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **Start tests anywhere** with `createWorld(level, { spawnAt })`. There are no test-only code paths in the simulation.
 - **No jsdom.** DOM screens are covered by Playwright smoke checks. Screenshots are compared by eye, never pixel-diffed. So navigation rules (confirm dialog, settings return, auto-pause, card guard, hold-to-repeat) live in `app/` and `input/`, where Vitest covers them.
 - **Before saying a change works:** run `make check`.
-- **For any visual change:** run the critic loop with `make shots ROUND=n`: at most 3 rounds, then report before and after.
+- **For any visual change:** run the critic loop with `make shots ROUND=n`: at most 3 rounds, then report before and after. It runs the look-dev checks in `tests/e2e/lookdev/` first.
 
 ### Platform & Build Rules
 
@@ -184,6 +185,8 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **Never let a press vanish,** never decide "on screen" from the canvas, and never put GLSL outside `render/materials/`.
 - **Never hard-code** story text, asset paths, gameplay numbers, UI timings or `--tile`.
 - **Never add a dependency or framework without asking.** No React, Howler, jsdom, tsx and so on. **Never TypeScript 7, never enums.**
+- **Never grow scope** unless the developer asks for it (GDD PR30).
+- **When no pattern covers a situation,** follow the closest one and flag it in the story's notes (architecture AR248).
 - **The pit rule:** "last stable ground" is never a moving platform and never next to a hazard.
 - **Story:**
   - No text during play; level lines appear on loading cards, on every load. On a replay, confirm skips the reading floor once loading is done.

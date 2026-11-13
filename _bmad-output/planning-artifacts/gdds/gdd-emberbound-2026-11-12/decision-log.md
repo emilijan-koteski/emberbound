@@ -234,3 +234,18 @@ Canonical record of decisions, changes and version transitions made while writin
   - **Warden damage: hub weak point plus windows.** The seal at the wheel's hub (1 × 1 tile †) is the only hurtbox and glows open for 1.5 s † at the start of each gap; body hits splash off. Chosen over raising HP or shortening the 60 to 120 s target, because 30 HP hittable at any time ends the fight in about 5 to 15 s, and a weak point fits the story (the seal is the hub) and pillar 2.
   - **Wheel roll: rolls back** to the warden's side instead of walking back, which Rowan couldn't dodge (3 × 4 body †, 3.30-tile jump, ledges 3 tiles up).
 - **Settled without a design choice:** the gap counts from the end of each attack's hazard; phase 2 waits for the current attack to end; millstones keep 2 tiles of clear floor between them and land on the first surface below; on windows wider or taller than 19 × 10.4, the margin shows up to 3 tiles † of level dressing, then plain bands, and the camera holds still in the 19-tile arena.
+
+### Update from the readiness check (2026-11-13)
+
+- **Intent: update, through `gds-correct-course`.** Change signal: `implementation-readiness-report-2026-11-13.md` (NEEDS WORK). Proposal: `sprint-change-proposal-2026-11-13-readiness.md`.
+- **Developer decisions:**
+  - **Phase 2 starts mid-gap.** Damage lands only while the hub is open, so health reaches half during a gap. The hub shuts at once, the warden flinches (†) and the music shifts, then a full phase-2 gap with its hub window, then a wheel wash. Chosen over letting the current window run out, because it gives the phase change a clear beat and keeps "the window opens at the start of each gap" true.
+  - **Elin stays on intro card 5**, receding with Maldrek (narrative design).
+  - **Two small budget groups:** level data and manifest 0.25 MB †, interface icons 0.05 MB †; planned total about 29.9 MB (architecture).
+- **Settled without a design choice:**
+  - The arena camera locks to the arena on entry and holds until a respawn or the level's end. The earlier "holds still in the 19-tile arena" relied on the level edge, which bounds only the far wall.
+  - "Phase 2 waits for the current attack to end" could never apply: health drops only during gaps.
+  - The hub sits at the top of the body's front face and takes the hit when a shot also touches the body.
+  - The piercing shot follows the hub rule against the warden.
+  - After a respawn or a pit return the camera snaps to Rowan during the fade, and shots and seeds in flight are cleared.
+  - The audio tools and formats are chosen at the start of story 3.15.

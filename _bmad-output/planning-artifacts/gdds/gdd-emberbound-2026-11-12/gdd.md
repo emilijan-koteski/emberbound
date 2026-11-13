@@ -313,8 +313,9 @@ Durations convert to whole steps by rounding to the nearest step.
 
 - Looks ahead 1.2 tiles in the facing direction, or 2.4 tiles while running.
 - In the air, the camera holds still vertically until Rowan moves more than 1.8 tiles below or 2.4 tiles above the framing point. It re-centres when he lands.
-- Stops at the level edges. On windows wider or taller than the 19 × 10.4 view, the margin shows the level's dressing up to 3 tiles † past its edges, then plain bands. In the 19-tile warden arena the camera holds still.
+- Stops at the level edges. On windows wider or taller than the 19 × 10.4 view, the margin shows the level's dressing up to 3 tiles † past its edges, then plain bands. Once Rowan enters the 19-tile warden arena, the camera locks to it and holds still until he respawns or the level ends.
 - Always shows at least 19 × 10.4 tiles in landscape.
+- After a respawn or a pit return, the camera snaps to Rowan while the screen is faded.
 
 ### Combat System
 
@@ -325,7 +326,7 @@ Durations convert to whole steps by rounding to the nearest step.
 | Ember spit | 1 damage. Range 8.25 tiles (15 tiles/s for 0.55 s). 0.2 s cooldown; holding the button fires at that rate. Shots fly straight, without gravity. They stop on solid tiles and pass through one-way ledges and platforms. They leave Rowan 0.42 tiles in front of him, at height 0.48 (0.7 aiming up, 0.3 aiming down or crouched). |
 | Stomp | Kills any enemy without thorns or spikes. Counts while Rowan is falling, with a forgiveness of 0.35 tiles below the enemy's top. If a stomp and a contact hit happen in the same step, the stomp wins. |
 | Triple shot (pickup) | 3 shots spread ±9° (±0.16 rad) around the aim. Speed, range and cooldown unchanged. 20 s. |
-| Piercing shot (pickup) | Double range: 15 tiles/s for 1.1 s †, about 16.5 tiles. Passes through enemies; still stops on solid tiles. 20 s. |
+| Piercing shot (pickup) | Double range: 15 tiles/s for 1.1 s †, about 16.5 tiles. Passes through enemies; still stops on solid tiles. Against the warden it follows the hub rule: it damages only the open hub, once, and splashes off the body and the shut hub. 20 s. |
 
 **Pickup rules:**
 
@@ -348,8 +349,8 @@ Durations convert to whole steps by rounding to the nearest step.
 | Event | Result |
 | --- | --- |
 | Hit by an enemy, an enemy shot, the warden or spikes | -1 heart. Knockback 6 tiles/s horizontally, away from the source; 9 tiles/s up from an enemy, 11 from spikes. No horizontal control for 0.28 s (17 steps). 1.3 s (78 steps) of invulnerability, shown by a 9 Hz blink. Hit-stop 0.06 s (4 steps). |
-| Falls into a pit, or into deep water in the Drowned Mill | -1 heart. The screen fades for 0.5 s †, then Rowan returns to the last stable ground with 1.3 s of invulnerability. Stable ground means solid ground or a one-way ledge, never a moving platform and never next to a hazard. If it was the last heart, he dies. A pit return is not a respawn. |
-| 0 hearts | Death sequence of 0.85 s, then respawn at the last checkpoint with 3 hearts and 1.0 s of invulnerability. Killed enemies stay dead. Collected embers and bells stay collected. |
+| Falls into a pit, or into deep water in the Drowned Mill | -1 heart. The screen fades for 0.5 s †, then Rowan returns to the last stable ground with 1.3 s of invulnerability. Stable ground means solid ground or a one-way ledge, never a moving platform and never next to a hazard. If it was the last heart, he dies. A pit return is not a respawn. Shots and seeds in flight are cleared. |
+| 0 hearts | Death sequence of 0.85 s, then respawn at the last checkpoint with 3 hearts and 1.0 s of invulnerability. Killed enemies stay dead. Collected embers and bells stay collected. Shots and seeds in flight are cleared. |
 
 **Enemy rules:**
 
@@ -406,7 +407,7 @@ Durations convert to whole steps by rounding to the nearest step.
 - **Arena:** one screen, 19 tiles wide, with a flat floor and two one-way ledges 3 tiles up †.
 - **Door:** a checkpoint sits at the door, with a triple shot pickup just before it. The warden stays dormant until Rowan enters the arena, so the checkpoint is safe. The door shuts behind him.
 - **Body:** the warden is 3 × 4 tiles † and stands at the arena's right side. Shots that hit the body splash off with a clear blocked cue and do no damage.
-- **Weak point:** the seal at the wheel's hub, a 1 × 1 tile † target near the top of the body, is the only hurtbox. It glows open for 1.5 s † at the start of each gap between attacks and is shut the rest of the time; a shot at the shut hub splashes off like a body hit. The open hub can be hit with aim-up from the floor or with straight shots from the ledges.
+- **Weak point:** the seal at the wheel's hub, a 1 × 1 tile † target at the top of the body's front face (the side facing the arena), is the only hurtbox. It glows open for 1.5 s † at the start of each gap between attacks and is shut the rest of the time; a shot at the shut hub splashes off like a body hit. The open hub can be hit with aim-up from the floor or with straight shots from the ledges. If a shot touches the open hub and the body in the same step, the hub takes the hit.
 - **Health:** 30 HP †. Each ember hit on the open hub does 1 damage, and a triple shot can land 3 hits. HP and the window length are tuned together in Epic 4 so a first-time player's fight lands in 60 to 120 s.
 - **Health bar:** a HUD bar labelled "The Warden" appears when the door shuts and drops with each hit. A notch at half health marks where phase 2 starts. It empties and fades when the warden falls.
 - **Stomp:** the warden has spikes, so it cannot be stomped. Touching its body costs 1 heart.
@@ -427,7 +428,7 @@ Durations convert to whole steps by rounding to the nearest step.
   - Phase 1 alternates wheel wash and millstone fall.
   - Phase 2 cycles wheel wash, millstone fall, wheel roll.
 - **No overlap.** Attacks never run at the same time. The gap before the next attack's warning counts from the end of the previous attack's hazard (the wave leaving the arena, the last millstone landing, the roll back reaching his side): 2.5 s † in phase 1, 1.8 s † in phase 2. The hub window opens at the start of each gap.
-- **Phase 2** begins at half health (15 HP while HP is 30 †), once the current attack has ended: the warden flinches and the music shifts. It never cuts an attack short.
+- **Phase 2** begins the moment health reaches half (15 HP while HP is 30 †). Damage lands only while the hub is open, so this always happens during a gap: the hub shuts at once, the warden flinches (†) and the music shifts, then a full phase-2 gap opens with its hub window, then the first phase-2 attack, a wheel wash. It never cuts an attack short.
 - **Warnings** are never shorter than 0.6 s, and each attack has its own warning sound.
 
 *Seal-break moment:*
@@ -937,7 +938,7 @@ Playtests use 3 to 5 first-time players from the primary audience, watched witho
 | Hero design sign-off | Epic 0 (concept), Epic 2 (model) | None |
 | Level editor | Epic 1, for loading levels | Tiled 1.12.x, chosen 2026-11-13 (game-architecture.md, decision 9) |
 | Tripo licence and commercial-use terms | Epic 2 | Log in `docs/ASSETS.md` |
-| Audio tools | Epic 3 | Not chosen. Check licence terms. |
+| Audio tools | Epic 3 | Not chosen. The developer chooses them and the audio formats at the start of story 3.15, before any audio asset. Check licence terms. |
 | Tool budgets | Epic 0 | Tool subscriptions only; amounts not set |
 | Warden name, look and story | Epic 4 art | Done: the Drowned Miller (narrative design, 2026-11-13). His placeholder given name needs an originality check only if it ever appears on screen. |
 | Ending decided (`gds-create-narrative`) | Epic 5 (closing card) | Done (narrative design, 2026-11-13). The closing card text is written. |

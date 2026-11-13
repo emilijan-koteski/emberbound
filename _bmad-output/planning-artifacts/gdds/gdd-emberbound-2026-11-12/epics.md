@@ -368,8 +368,8 @@ Every requirement ID maps to at least one epic. Where an ID spans epics, the fir
 | AR58–AR61, AR63–AR65 | 1 | `sim/config.ts`, feel regression test, `levelForm`, config homes |
 | AR62 | 1, 2 | Feedback numbers (1); clip overlay steps (2) |
 | AR66–AR74 | 1 | Events, commands, entities, pools, state machines |
-| AR75–AR76 | 1, 2 | View sync (1); clip tables (2) |
-| AR77–AR78 | 1 | Simulation camera and logical view |
+| AR75–AR76 | 1, 2, 3 | View sync (1); clip tables: the hero's (2), the enemies' (3) |
+| AR77–AR78 | 1, 4 | Simulation camera and logical view (1); the arena camera lock (4) |
 | AR79–AR83, AR86 | 4, 5 | Story director: seal break (4); held beat (5) |
 | AR84 | 0, 3 | Card scene (0 sample); cards as app states (3) |
 | AR85 | 4 | Replay-form rule in `createWorld` |
@@ -382,7 +382,7 @@ Every requirement ID maps to at least one epic. Where an ID spans epics, the fir
 | AR107 | 1, 4, 5 | Pause during death and pit fade (1), seal break (4), held beat (5) |
 | AR108–AR110 | 5, 6 | End-of-level routing |
 | AR114–AR122 | 6 | Save data and settings |
-| AR123–AR131, AR133–AR135 | 1 | Tiled levels and the compiler |
+| AR123–AR131, AR133–AR135 | 1, 4 | Tiled levels and the compiler (1); warden-level validation and the `AudioAnchor` class (4) |
 | AR132 | 1, 4, 5 | Test levels (1); test arena (4); arena joined to Level 2 (5) |
 | AR136–AR143 | 1 | Jump-possibility verification |
 | AR144, AR150–AR151 | 1 | Shared and per-level loading, manifest, disposal (sprint change proposal 2026-11-13, A1–A2) |
@@ -404,7 +404,7 @@ Every requirement ID maps to at least one epic. Where an ID spans epics, the fir
 | AR197–AR200, AR202 | 1 | `Result`, `invariant`, platform wrappers |
 | AR201 | 6 | Retry after a failed fetch |
 | AR203–AR206 | 0 | `core/log.ts` |
-| AR207–AR213 | 1 | Debug tools |
+| AR207–AR213 | 1, 4 | Debug tools (1); the grant-ledge-grab cheat (4) |
 | AR214 | 6 | `?perf=1` recorder |
 | AR215–AR217, AR220–AR221 | 0, 1 | Test tooling (0); simulation, level, app and input tests (1) |
 | AR218 | 6 | Browser smoke checks |
@@ -498,7 +498,7 @@ The player sees Rowan, stage 1, fully animated and matching his concept, playing
 
 A first-time player from the primary audience can start at the title gate, watch the intro, play Emberwood start to finish with final art and audio, and come away knowing who Rowan is and wanting to play Level 2.
 **Covers:** FR37–FR42 (art), FR54 (final), FR57, FR73–FR81 (models), FR118, FR120, FR122–FR124, FR128, FR136–FR140, FR143, FR145–FR151 (final), FR156–FR157, FR159 (Level 1), FR164–FR166, FR168–FR169, FR171, FR189, FR194 (final), FR196, FR198–FR200, FR202–FR204, FR206–FR209, FR212, FR214–FR217; NR1–NR5, NR7–NR13, NR16–NR30, NR63, NR77–NR88, NR100–NR105, NR108–NR109; NFR17–NFR19, NFR23, NFR25–NFR32, NFR35–NFR36, NFR45, NFR47–NFR49; PR10, PR19, PR26 (audio tools), PR28; PB59, PB61–PB62; AR84, AR96, AR102–AR104, AR145–AR149, AR153–AR156, AR167, AR176, AR187, AR190–AR196; UX-DR11, UX-DR17–UX-DR21 (final), UX-DR31–UX-DR33, UX-DR38, UX-DR40–UX-DR43, UX-DR46, UX-DR48–UX-DR50, UX-DR64, UX-DR72, UX-DR74, UX-DR79, UX-DR85–UX-DR90, UX-DR92, UX-DR100–UX-DR103, UX-DR112; X-B2, X-B23–X-B24, X-B27–X-B29, X-B31–X-B32.
-**Depends on:** audio tools chosen and their terms logged.
+**Depends on:** the audio tools and formats, chosen by the developer at the start of Story 3.15, with their terms logged.
 
 ### Epic 4: First warden
 
@@ -649,9 +649,9 @@ So that the download budget is guarded from the first asset on, not discovered a
 **When** the check measures them
 **Then** it fails when the total is over 30 MB, when there are more than 1,000 files, or when any file is over 200 MB or the total is over 500 MB (itch.io's limits), naming the limit and the measured value
 
-**Given** the per-asset budgets, starting values † in one table in `scripts/checkBudgets.ts`: hero, both stages, 2 MB; each enemy 0.6 MB; the warden 2 MB; each level kit with its backdrops 3.5 MB; story cards together 1 MB; pickups and markers together 0.5 MB; music and ambience 8.5 MB; sound effects 2 MB; code, gzipped, 1 MB; fonts 0.3 MB
+**Given** the per-asset budgets, starting values † in one table in `scripts/checkBudgets.ts`: hero, both stages, 2 MB; each enemy 0.6 MB; the warden 2 MB; each level kit with its backdrops 3.5 MB; story cards together 1 MB; pickups and markers together 0.5 MB; music and ambience 8.5 MB; sound effects 2 MB; code (the JavaScript and CSS bundles plus `index.html`), gzipped, 1 MB; fonts 0.3 MB; level data and manifest 0.25 MB; interface icons 0.05 MB; about 29.9 MB planned in all (readiness proposal 2026-11-13, Q1)
 **When** the check assigns each shipped file to a budget
-**Then** it goes by kind prefix or folder: `hero-`; `enemy-`, per enemy; `warden-`; `kit-<level>` together with `backdrops/<level>/`; `card-`; `pickup-` and `marker-`; `music-` and `amb-`; `sfx-`; `fonts/`; and the JavaScript and CSS bundles as code
+**Then** it goes by kind prefix or folder: `hero-`; `enemy-`, per enemy; `warden-`; `kit-<level>` together with `backdrops/<level>/`; `card-`; `pickup-` and `marker-`; `music-` and `amb-`; `sfx-`; `fonts/`; `icon-` as interface icons; the compiled `levels/*.json` plus `manifest.json` as level data and manifest; and the JavaScript and CSS bundles plus `index.html` as code (readiness proposal 2026-11-13, Q1)
 **And** a group over its budget fails the build, naming the group, its size and its budget
 **And** a shipped asset that fits no group fails the build with its path listed, so nothing slips past the per-asset budgets
 
@@ -661,14 +661,14 @@ So that the download budget is guarded from the first asset on, not discovered a
 
 **Given** the checking logic as a pure function over a list of file paths and sizes
 **When** `make test` runs
-**Then** Vitest tests in Node cover: a group exactly at its budget passes, one byte over fails, 1,001 files fail, an asset that fits no group fails, and code is measured gzipped
+**Then** Vitest tests in Node cover: a group exactly at its budget passes, one byte over fails, 1,001 files fail, an asset that fits no group fails, code is measured gzipped, `index.html` counts as code, a level JSON and the manifest fall in level data and manifest, and an `icon-` file falls in interface icons (readiness proposal 2026-11-13, Q1)
 **And** the tests read the budget table and never repeat its numbers
 
 **Given** the current code-only build
 **When** the developer runs `make build`
 **Then** it passes and reports the gzipped code size
 
-Note: the architecture gives the budget values but not their home, their unit (this story reads MB as 1,000,000 bytes, the stricter reading) or what counts as code (here the JS and CSS bundles); failing an asset that fits no group is my reading of the kind-prefix naming rule (AR154).
+Note: the architecture gives the budget values but not their home, their unit (this story reads MB as 1,000,000 bytes, the stricter reading) or what counts as code (here the JS and CSS bundles plus `index.html`); failing an asset that fits no group is my reading of the kind-prefix naming rule (AR154). The architecture lists no group for level data, the manifest or interface icons; this story adds the two groups as † starting values, which brings the planned total to about 29.9 MB of the 30 MB (readiness proposal 2026-11-13, Q1).
 
 ### Story 0.3: Emit the DESIGN.md tokens as CSS custom properties, with a contrast check
 
@@ -731,6 +731,7 @@ So that I choose the game's look from images of my own hero and first level, not
 **Given** each generated image
 **When** it comes back from the model
 **Then** it is opened and looked at before it is described or kept; one that misses a rule above is regenerated, within the tool budget
+**And** if the tool budget runs out before every image meets the rules, the story stops, reports the spend and the rules each image still fails, and the developer decides (readiness proposal 2026-11-13, Q9)
 **And** the prompts name no other game, studio or artist, and no image takes a name, character or layout from Toki or any other game, or anything Dungeons & Dragons invented
 
 **Given** the kept images
@@ -823,6 +824,7 @@ So that every asset and screen is judged in the engine against the style guide, 
 **Then** every look-dev spot is saved as `shots/round-<n>/<spotId>.png`
 **And** each spot fixes the view, the window size (1920 × 1080 unless the spot says otherwise), the camera and the animation time, and the spec waits until the page reports that the view has rendered
 **And** the spots are one list in `src/lookdev/` that the spec imports; Epic 1 adds gameplay spots through `src/debug/spots.ts` and `?shot=<spotId>`
+**And** look-dev Playwright checks live in `tests/e2e/lookdev/`; `make shots` runs them against the dev server before it captures, and a failing check stops the run before any shot is taken; Stories 0.8, 0.10 and 0.12 add theirs there (readiness proposal 2026-11-13, Q12)
 
 **Given** two `make shots` runs with different round numbers
 **When** their shots are compared by eye
@@ -832,6 +834,7 @@ So that every asset and screen is judged in the engine against the style guide, 
 **Given** the look-dev spots at 1920 × 1080 and 1280 × 720
 **When** the critic loop runs (`make shots ROUND=n`, at most 3 rounds)
 **Then** each shot is opened and looked at before it is described, the swatches are compared with the token values and `docs/STYLE_GUIDE.md`, the type is checked for legibility at both sizes, and the three biggest problems are written down, most important first, and fixed
+**And** until Story 0.14 updates DESIGN.md, the swatches show DESIGN.md's provisional greys: differences from `docs/STYLE_GUIDE.md` are expected and listed for 0.14, not fixed, and neither `base.css` nor DESIGN.md is edited to match (readiness proposal 2026-11-13, Q14)
 **And** the developer sees the before and after shots and signs off
 
 Note: the look-dev spots' home and the page's ready signal are unstated (the `window.__emberbound` handle arrives in Epic 1); this story keeps both inside `src/lookdev/`.
@@ -892,7 +895,7 @@ So that every overlay surface from Epic 1 on can use the chosen faces with no re
 
 **Given** `@font-face` rules in `src/ui/styles/base.css`
 **When** the look-dev page loads
-**Then** the faces load from the game's own files, and a Playwright check finds no request to any host other than the dev server
+**Then** the faces load from the game's own files, and a Playwright check in `tests/e2e/lookdev/` finds no request to any host other than the dev server (readiness proposal 2026-11-13, Q12)
 
 **Given** the look-dev type view
 **When** it opens
@@ -902,7 +905,7 @@ So that every overlay surface from Epic 1 on can use the chosen faces with no re
 
 **Given** the numeric role
 **When** "0:00.0" and "1:11.1" are set in it on the type view
-**Then** a Playwright check measures both at the same width (tabular figures)
+**Then** a Playwright check in `tests/e2e/lookdev/` measures both at the same width (tabular figures; readiness proposal 2026-11-13, Q12)
 
 **Given** the type view at 1920 × 1080 and 1280 × 720
 **When** the critic loop runs (at most 3 rounds)
@@ -961,7 +964,7 @@ So that the play area always shows at least 19 × 10.4 tiles, wide screens only 
 **Given** the developer locks the framing
 **When** it frames a margin around the logical view, or none
 **Then** the margin is recorded in `CONFIG.view` (default X-B35)
-**And** a Playwright check finds that `--tile`, set by `ui/overlay.ts`, equals the on-screen size of one tile on the play plane to within 1 px, at 1920 × 1080 and at 1280 × 720
+**And** a Playwright check in `tests/e2e/lookdev/` finds that `--tile`, set by `ui/overlay.ts`, equals the on-screen size of one tile on the play plane to within 1 px, at 1920 × 1080 and at 1280 × 720 (readiness proposal 2026-11-13, Q12)
 **And** if the margin isn't 0, the change it makes to DESIGN.md's `--tile` formula and expected sizes (about 101 px and 67 px) is noted in the story, for DESIGN.md's update
 
 **Given** `src/render/stage.ts`
@@ -1036,7 +1039,7 @@ So that I see the chosen look working in the engine, and know it fits the starti
 **And** the lanterns show only in Emberwood; the warmth falls from Emberwood to the Drowned Mill to Harrowmere; Harrowmere shows no warm light but the hero, his shot and the collectables; the enemy stand-ins change colour by palette alone
 
 **Given** the look-dev statistics on each level's test scene
-**When** a Playwright check reads them
+**When** a Playwright check in `tests/e2e/lookdev/` reads them (readiness proposal 2026-11-13, Q12)
 **Then** it fails above the starting budgets: 150 draw calls †, 250,000 triangles †, 256 MB of estimated texture memory †, one shadow map of 2048 × 2048 at most †, 2 post-processing passes †, a pixel ratio of 1.5 †
 **And** these counts don't depend on the GPU, so a headless run may check them; frame times from headless runs are never used
 
@@ -1126,6 +1129,12 @@ So that Epic 1's first overlay builds on the final values, and no later story tr
 **And** EXPERIENCE.md's Voice and Tone table gives the Retry panel a boot-failure line of its own, since "Couldn't load the level." misreads when the boot load fails
 **And** the loading card's replay advance hint gets a visual spec of its own (placement and tokens), since the loading card has no scrim band
 
+**Given** the UX spine drift the readiness check found (U1–U3)
+**When** the same Update runs
+**Then** EXPERIENCE.md's `hud-warden-bar` notch marks half health, not "15 of 30 HP"
+**And** EXPERIENCE.md's "Audio has a visual twin" rule adds the hub-open cue with the hub glow, and the blocked splash sound with the splash
+**And** the spines' `gdd.md` line citations are refreshed to the current GDD (readiness proposal 2026-11-13, U1–U3)
+
 **Given** a margin noted when the camera framing was locked
 **When** DESIGN.md is updated
 **Then** its `--tile` formula and its expected sizes match `CONFIG.view`
@@ -1207,7 +1216,7 @@ The developer can play grey-box Level 1 start to finish in the browser, with eve
 
 **Out of scope:** Rowan's model and animations (Epic 2); final art, enemy models, final control-sign icons, the final HUD, the bell toast, the mute indicator, all audio, the title gate, the intro and the loading card (Epic 3); ledge grab, the warden, story moments and the replay-form rule in `createWorld` (Epic 4); the piercing shot and waterwheel platforms (Epic 5); the full pause menu, confirm dialog, settings, `slider`, `toggle`, notice lines, error panels, saving, the level select, the final results (stagger, "New best"), the reduced-motion setting, the fullscreen toggle and the `?perf=1` recorder (Epic 6).
 
-**Depends on:** Epic 0: the scaffold, `core/log.ts`, the ESLint boundary rules, the token CSS pipeline with the Epic 0 colour and type values in DESIGN.md, the basic screenshot harness (`make shots ROUND=n`), the materials, palettes, lighting rigs, stage and view camera, the look-dev page, the HUD icon set, and `CONFIG.view` with any camera margin (X-B35). Tiled 1.12.x, the level editor settled in the architecture.
+**Depends on:** Epic 0: the scaffold, `core/log.ts`, the ESLint boundary rules, the token CSS pipeline with the Epic 0 colour and type values in DESIGN.md, the basic screenshot harness (`make shots ROUND=n`), the materials, palettes, lighting rigs, stage and view camera, the look-dev page, the HUD icon style (readiness proposal 2026-11-13, minor concern), and `CONFIG.view` with any camera margin (X-B35). Tiled 1.12.x, the level editor settled in the architecture.
 
 **Playable deliverable:** grey-box Level 1, start to finish, in the browser, on keyboard or gamepad, with the placeholder HUD, the placeholder pause and the basic results screen.
 
@@ -1242,7 +1251,7 @@ So that every mechanic in this epic plugs into the same deterministic simulation
 
 **Given** the determinism rules
 **When** `sim/math.ts` is written
-**Then** it provides vector helpers, its own `sin` and `cos`, and a small seeded PRNG; `createWorld` seeds `world.rng` from the level id (X-B15), and the same seed gives the same sequence in Node and in the browser (AR45)
+**Then** it provides vector helpers, its own `sin` and `cos`, and a small seeded PRNG; `createWorld` seeds `world.rng` from the level id (X-B15), and the same seed gives the same sequence in Node and in the browser (AR45), which Story 1.15's replay in Node of a browser-recorded run checks (readiness proposal 2026-11-13, Q13)
 **And** ESLint rejects `Math.random`, `Date`, `performance`, `Math.sin` and `Math.cos` in `src/sim/**` (this story adds any of these Epic 0's rules lack), shown once with a deliberate violation that `make lint` fails on
 
 **Given** the two typed channels
@@ -1307,11 +1316,11 @@ So that every later mechanic is tested and felt on real levels, and art never de
 
 **Given** the first test level, `levels/test-movement.tmj` (flat run, steps of 1, 2 and 3 tiles, gaps up to 5 tiles, no wider than one 19-tile screen)
 **When** the developer runs `make dev`, `make test` or `make shots`
-**Then** test levels compile like any other into `public/assets/levels/` and are available to all three, since each runs the manifest step (`make levels`, then `scripts/buildManifest.ts`) before Vite (AR132; sprint change proposal 2026-11-13, A2)
+**Then** test levels compile like any other into `public/assets/levels/` and are available to all three, since each runs `make levels` before Vite; Story 1.3 adds the manifest step after it (AR132; sprint change proposal 2026-11-13, A2; readiness proposal 2026-11-13, D1)
 
 **Given** test levels in `levels/`
 **When** `make build` runs
-**Then** the release manifest (`scripts/buildManifest.ts --release`) leaves them out, and `make build` deletes them from `dist/assets/levels/`, so `dist/` holds no `test-*` level (AR132; sprint change proposal 2026-11-13, A2)
+**Then** `make build` deletes them from `dist/assets/levels/`, so `dist/` holds no `test-*` level; the release manifest that leaves them out is Story 1.3's (AR132; sprint change proposal 2026-11-13, A2; readiness proposal 2026-11-13, D1)
 **And** the budget check fails, naming the file, if a `test-*` level is planted in `dist/` before it runs, and a test proves it
 
 **Given** compiled levels
@@ -1327,14 +1336,17 @@ As a developer,
 I want the app to load a level and its assets by id through the manifest, and enter play only when both are ready,
 So that every level, test levels included, starts the same way and a failed load never crashes the game.
 
-**Requirements:** AR39, AR57 (`levelHost` creates the `World`), AR100, AR101, AR133, AR144, AR150, AR189, AR201 (the silent retry), AR217, AR236, AR237, X-B17
+**Requirements:** AR39, AR57 (`levelHost` creates the `World`), AR100, AR101, AR132 (the release manifest), AR133, AR144, AR150, AR189, AR201 (the silent retry), AR217, AR236, AR237, X-B17
 
 **Acceptance Criteria:**
 
 **Given** compiled levels and the files in `public/assets/`
 **When** `scripts/buildManifest.ts` runs
 **Then** `public/assets/manifest.json` lists a shared bundle and one bundle per level, holding that level's data and assets (AR150)
+**And** the builder assigns each file to a bundle by its kind prefix: the shared bundle, loaded at boot, holds the fonts, the `icon-` files, every `sfx-` file, Emberwood's music (the title reuses the Level 1 tune), the hero, the three enemies, pickups and markers, and the story cards; a level's bundle, loaded behind its loading card, holds that level's compiled data, kit, backdrops and ambience, its music in Levels 2 and 3, and the warden in the warden's level (readiness proposal 2026-11-13, Q10)
+**And** Vitest tests place a sample file of each kind in its bundle
 **And** `make dev`, `make test` and `make shots` always work from a current manifest, since each runs the manifest step before Vite, and Vite copies `public/` unchanged, so the manifest's paths stay valid in `dist/` (sprint change proposal 2026-11-13, A2)
+**And** `make build` runs the release manifest step (`scripts/buildManifest.ts --release`) in the place Story 0.2 left for it, and the release manifest leaves out every `test-*` level, which a Vitest test of the builder proves (AR132; readiness proposal 2026-11-13, D1)
 **And** code asks for assets by manifest id through the `AssetLoader` port, never by a path string
 
 **Given** `src/core/loading.ts`, which imports nothing
@@ -1357,6 +1369,7 @@ So that every level, test levels included, starts the same way and a failed load
 **When** the game starts
 **Then** the shared bundle loads once, before the first level, and each level's bundle loads when that level starts (AR144)
 **And** with no boot screen (Epic 6) or loading card (Epic 3) yet, the page goes straight to the startup level, here `test-movement`
+**And** release builds can't start in `test-movement`, which they strip (Story 1.2), so this story also adds `levels/emberwood.tmj` as a placeholder: a flat strip with a `PlayerStart`, 3 checkpoints, 3 bells and an exit, which passes compile validation. Release builds start in it, so `make smoke` (Story 0.1) always has a level to load; Story 1.26 replaces it with grey-box Level 1 (readiness proposal 2026-11-13, D2)
 
 **Given** a shared or level load in progress
 **When** the loader calls `onProgress(loaded, total)`
@@ -1420,6 +1433,7 @@ So that gameplay is identical at 60, 120 and 144 Hz and no key press is ever los
 **When** a bound key is pressed
 **Then** its event calls `preventDefault`, so Space and the arrows never scroll the host page, and unbound keys pass through (AR97, UX-DR83)
 **And** a Playwright check reads `defaultPrevented` on synthetic key events; behaviour inside itch.io's iframe is verified on the Epic 6 upload
+**And** Playwright checks that need development tools live in `tests/e2e/dev/`; from this story on, `make smoke` runs them against the dev server after the production-build spec (readiness proposal 2026-11-13, Q12)
 
 Note: the architecture puts the accumulator in `main.ts`, which Vitest cannot import without the DOM. This story extracts the accumulator, step cap, alpha and the try/catch wrapper into a pure helper beside `main.ts` and flags it (AR248).
 
@@ -1509,7 +1523,8 @@ So that the first two minutes feel right before anything else is built on top.
 
 **Given** the real controller and `CONFIG`
 **When** the feel regression test runs on flat ground
-**Then** a full jump peaks at 3.30 ± 0.02 tiles, a tap jump at 0.75 to 0.90 tiles, and a full jump spends 52 ± 1 steps in the air (AR64, X-B1)
+**Then** a full jump peaks at 3.30 ± 0.02 tiles, a tap jump (jump pressed and held for exactly one step) at 0.75 to 0.90 tiles, and a full jump spends 52 ± 1 steps in the air (AR64, X-B1)
+**And** a press released within its first step still jumps (FR17): the test asserts Rowan leaves the ground and peaks no higher than the one-step tap; `CONFIG` is never changed to make either test pass (readiness proposal 2026-11-13, Q6)
 **And** it fails if any value drifts, and is never "fixed" by changing feel-table numbers without the developer
 
 **Given** Rowan's state
@@ -1854,7 +1869,7 @@ So that failing is cheap and the level has a goal, with no game over.
 **When** the death rule runs
 **Then** `rowanDied` is emitted, he is out of control for `deathSteps` (`steps(0.85)`), then he respawns at the respawn point with 3 hearts and `respawnInvulnerableSteps` (`steps(1.0)`), `rowanRespawned { checkpointId }` is emitted, and `stats.respawns` goes up by 1 (FR66, FR5)
 **And** there are no lives, no countdown and no game over: every death ends in a respawn (FR4)
-**And** nothing else in the `World` is reset; the enemy and pickup stories assert that killed enemies stay dead and collected embers and bells stay collected (FR67)
+**And** nothing else in the `World` is reset beyond the camera and projectile rules below, with one named exception: weapon pickups return (Story 1.21's rule); the enemy and pickup stories assert that killed enemies stay dead and collected embers and bells stay collected (FR67; readiness proposal 2026-11-13, Q13)
 
 **Given** Rowan enters a `KillZone` region, or falls below the level's bottom edge (AR126)
 **When** the pit rule runs
@@ -1867,9 +1882,16 @@ So that failing is cheap and the level has a goal, with no game over.
 **Then** it records only solid or one-way ground that is not a moving platform and has no spike tile within the hazard clearance in `CONFIG.pit` (starting value 1 tile †) horizontally (FR65, X-B4)
 **And** Vitest tests show a moving platform and a ledge next to spikes are never recorded, and a one-way ledge is
 
+**Given** Rowan respawns at a checkpoint or returns from a pit
+**When** he is placed
+**Then** the camera snaps to him while the screen is faded, with no glide, and every shot in flight is cleared (Story 1.19 clears seeds the same way)
+**And** a pit return before any stable ground has been recorded returns him to the respawn point: the last checkpoint, or the `PlayerStart` (X-B5)
+**And** Vitest tests cover the snap, the cleared shots, the pit return with no stable ground, and that nothing else changes (readiness proposal 2026-11-13, Q13)
+
 **Given** an `Exit` object
 **When** Rowan touches it
 **Then** `levelCompleted` is emitted once (FR2)
+**And** the exit can't trigger while Rowan is dead or fading after a pit, shown by a Vitest test (readiness proposal 2026-11-13, Q5)
 **And** the compiler rejects a non-test level that lacks exactly 3 checkpoints and an exit (FR125, AR130)
 **And** until the results story, the app only logs the completion
 
@@ -1901,7 +1923,7 @@ As a developer,
 I want to see hitboxes and state, start anywhere, cheat past danger, and record and replay a run,
 So that I can tune feel, reproduce any bug exactly, and test the later mechanics quickly.
 
-**Requirements:** AR30, AR99, AR140, AR207, AR208, AR209, AR210, AR211, X-B16, X-B17
+**Requirements:** AR30, AR45 (browser check), AR99, AR140, AR207, AR208, AR209, AR210, AR211, X-B16, X-B17
 
 **Acceptance Criteria:**
 
@@ -1927,9 +1949,10 @@ So that I can tune feel, reproduce any bug exactly, and test the later mechanics
 **And** this story leaves the "grant ledge grab" cheat to Epic 4
 
 **Given** `debug/inputRecorder.ts`
-**When** the developer records a run from level start and saves it to a file
-**Then** replaying the file into a fresh `World` reproduces the run step for step, with the same state hash at the end (AR211)
+**When** the developer records a run, from level start or from a spot the URL parameters set, and saves it to a file
+**Then** replaying the file into a fresh `World` reproduces the run step for step, with the same state hash at the end; the file stores the `WorldParams` the run started from, `spawnAt` included (AR211; readiness proposal 2026-11-13, Q13)
 **And** the file holds the same `InputFrame` stream format the determinism test uses and the jump search will use, with no test-only path in the simulation (AR99, AR140)
+**And** a run recorded in the browser with the input recorder, saved with its final state hash and replayed in Vitest in Node, ends with the same hash, so the simulation is shown to match in the browser and in Node (AR45; readiness proposal 2026-11-13, Q13)
 
 **Given** a release build (`make build`)
 **When** its bundle is searched for the debug modules' names
@@ -1989,7 +2012,7 @@ As a player,
 I want every stomp, kill and hit to land with weight, and to see when I'm safe after being hurt,
 So that combat feels punchy and readable.
 
-**Requirements:** FR29, FR63 (blink), FR68, FR69, FR70, FR71, FR72, AR44, AR62 (feedback numbers; clip steps are Epic 2), AR171, AR172, AR173, PB52, UX-DR88, X-B6 (hit-stop)
+**Requirements:** FR29, FR63 (blink), FR68, FR69, FR70, FR71, AR44, AR62 (feedback numbers; clip steps are Epic 2), AR171, AR172, AR173, PB52, UX-DR88, X-B6 (hit-stop)
 
 **Acceptance Criteria:**
 
@@ -2017,9 +2040,9 @@ So that combat feels punchy and readable.
 **When** frames render
 **Then** his capsule blinks at 9 Hz, derived from his invulnerability counter and the step count, so it looks the same at any refresh rate and stops when the counter ends (FR63, FR70, AR173)
 
-**Given** a hit an enemy survives, a shot kill, or Rowan's death
+**Given** a shot kill, or Rowan's death
 **When** rendering handles the event
-**Then** the surviving enemy flashes briefly on `enemyHit` (FR72); a shot kill plays a short burst from a particle pool seeded so screenshot mode captures it the same every time (FR69); death adds trauma 0.4 to the fade from Story 1.14 (FR71)
+**Then** a shot kill plays a short burst from a particle pool seeded so screenshot mode captures it the same every time (FR69); death raises trauma to 0.4 alongside the fade from Story 1.14 (FR71); the flash of an enemy that survives a hit comes in Story 1.19, with the first such enemy (readiness proposal 2026-11-13, D3)
 **And** no large-area flash runs faster than 3 times a second, and the `warning` colour never fills a large area (UX-DR88)
 
 **Given** `test-enemies` in the browser
@@ -2044,7 +2067,7 @@ So that Level 1 can teach shooting low and high, and that thorns mean "don't sto
 **Given** a thorn flyer
 **When** steps run
 **Then** it moves around its placed anchor, through walls, swinging ±`swing` tiles horizontally with a 7 s period and bobbing ±0.22 tiles with a 2.7 s period, sinusoidal on both axes using `sim/math.ts` (FR78, X-B13, AR45)
-**And** its path is identical in Node and in the browser, covered by the determinism hash
+**And** its path is identical in Node and in the browser, covered by the determinism hash and by Story 1.15's check that a run recorded in the browser replays in Node to the same state hash, run here on `test-enemies` with the flyer (readiness proposal 2026-11-13, Q13)
 
 **Given** Rowan lands on a thorn flyer from above
 **When** the combat step tests the touch
@@ -2098,6 +2121,7 @@ So that Level 1 teaches crouching and reading a telegraph.
 **When** the first one lands
 **Then** `enemyHit` is emitted and the spitter flashes; the second kills it (`enemyKilled`) (FR72)
 **And** a killed spitter stays dead after Rowan respawns
+**And** every seed in flight is cleared on a checkpoint respawn and on a pit return, as Story 1.14 clears shots, shown by a Vitest test (readiness proposal 2026-11-13, Q13)
 
 **Given** `test-enemies` with a spitter on flat ground
 **When** the developer ducks, jumps and shoots
@@ -2184,7 +2208,7 @@ So that Level 1 can hand me a stronger spit before its combat-heavy stretch.
 
 **Given** `test-pickups` with a triple shot pickup and a few walkers
 **When** the developer plays it
-**Then** the pickup is a grey-box shape apart from embers and bells, and he signs off the warning time (†)
+**Then** the pickup is a grey-box shape apart from embers and bells; the warning time (†) is signed off in Story 1.22, where the bar's blink shows it (readiness proposal 2026-11-13, D4)
 **And** a spot is added, and the critic loop runs (at most 3 rounds): each round compares the shots with the style guide, writes down the three biggest problems, fixes them, and checks the triple shot's three shots stay readable against the background (PR14, NFR27); the developer sees the before and after shots
 
 ### Story 1.22: Show the placeholder HUD: hearts, ember meter and weapon timer
@@ -2216,6 +2240,7 @@ So that I always know how safe I am without reading a number.
 **When** `weaponCollected`, `weaponRunningOut`, `weaponExpired`, `rowanDied` or `rowanFellInPit` arrives
 **Then** it appears with a placeholder triple-shot icon; its `weapon-timer` bar reads the simulation's remaining steps (never its own clock) and drains right to left; a new pickup swaps the icon and refills it; on `weaponRunningOut` the bar blinks at 3 Hz or less between `warning` and empty track; it hides on `weaponExpired` and on death, and stays through a pit fall (UX-DR19, FR54)
 **And** the blink is the visual twin of Epic 3's warning sound (UX-DR87)
+**And** on `test-pickups`, the developer signs off the warning time in `CONFIG.weapons` (†) against the blink (readiness proposal 2026-11-13, D4)
 
 **Given** the app's state
 **When** play, the death sequence, the pit fade, Loading or Paused is shown
@@ -2225,7 +2250,8 @@ So that I always know how safe I am without reading a number.
 **Given** the HUD each frame
 **When** it reads the app state, `DeepReadonly<World>` and the snapshot
 **Then** it touches the DOM only when a value changes, animates only opacity and transform, and times every animation in seconds (AR186, UX-DR14)
-**And** with `reducedMotion` set in the snapshot, the last-heart pulse and the icon shake stop and the crack stays (AR174); the setting itself is Epic 6
+**And** the HUD's animation choices (pulse, shake, crack, pop, blink) come from a pure function in `ui/` of the World's read-only state (hearts, meter, weapon time), the presentation snapshot and the frame's events, which Vitest tests in Node run with `reducedMotion` off and on: on, the last-heart pulse and the icon shake stop and the crack stays (AR174); the setting itself is Epic 6
+**And** until then, a development-only URL parameter, `reducedMotion=1`, sets the snapshot value for the browser check (readiness proposal 2026-11-13, Q12)
 **And** nothing relies on colour alone: hearts are counted shapes, meters read by length, the timer carries an icon (UX-DR86); no large area flashes (UX-DR88)
 
 **Given** the HUD uses Epic 0's token values and placeholder icons (heart, triple shot) that this story draws as simple single-colour silhouettes in the icon style `docs/STYLE_GUIDE.md` records; the final icon set and the judgement in play are Epic 3
@@ -2245,7 +2271,12 @@ So that I know how the run went, with no judgement attached.
 
 **Given** `levelCompleted` arrives
 **When** the app handles it
-**Then** it enters Results and stops simulation steps, so the clear time is final; the world dims under the scrim and the HUD stays under it; a panel shows the results; the cursor shows (FR2, UX-DR55)
+**Then** it enters Results and stops simulation steps; the world dims under the scrim and the HUD stays under it; a panel shows the results; the cursor shows (FR2, UX-DR55)
+
+**Given** the step that emits `levelCompleted`
+**When** later steps run, in the same frame or after
+**Then** that step was the `World`'s last: `step()` returns at once, so they change nothing and the clear time is final (AR87)
+**And** a Vitest test runs a 5-step frame across the exit and finds the clear time, hearts and Rowan's position unchanged after `levelCompleted`, which reaches the app once (readiness proposal 2026-11-13, Q5)
 
 **Given** `ui/screens/results.ts`
 **When** the panel shows
@@ -2349,6 +2380,11 @@ So that a layout breaking the rules fails `make test` before anyone plays it.
 **Then** a fixture level that breaks it makes it fail with a message naming the level, the rule and the spot (AR216)
 **And** the developer reviews the † metric values against play on the test levels and signs them off (PR17)
 
+**Given** a level whose file name starts with `test-`
+**When** the checks above run
+**Then** every check in this story skips it, as the content rules do (Story 1.2), and the fixtures that prove each check can fail are named without the prefix
+**And** Story 1.24's jump search still runs on its marked jumps (readiness proposal 2026-11-13, Q13)
+
 Note: the GDD names an intended ceiling and "close to a checkpoint" without a way to mark one or a distance. This story adds an optional `isCeilingIntended` property on `Jump` marks and a † checkpoint distance for challenge jumps in `CONFIG`.
 
 Note: enemies move, so the enemy cap uses each enemy's start position and movement bounds (a walker's ground segment, a flyer's swing and bob, a spitter's spot) as an approximation of what can be on screen at once.
@@ -2366,7 +2402,7 @@ So that the layout is proven fun and fair before any art goes on it.
 **Given** `levels/emberwood.tmj`
 **When** it compiles
 **Then** it is a standard level: side-scrolling and linear, left to right with vertical variation, within the level height in `CONFIG.levels` (starting values 18 to 24 tiles †), with 3 checkpoints, 3 bells and an exit marker where the wedding glade's arch will stand; nothing locks off an area (FR141, FR143, FR145)
-**And** `content/levels.ts` holds its id `emberwood`, its order and the display name "Emberwood", and the game now starts in Emberwood (AR134)
+**And** `content/levels.ts` holds its id `emberwood`, its order and the display name "Emberwood", and the game now starts in Emberwood in every build, replacing Story 1.3's placeholder strip (AR134)
 **And** its length starts from the prototype's 146 tiles; the exit story measures the pace
 
 **Given** the start to checkpoint 1
@@ -2587,7 +2623,8 @@ So that the pipeline starts from one consistent design, and the mesh is judged f
 **Given** the four views
 **When** the agent looks at each one beside the concept, and the developer reviews them
 **Then** all four show every feature of the design: a horned ember-beast, clearly not an ape; upright, with two legs and two arms, about 3 heads tall, on a human-shaped skeleton; two bone horns sweeping back; a furnace glow in the chest; ember-bright eyes; charcoal skin with glowing seams; the torn red woodsman's scarf; determined, not monstrous (FR210, NR56, NR58)
-**And** any views that disagree with each other (horn shape, scarf side, proportions, claws) are regenerated until the set agrees, and the developer approves the set.
+**And** any views that disagree with each other (horn shape, scarf side, proportions, claws) are regenerated until the set agrees, within the tool budget set in Epic 0, and the developer approves the set
+**And** if the budget runs out before the set agrees, the story stops, reports the spend and what still disagrees, and the developer decides (readiness proposal 2026-11-13, Q9).
 
 **Given** Tripo's terms are logged and permit the use (Story 2.1)
 **When** the mesh is generated from the approved views with Tripo's multi-view input, choosing the input and output options from Tripo's current documentation
@@ -2718,7 +2755,7 @@ So that he can stand, run, jump, fall, land and crouch the way the simulation mo
 **When** `run` is played in Blender with Rowan moved forward at that speed
 **Then** his feet stay planted while they touch the ground, with no visible sliding.
 
-**Given** `CONFIG.feedback.landClipSteps` (starting value `steps(0.15)`, 9 steps †) and the crouch hurtbox height in `CONFIG` (0.6 tiles †, tuned in Epic 1)
+**Given** `CONFIG.feedback.landClipSteps`, which this story adds to `CONFIG.feedback` (starting value `steps(0.15)`, 9 steps †; readiness proposal 2026-11-13, minor), and the crouch hurtbox height in `CONFIG` (0.6 tiles †, tuned in Epic 1)
 **When** `land` and `crouch` are timed and posed
 **Then** `land` reads within that many steps
 **And** the crouch pose brings Rowan's head and horns down to the top of the crouch hurtbox or below, so a seed that passes over him looks like it passes over.
@@ -2832,7 +2869,7 @@ So that every action the player takes, and every hit Rowan takes, shows on his b
 **Given** the rigged Rowan
 **When** `spit`, `spit_up` and `spit_down` are made through the MCP
 **Then** each is an in-place, one-shot clip that keys only the upper body (spine, arms, neck, head, and the scarf where it hangs from them), so the game can lay it over whatever the legs are doing: standing, running, crouched, jumping or falling, as the `overlay` half of `chooseHeroClip`'s `{ base, overlay }` (sprint change proposal 2026-11-13, A8)
-**And** each is timed to `CONFIG.feedback.spitClipSteps` (starting value `steps(0.2)`, 12 steps †) and restarts cleanly from its first frame on the next shot.
+**And** each is timed to `CONFIG.feedback.spitClipSteps`, which this story adds to `CONFIG.feedback` (starting value `steps(0.2)`, 12 steps †; readiness proposal 2026-11-13, minor), and restarts cleanly from its first frame on the next shot.
 
 **Given** the shot spawn points in `CONFIG`: 0.42 tiles in front, 0.48 tiles high, 0.7 when aiming up, and 0.3 when aiming down or crouched (FR46), with aim at 45° up or down (FR47)
 **When** the spit clips are checked in Blender against markers placed at those points
@@ -3039,13 +3076,13 @@ A first-time player from the primary audience can start at the title gate, watch
 
 **Out of scope:** the boot loading screen, title menu, full pause menu, level select, settings, saving, notices and error panels (Epic 6); the loading card's replay skip (Epic 6); the warden, its bar and sounds, ledge grab, Rowan stage 2 (Epic 4); the piercing shot pickup model, Levels 2 and 3, the closing and all-bells cards (Epic 5); the performance pass on real hardware (Epic 6).
 
-**Depends on:** Epic 2 (Rowan stage 1, fully animated, playing the grey-box level); the audio tools the developer chose, with their licence and commercial-use terms logged in `docs/ASSETS.md` (PR26).
+**Depends on:** Epic 2 (Rowan stage 1, fully animated, playing the grey-box level). The audio tools and formats are chosen by the developer at the start of Story 3.15, with their licence and commercial-use terms logged in `docs/ASSETS.md` before any audio asset is made (PR26; readiness proposal 2026-11-13, Q9).
 
 **Playable deliverable:** Emberwood start to finish, from the title gate and the intro, with final art, HUD and audio.
 
 **Exit criteria:**
 
-- At least 4 of 5 (or 3 of 3) first-time testers from the primary audience finish Level 1 without help.
+- At least 4 of 5 (or 3 of 3, or 3 of 4) first-time testers from the primary audience finish Level 1 without help (X-B31; readiness proposal 2026-11-13, minor).
 - A majority want to play Level 2 and can say who Rowan is and what he wants.
 - The developer approves the look.
 
@@ -3110,7 +3147,7 @@ So that the level I already know how to play feels like Rowan's home wood.
 **Given** `art-src/kits/emberwood.blend`, built in Blender by hand or from Tripo meshes
 **When** `make models` exports and optimises it
 **Then** `kit-emberwood.glb` holds the terrain pieces, each named `<kind>_<variant>` (for example `ground_top`, `ledge_oneway`), with its origin at the bottom-left of its tile cell and 1 unit = 1 tile, compressed with meshopt
-**And** `optimizeModels.ts` accepts the file and still rejects a piece with the wrong scale or origin
+**And** this story adds the kit-piece rule to `optimizeModels.ts`, since Story 2.6 checks only characters: a piece is 1 unit = 1 tile, with its origin at the bottom-left of its tile cell; the file passes, and Vitest unit tests under `make test` show a well-formed synthetic piece passing and pieces with the wrong scale or the wrong origin each failing with the matching rule (readiness proposal 2026-11-13, Q7)
 
 **Given** the kit
 **When** its pieces are reviewed on the look-dev page
@@ -3322,7 +3359,7 @@ As a player,
 I want the walker to look like a twisted creature of the wood that I can tell at a glance is safe to stomp,
 So that the first enemy I meet teaches the stomp without a word.
 
-**Requirements:** FR73, FR74, FR75, FR76, FR77, FR212, NR85, NR104, NFR35, PB59, PB62, AR145, AR146, AR147, AR148, AR153, AR154, AR155, AR156
+**Requirements:** FR73, FR74, FR75, FR76, FR77, FR212, NR85, NR104, NFR35, PB59, PB62, AR75, AR76, AR145, AR146, AR147, AR148, AR153, AR154, AR155, AR156
 
 **Acceptance Criteria:**
 
@@ -3330,6 +3367,7 @@ So that the first enemy I meet teaches the stomp without a word.
 **When** the walker goes through it
 **Then** it follows each step: a reference concept in the locked style from the image model the developer chose, four views, a Tripo mesh, cleanup in Blender through MCP (1 unit = 1 tile, origin at the feet, facing +X, polygons reduced, parts named in snake_case), its own creature rig, animation, export, and the game's own look (PB59)
 **And** `make models` produces `enemy-walker.glb`, which `optimizeModels.ts` accepts
+**And** before any Tripo credit is spent, the developer approves the walker's concept and its four views; the walker takes the route Epic 2 recorded in `docs/ASSETS.md`: Tripo, or the hand-built model if Tripo's terms were refused or Rowan's mesh would not deform (readiness proposal 2026-11-13, Q9)
 
 **Given** the walker model
 **When** the developer reviews it on the look-dev page and in play
@@ -3341,6 +3379,22 @@ So that the first enemy I meet teaches the stomp without a word.
 **When** the walker patrols and is killed
 **Then** the clip follows its simulation state through the enemy clip table, and `move` matches the 1.6 tiles/s patrol without visible foot sliding
 **And** a kill plays `death` together with Epic 1's arcade burst
+
+**Given** `render/actors/enemies.ts`
+**When** the enemy clip table is written, as Story 2.9 wrote the hero's (AR75)
+**Then** `EnemyClip` is a string-literal union of AR155's enemy clip names (`move`, `idle`, `swell_fire`, `hurt`, `death`), and a pure clip table per enemy kind maps the enemy's simulation state to its clip; for the walker, patrolling gives `move` and killed gives `death` (readiness proposal 2026-11-13, Q7)
+**And** its Vitest unit tests run in Node, with no WebGL context, under `make test`, and cover every walker state
+
+**Given** walkers in the level
+**When** their views are created and updated (AR76)
+**Then** each walker gets its own skinned clone of the shared model, made as the three.js r187 documentation says for skinned meshes, so walkers animate independently
+**And** every enemy mixer advances on the loop's clamped frame time (0 to 0.25 s), as the hero's does (AR52)
+**And** leaving or reloading a level disposes every enemy view, its mixer and the materials it made; switching levels repeatedly through the dev handle leaves the renderer's geometry and texture counts flat (AR151)
+**And** in screenshot mode each enemy's clip is set to the spot's `animTime` and holds there, so two captures of the same spot match (AR213)
+
+**Given** a walker is killed
+**When** `enemyKilled` arrives for it
+**Then** its model stays where it died until its `death` clip ends, then goes, even once its entity has left the `World`; the view never writes to the simulation
 
 **Given** every clip
 **When** the developer checks it on the look-dev page
@@ -3374,6 +3428,7 @@ So that I know at a glance it hurts to land on and must be shot.
 **When** the thorn flyer goes through it
 **Then** it follows the same steps as the walker in Story 3.7, with its own creature rig (PB59)
 **And** `make models` produces `enemy-thorn-flyer.glb`, which `optimizeModels.ts` accepts
+**And** as for the walker, the developer approves its concept and four views before any Tripo credit is spent, and it takes the route Epic 2 recorded (readiness proposal 2026-11-13, Q9)
 
 **Given** the model
 **When** the developer reviews it on the look-dev page and in play
@@ -3383,6 +3438,7 @@ So that I know at a glance it hurts to land on and must be shot.
 **Given** the clips `move` and `death` (FR212, AR155)
 **When** the flyer swings, bobs and is killed
 **Then** its position comes only from the simulation's path, the `move` clip adds no travel of its own, and a kill plays `death` with Epic 1's burst
+**And** it reuses Story 3.7's enemy clip table and view code, adding the flyer's rows (`move`, and `death` on a kill) with their unit tests (readiness proposal 2026-11-13, Q7)
 
 **Given** every clip
 **When** the developer checks it on the look-dev page
@@ -3411,6 +3467,7 @@ So that I can see each shot coming and choose to duck, jump or shoot.
 **When** the rooted spitter goes through it
 **Then** it follows the same steps as the walker in Story 3.7, with its own rig (PB59)
 **And** `make models` produces `enemy-rooted-spitter.glb`, which `optimizeModels.ts` accepts
+**And** as for the walker, the developer approves its concept and four views before any Tripo credit is spent, and it takes the route Epic 2 recorded (readiness proposal 2026-11-13, Q9)
 
 **Given** the model
 **When** the developer reviews it on the look-dev page and in play
@@ -3421,6 +3478,7 @@ So that I can see each shot coming and choose to duck, jump or shoot.
 **When** the spitter attacks
 **Then** the swell is visible for the whole of the simulation's 0.5 s swell, and the seed leaves at the moment `swell_fire` releases it (FR80)
 **And** a first hit plays `hurt` with Epic 1's flash, and the second plays `death` with the burst
+**And** it reuses Story 3.7's enemy clip table and view code, adding the spitter's rows (`idle`, `swell_fire`, `hurt` and `death`) with their unit tests (readiness proposal 2026-11-13, Q7)
 
 **Given** a seed in flight
 **When** the developer watches it against the Emberwood backdrops
@@ -3532,6 +3590,12 @@ So that my first press starts the sound and gives the game keyboard focus inside
 **Then** they cover each gate transition: key, click and gamepad button, the locked audio after a gamepad pass, results confirm returning to the gate, results Back doing nothing
 **And** a Playwright smoke check loads the page, sees the gate, presses a key and reaches play
 
+**Given** a development build opened with a debug URL parameter (`level`, `checkpoint` or `shot`)
+**When** the page loads
+**Then** it skips the title gate and goes straight to the level, checkpoint or spot asked for, and Stories 3.12 and 3.14 keep it skipping the loading card's reading floor and the intro; audio stays locked until the first key press or click (readiness proposal 2026-11-13, Q12)
+**And** a release build has no bypass, since the URL parameters are development-only (AR207), and an app test covers a start with and without a parameter
+**And** Epic 1's Playwright specs (Story 1.11's pause checks, Story 1.27's sign swap and `make smoke`) are updated here to pass the gate or use the bypass, and stay green as Stories 3.12 and 3.14 add the loading card and the intro
+
 **Given** the gate screen
 **When** the critic loop runs (`make shots ROUND=n`, at most 3 rounds), with `make shots` extended to capture the gate
 **Then** each round lists the three biggest problems against the style guide and fixes them
@@ -3565,6 +3629,7 @@ So that I learn why Rowan is going through Emberwood before I play it.
 **When** time passes
 **Then** it stays up for at least the reading floor in `core/uiTimings.ts` (starting value 3 s †) and until loading is done, whichever is later, then goes to Playing by itself, fading in and out over `loadingCardFadeSeconds` (starting value 0.3 s †) (AR104, NR29, UX-DR90)
 **And** app tests with a fake clock and a fake loader cover both orders: loading finishing before the floor, and after it
+**And** under Story 3.11's dev bypass, the card has no reading floor and goes to Playing as soon as loading is done, covered by an app test (readiness proposal 2026-11-13, Q12)
 **And** the developer signs off on the floor; a failed load keeps Epic 1's handling (the Retry panel is Epic 6)
 
 **Given** the loading card
@@ -3613,6 +3678,7 @@ So that I learn who Rowan is and what he lost before I play.
 **When** the five intro cards are defined
 **Then** each card is 3 to 5 † flat silhouette layers with palette slots from the story palette and its own light, rendered by `render/cards/cardScene.ts` as an app state's scene (FR164, AR84)
 **And** card 2 reuses the Epic 0 sample card; the shapes come from the source Epic 0 chose, and placeholder silhouettes are acceptable (NR26)
+**And** the card shapes are in the shared bundle, loaded at boot with the other shared assets, so the intro shows before any level loads (readiness proposal 2026-11-13, Q10)
 
 **Given** each card's image
 **When** the developer reviews it
@@ -3622,7 +3688,7 @@ So that I learn who Rowan is and what he lost before I play.
 **And** card 3: the village foundry, Elin at work among hanging bells, Rowan in the doorway with an axe on his shoulder (NR79)
 **And** card 4: the wedding eve, lanterns and a garland, Maldrek's tall cold silhouette holding Elin by the wrist, a string of small bells at her waist, Rowan behind
 **And** card 5: Rowan mid-change, horns breaking out, a furnace in his chest; Maldrek and Elin receding down a path into the dark of the wood
-**And** Maldrek appears only on cards 4 and 5, and Elin only on cards 3 and 4 (NR78, NR79)
+**And** Maldrek appears only on cards 4 and 5, and Elin only on cards 3, 4 and 5, receding with Maldrek on card 5 as the script has it (NR25, NR78, NR79; readiness proposal 2026-11-13, Q11)
 
 **Given** the card lighting
 **When** it is reviewed against `docs/STYLE_GUIDE.md`
@@ -3658,6 +3724,7 @@ So that I read each card at my own pace and never lose one by accident.
 **When** the app moves on
 **Then** it plays intro cards 1 to 5 as app states, then Emberwood's loading card (UX-DR48, UX-DR64, UX-DR112, NR19, NR20 as the bare gate reads it)
 **And** in Epic 3 every pass through the gate plays the intro; saving whether it was seen is Epic 6
+**And** Story 3.11's dev bypass skips the intro along with the gate, and Epic 1's Playwright specs stay green (readiness proposal 2026-11-13, Q12)
 **And** story stops play only here and at the loading card, before the level starts (NR12)
 
 **Given** a card has just appeared
@@ -3701,14 +3768,15 @@ As a player,
 I want a short, hummable Emberwood tune carrying a bell-like phrase, a stinger when I reach the exit, and the sound of the dusk forest under it all,
 So that the wood sounds like home and I start to link the bells with the music.
 
-**Requirements:** FR196, FR198, FR199, FR200, FR202, FR217, NR105, NR108, NR109, AR149, AR193, AR194, AR196, PR26, X-B23
-**Depends on:** the audio tools the developer chose, with their licence and commercial-use terms logged in `docs/ASSETS.md`
+**Requirements:** FR196, FR198, FR199, FR200, FR202, FR217, NR105, NR108, NR109, AR68 (`regionEntered`), AR149, AR193, AR194, AR196, PR15 (`regionEntered`), PR26, X-B23
+**Depends on:** the developer's choice of audio tools and formats, made at the start of this story (readiness proposal 2026-11-13, Q9)
 
 **Acceptance Criteria:**
 
-**Given** the audio tools the developer chose
+**Given** the audio tools, which the GDD leaves open until Epic 3
 **When** this story starts
-**Then** each tool's licence and commercial-use terms are in `docs/ASSETS.md` before any asset is made (PR26)
+**Then** the developer chooses the audio tools and their formats, and each tool's licence and commercial-use terms are in `docs/ASSETS.md` before any asset is made (PR26; readiness proposal 2026-11-13, Q9)
+**And** if a tool's terms forbid commercial use, the story stops and the developer decides
 **And** the file formats are chosen with the tool, and each loop plays through Web Audio with no audible gap or click at the seam in Chrome, Edge and Firefox, checked by the developer over at least three repeats (AR149; Safari is best effort)
 
 **Given** the Level 1 tune, `music-emberwood.*`
@@ -3720,6 +3788,7 @@ So that the wood sounds like home and I start to link the bells with the music.
 **When** `audio/music.ts` plays the level's music
 **Then** one looping buffer plays on the music bus (AR193)
 **And** the same tune serves as the title tune: it starts when the gate unlocks audio, or on the first key press or click after a gamepad pass, and plays on through the intro and the loading card into Emberwood without restarting (FR198, NR109, X-B23)
+**And** `music-emberwood` is in the manifest's shared bundle, loaded at boot, so it is ready at the gate before Emberwood's own assets load; the architecture says which bundle every other asset kind goes in (readiness proposal 2026-11-13, Q10)
 
 **Given** Rowan touches the exit
 **When** `levelCompleted` arrives
@@ -3734,6 +3803,11 @@ So that the wood sounds like home and I start to link the bells with the music.
 **When** Rowan enters it and `regionEntered` arrives for it
 **Then** the ambience bus fades to the region's target gain, so the bed is hushed in the glade (NR105; sprint change proposal 2026-11-13, A9)
 **And** a respawn outside the region restores the bus; the `AudioFade` class (`bus`: `music` or `ambience`, and a target gain) joins the Tiled project and the compiler's checks here, ready for Level 3's music drop-out in story 5.16
+
+**Given** the compiled level's regions, which `regionEntered` so far only names in the `SimEvent` union
+**When** the simulation steps
+**Then** it emits `regionEntered { regionId, kind }` once on the step Rowan's box first overlaps a region, and for that region again only after his box has left it; which regions he is inside is kept on the `World`, and a respawn or a pit return clears it, so he re-enters cleanly (AR68; readiness proposal 2026-11-13, Q7)
+**And** Vitest unit tests in Node cover a single entry with no repeat while he stays inside, leaving and re-entering, a respawn inside the region (one new event) and a respawn outside it (none) (PR15)
 
 **Given** the music and ambience files
 **When** `make build` runs
@@ -3753,7 +3827,7 @@ I want every jump, shot, stomp, hit and death to have its own sound, with the em
 So that I feel each action land and can hear a spitter about to fire.
 
 **Requirements:** FR203, FR204, NR4, NR63, AR196
-**Depends on:** the audio tools the developer chose, with their licence and commercial-use terms logged in `docs/ASSETS.md`
+**Depends on:** the audio tools and formats chosen in Story 3.15, with their terms logged in `docs/ASSETS.md` (readiness proposal 2026-11-13, Q9)
 
 **Acceptance Criteria:**
 
@@ -3794,7 +3868,7 @@ I want pickups, checkpoints and menus to answer me with sound, and a warning whe
 So that I notice progress without looking at the HUD and the weapon never ends by surprise.
 
 **Requirements:** FR54, FR206, FR207, UX-DR87, AR196
-**Depends on:** the audio tools the developer chose, with their licence and commercial-use terms logged in `docs/ASSETS.md`
+**Depends on:** the audio tools and formats chosen in Story 3.15, with their terms logged in `docs/ASSETS.md` (readiness proposal 2026-11-13, Q9)
 
 **Acceptance Criteria:**
 
@@ -3832,7 +3906,7 @@ I want each bell I find to ring with the tune's motif and briefly show how many 
 So that I connect the bells with Elin and know my count without a lasting counter on screen.
 
 **Requirements:** FR120, FR200, FR206, NR3, NR79, NR80, NR108, AR185, UX-DR20, UX-DR39, UX-DR41, UX-DR102
-**Depends on:** the audio tools the developer chose, with their licence and commercial-use terms logged in `docs/ASSETS.md`
+**Depends on:** the audio tools and formats chosen in Story 3.15, with their terms logged in `docs/ASSETS.md` (readiness proposal 2026-11-13, Q9)
 
 **Acceptance Criteria:**
 
@@ -4015,7 +4089,8 @@ So that Epic 3 closes on its exit criteria and Epic 4 starts from a proven MVP.
 
 **Given** a threshold the first playtest missed
 **When** the fixes are in
-**Then** a new playtest with different first-time players from the primary audience runs as in Story 3.21, until at least 4 of 5 (or 3 of 3, or 3 of 4) finish without help and a majority want to play Level 2 and can say who Rowan is and what he wants (NFR45)
+**Then** one new playtest at most, with different first-time players from the primary audience, runs as in Story 3.21, and passes when at least 4 of 5 (or 3 of 3, or 3 of 4) finish without help and a majority want to play Level 2 and can say who Rowan is and what he wants (NFR45)
+**And** if that playtest also misses a threshold, the developer takes it to `gds-correct-course` (readiness proposal 2026-11-13, Q9)
 
 **Given** the thresholds are met
 **When** the developer reviews the final critic-loop shots and plays from the gate to the results in the browser
@@ -4034,8 +4109,8 @@ The player can fight the Drowned Miller in his arena, win, and watch the seal br
 - **The standalone test arena** `levels/test-warden-arena.tmj`: one screen, 19 tiles wide, a flat floor, two one-way ledges 3 tiles up †, a checkpoint at the door with a triple shot pickup just before it. Epic 5 joins it to `drowned-mill.tmj` (AR132).
 - **The warden's behaviour, as specified in the GDD,** with unit tests:
   - 30 HP †, unstompable, dormant until Rowan enters the arena, the door shut behind him
-  - the seal at the wheel's hub as the only hurtbox, open for 1.5 s † at the start of each gap between attacks; shots on the body or the shut hub splash off (sprint change proposal 2026-11-13, G2)
-  - 2 phases with the set attack order; phase 2 at half health (15 of 30 HP at the starting values), once the current attack has ended, with a flinch
+  - the seal at the wheel's hub as the only hurtbox, open for 1.5 s † at the start of each gap between attacks; shots on the body or the shut hub splash off (sprint change proposal 2026-11-13, G2); the hub sits at the top of the body's front face and takes the hit when a shot also touches the body (readiness proposal 2026-11-13, Q3)
+  - 2 phases with the set attack order; phase 2 at half health (15 of 30 HP at the starting values), which is always reached during a gap: the hub shuts, the warden flinches, then a full phase-2 gap with its window, then a wheel wash (readiness proposal 2026-11-13, Q3)
   - three attacks that never overlap (wheel wash, millstone fall, wheel roll), each with a warning of at least 0.6 s
   - millstone targeting through `world.rng`
   - a full reset when Rowan respawns at the door
@@ -4114,15 +4189,16 @@ As a player,
 I want to take a triple shot, touch a checkpoint and step into a one-screen arena whose door shuts behind me, facing a warden I can shoot but not stomp,
 So that the fight starts from a safe place and its rules are plain before any attack exists.
 
-**Requirements:** FR82, FR83, FR84, FR85, FR87, FR88, NR72 (unstompable, 30 HP), AR132 (test arena), X-B10, PR15
+**Requirements:** FR82, FR83, FR84, FR85, FR87, FR88, NR72 (unstompable, 30 HP), AR77 (arena camera lock), AR130 (warden-level validation), AR132 (test arena), X-B10, PR15
 
 **Acceptance Criteria:**
 
 **Given** `levels/test-warden-arena.tmj`, authored in Tiled with Epic 1's layers and classes
 **When** `make levels` compiles it
-**Then** the compiled level holds a `PlayerStart`, a triple-shot `WeaponPickup` just before a `Checkpoint` at the arena door, a `Door` region, an `ArenaTrigger` inside the arena and a `Warden` at the arena's right side, all as typed data (this story extends Epic 1's compiler wherever it doesn't emit these classes yet)
+**Then** the compiled level holds a `PlayerStart`, a triple-shot `WeaponPickup` just before a `Checkpoint` at the arena door, a `Door` region, an `ArenaTrigger` spanning the arena's whole inside, all 19 tiles (readiness proposal 2026-11-13, Q2), and a `Warden` at the arena's right side, all as typed data (this story extends Epic 1's compiler wherever it doesn't emit these classes yet)
 **And** a level test asserts that the arena's inside is 19 tiles wide with a flat floor and two one-way ledges 3 tiles up (†, tuned with the developer in this epic), and the static checks (AR141) pass on it
-**And** the warden-level validation runs on it: a checkpoint at the warden's door, and a warden instead of an exit
+**And** this story adds the warden-level validation to `scripts/compileLevels.ts`, and it passes on this level: a level with a `Warden` needs exactly one `Warden`, exactly one `Checkpoint` at the warden's door (beside the `Door`, outside the `ArenaTrigger`) and no `Exit`, the warden taking the exit's place; the rule applies to every level with a `Warden`, test levels included, Epic 1's exit rule gives way to it, and in a shipped level the door checkpoint comes on top of Epic 1's 3 checkpoints (AR130; readiness proposal 2026-11-13, Q7)
+**And** level tests compile broken fixtures and expect each failure, with the file and the reason: a warden level with no checkpoint at the door, one with a warden and an exit, and one with two wardens (AR216)
 **And** the level loads with `?level=test-warden-arena` and stays out of the release build and the level select, like Epic 1's test levels; this story leaves joining it to `drowned-mill.tmj` to Epic 5.
 
 **Given** Rowan outside the arena
@@ -4142,12 +4218,14 @@ So that the fight starts from a safe place and its rules are plain before any at
 **And** its body is one contact box of `CONFIG.warden` body size (starting value 3 × 4 tiles †) at its Tiled position, tested with Epic 1's hitbox rules (contact boxes shrink by 0.08 tiles a side); it hurts Rowan but is not a hurtbox (sprint change proposal 2026-11-13, G2)
 **And** unit tests cover side contact, a landing from above and the knockback, reading every number from `CONFIG`.
 
-**Given** the warden awake, with its weak point, the seal at the wheel's hub: a hub box of `CONFIG.warden` hub size (starting value 1 × 1 tile †) near the top of the body, its only hurtbox (sprint change proposal 2026-11-13, G2)
+**Given** the warden awake, with its weak point, the seal at the wheel's hub: a hub box of `CONFIG.warden` hub size (starting value 1 × 1 tile †) at the top of the body's front face, the side facing the arena (readiness proposal 2026-11-13, Q3), its only hurtbox (sprint change proposal 2026-11-13, G2)
 **When** an ember shot reaches the hub while it is open
 **Then** the warden loses 1 HP of `CONFIG.warden`'s health (starting value 30 †, tuned with the hub window in Story 4.15), `wardenHit` is emitted and the shot is used up; a triple-shot volley whose three shots reach the open hub lands 3 hits
 **And** a shot that reaches the body or the shut hub splashes off: it does no damage, it is used up, and `wardenShotBlocked` is emitted for the blocked cue
 **And** whether the hub is open is warden state that Story 4.3's gap windows drive; until that story, the hub stays open from `arenaEntered` on, so hits can be tried in the browser
-**And** unit tests cover a single shot and a full volley on the open hub, a volley whose lower shot hits the floor first, and a shot on the body and one on the shut hub, both doing no damage.
+**And** when a shot overlaps the open hub and the body in the same step, the hub takes the hit (readiness proposal 2026-11-13, Q3)
+**And** unit tests cover a single shot and a full volley on the open hub, a volley whose lower shot hits the floor first, a shot on the body and one on the shut hub, both doing no damage, and a shot overlapping the open hub and the body in the same step, which hits the hub
+**And** a search test, run like the marked-jump search on the real `step()` and `CONFIG`, proves the open hub can be hit: for Rowan on the floor, aiming up, and on each ledge, shooting straight, some position and input pattern fires a shot inside the hub window that reaches the open hub before the window ends, without Rowan touching the body; it reads the window from `CONFIG.warden`'s hub window (starting value 1.5 s †, which Story 4.3's gaps then drive) and fails naming the surface if any has no such shot, so tuning the body, the hub or the ledges can't make the hub unreachable.
 
 **Given** Rowan dies inside the arena
 **When** he respawns at the door checkpoint
@@ -4157,8 +4235,9 @@ So that the fight starts from a safe place and its rules are plain before any at
 **Given** Rowan inside the arena after `arenaEntered`
 **When** he runs, turns, jumps or stands on either ledge anywhere in it
 **Then** the logical view holds the whole arena: the shut door to the far wall, the floor, both ledges and the warden's full height, so no attack or warning ever starts off screen
-**And** since the camera stops at the level's edges, it holds still with the arena filling the logical view's width; at 16:9 and wider, and in a taller 4:3 window, the margin past the arena's edges shows the millhouse's dressing up to 3 tiles †, then plain bands in the palette's darkest slot (placeholder dressing until Story 4.10) (sprint change proposal 2026-11-13, A4, G1)
-**And** a unit test on `sim/camera.ts` asserts the arena stays inside the logical view and the camera doesn't move while Rowan crosses the arena, and screenshots in a 16:9, a 4:3 and a 21:9 window confirm the framing.
+**And** on `arenaEntered` the simulation camera in `sim/camera.ts` locks to the `ArenaTrigger`: centred on the arena horizontally, with the arena filling the logical view's width, it holds still until Rowan respawns or the level ends; after a respawn at the door it follows Rowan normally until the next `arenaEntered` locks it again (the seal break's camera move to Rowan is Story 4.12's staging; readiness proposal 2026-11-13, Q2)
+**And** at 16:9 and wider, and in a taller 4:3 window, the margin past the arena's edges shows the millhouse's dressing up to 3 tiles †, then plain bands in the palette's darkest slot (placeholder dressing until Story 4.10) (sprint change proposal 2026-11-13, A4, G1)
+**And** unit tests on `sim/camera.ts` assert the lock: the arena stays inside the logical view and the camera doesn't move while Rowan crosses the arena both ways, on the floor and on both ledges; and its release: after a respawn at the door the camera follows Rowan again, and the next `arenaEntered` locks it again; screenshots in a 16:9, a 4:3 and a 21:9 window confirm the framing.
 
 **Given** the arena in the browser
 **When** the developer plays it
@@ -4251,13 +4330,14 @@ So that the fight builds to version one's highest-tension moment and can be won.
 
 **Given** the warden in phase 1
 **When** its health first drops to half its starting HP or below (15 of 30 at the starting values; a volley that crosses it counts)
-**Then** phase 2 starts once, after the current attack, if one is running, has ended: `wardenPhaseChanged{phase: 2}` is emitted and the warden flinches for `CONFIG.warden`'s flinch time (†), during which it starts no attack, and the hub stays open only for what is left of its window (sprint change proposal 2026-11-13, G2)
-**And** phase 2 never cuts an attack short; no two attacks overlap and no hazard comes without its full warning
-**And** unit tests cover the crossing by a single shot and by a volley, the flinch, and a crossing while an attack runs, which waits for that attack's end.
+**Then** phase 2 starts once, on that step: the hub shuts at once, cutting its window short, `wardenPhaseChanged{phase: 2}` is emitted (the music shifts on it), and the warden flinches for `CONFIG.warden`'s flinch time (†), with the hub shut and no attack started (readiness proposal 2026-11-13, Q3)
+**And** after the flinch a full phase-2 gap runs (`CONFIG.warden`'s phase-2 gap, starting value 1.8 s †), its hub window opening at its start as in every gap, then the first phase-2 attack, a wheel wash
+**And** phase 2 never starts during an attack: damage lands only on the open hub, which is shut through every warning and hazard, so health can't cross half while an attack runs; phase 2 never cuts an attack short, no two attacks overlap and no hazard comes without its full warning
+**And** unit tests cover the crossing by a single shot and by a volley, the hub shutting on the crossing step, the flinch, and the full phase-2 gap and window before the first wheel wash; a crossing early in a gap; a crossing on the window's last step; a triple-shot volley straddling the crossing, whose shots arriving after the hub shuts splash off with `wardenShotBlocked`; and an invariant test that the warden's health never drops while an attack's warning or hazard runs.
 
 **Given** phase 2
 **When** its attacks run
-**Then** they cycle wheel wash, millstone fall, wheel roll, starting with a wheel wash after the flinch
+**Then** they cycle wheel wash, millstone fall, wheel roll, starting with a wheel wash after the flinch and the first phase-2 gap (readiness proposal 2026-11-13, Q3)
 **And** the gap before the next attack's warning is `CONFIG.warden`'s phase-2 gap (starting value 1.8 s †), counted from the end of the previous attack's hazard as in Story 4.3, and the hub window opens at the start of each gap (sprint change proposal 2026-11-13, G2)
 **And** a millstone fall drops `CONFIG.warden`'s phase-2 count of pieces (starting value 5 †) under Story 4.3's rules, its placement test extended to this count
 **And** unit tests run a long phase 2 and assert the order, the gaps and the absence of overlap.
@@ -4279,7 +4359,7 @@ So that the fight builds to version one's highest-tension moment and can be won.
 **When** a hit brings it to 0 HP
 **Then** `wardenDefeated` is emitted once, and the warden starts no new warning and stops hurting Rowan by contact
 **And** further hits do nothing
-**And** unit tests cover the defeat, including a final hit landed during the flinch; this story leaves the seal break, the removal of hazards still in flight and the level's end to Story 4.7.
+**And** unit tests cover the defeat, including a final hit on a hub window's last step and a volley with more shots than health left; no hit lands during the flinch, since the hub is shut through it (readiness proposal 2026-11-13, Q3); this story leaves the seal break, the removal of hazards still in flight and the level's end to Story 4.7.
 
 **Given** Rowan dies in phase 2
 **When** he respawns at the door
@@ -4344,7 +4424,7 @@ As a player,
 I want the changed Rowan to catch a ledge corner, hang, and climb up or let go,
 So that the hand the seal gives back is a real ability that reaches ledges up to 4 tiles high.
 
-**Requirements:** FR102, FR103, FR104, FR105, FR106, FR107, FR108, FR109, FR110, FR111 (`levelForm`), NR59, NR60, NR61, NR111 (ledge-grab lock), AR85, AR132 (ledge-grab room), AR137 (ledge-grab patterns), X-B17, PR15, PR17
+**Requirements:** FR102, FR103, FR104, FR105, FR106, FR107, FR108, FR109, FR110, FR111 (`levelForm`), NR59, NR60, NR61, NR111 (ledge-grab lock), AR85, AR132 (ledge-grab room), AR137 (ledge-grab patterns), AR210 (grant ledge grab), X-B17, PR15, PR17
 
 **Acceptance Criteria:**
 
@@ -4380,6 +4460,11 @@ So that the hand the seal gives back is a real ability that reaches ledges up to
 **When** `make test` runs
 **Then** the marked-jump search, extended with ledge-grab climb patterns for marks whose `ability` is `ledgeGrab` (AR137), proves every marked climb
 **And** the room loads with `?level=test-ledge-grab` and stays out of the release build and the level select.
+
+**Given** the cheats Story 1.15 built, in a development build
+**When** the developer uses "grant ledge grab"
+**Then** it calls `sim/debugCommands.ts`, the one way `debug/` may change the `World` (AR210), which sets Rowan's form to `changed`, so he can grab ledges from the next step without a restart
+**And** a unit test shows a beast Rowan failing to catch a ledge, then catching it after the command, and Story 1.15's search of the release bundle still finds none of `debug/` (readiness proposal 2026-11-13, minor).
 
 **Given** the test room in the browser, with the hero view holding its current clip in `hang` and `climb` until Story 4.9 adds those clips (Epic 2's rule)
 **When** the developer plays it on keyboard and on gamepad
@@ -4571,14 +4656,14 @@ So that the fight has a place and every hazard reads clearly against it.
 **When** `make build` runs
 **Then** the arena's share of the Drowned Mill kit with its backdrops stays within the 3.5 MB † budget with room left for Epic 5, and `docs/ASSETS.md` records every piece, its tool, licence and AI flag.
 
-**Given** the hub's open and shut states (Story 4.3) and a shot that splashes off the body or the shut hub (Story 4.2)
-**When** they replace the placeholders, seen against the millhouse
-**Then** the hub's open look (the glow Story 4.11 builds into the model) and its shut look tell apart at a glance at play distance against the arena behind them, in a cold palette slot, never the warm one (sprint change proposal 2026-11-13, G2; NFR28)
-**And** a blocked shot shows a splash where it struck on `wardenShotBlocked`, plainly different from the hit flash (FR72), so the player sees which shots count.
+**Given** a shot that splashes off the body or the shut hub (Story 4.2)
+**When** the splash replaces its placeholder, seen against the millhouse
+**Then** a blocked shot shows a splash where it struck on `wardenShotBlocked`, plainly different from the hit flash (FR72), so the player sees which shots count
+**And** this story leaves the hub's open and shut looks to Story 4.11, which builds the glow into the model and judges it in this arena (readiness proposal 2026-11-13, D5).
 
-**Given** spots for the door open and shut, a wave mid-sweep, a phase-1 and a phase-2 millstone warning, the hub open and shut, a blocked shot, and the arena in a 21:9 and a 4:3 window, added to `src/debug/spots.ts`
+**Given** spots for the door open and shut, a wave mid-sweep, a phase-1 and a phase-2 millstone warning, a blocked shot, and the arena in a 21:9 and a 4:3 window, added to `src/debug/spots.ts` (the hub's spots are Story 4.11's; readiness proposal 2026-11-13, D5)
 **When** the critic loop runs (`make shots ROUND=n`, at most 3 rounds)
-**Then** each round compares the shots with `docs/STYLE_GUIDE.md`, lists the three biggest problems and fixes them, and checks that the hero, the warden, the open hub, the hazards and the pickups stand out at a glance and that Rowan is the warmest thing on screen
+**Then** each round compares the shots with `docs/STYLE_GUIDE.md`, lists the three biggest problems and fixes them, and checks that the hero, the warden, the hazards and the pickups stand out at a glance and that Rowan is the warmest thing on screen
 **And** the developer sees before and after and approves the arena.
 
 ### Story 4.11: Build the Drowned Miller model and animations
@@ -4596,12 +4681,13 @@ So that the warden reads as a sad opponent and every warning is visible in the w
 **When** the warden goes through the pipeline Epic 2 recorded (reference concept, views, Tripo mesh, Blender clean-up through the MCP, its own creature rig, `make models`)
 **Then** the developer approves the concept before any mesh is made
 **And** `warden-drowned-miller.glb` shows a hunched miller fused with the great waterwheel, which rises from his back like a shell with split, dripping paddles; iron cog teeth along his back and shoulders; pale, weed-hung and cold, with no warm light anywhere on him; a tired face, not a cruel one
-**And** it follows the model conventions (feet at the origin, 1 unit = 1 tile, facing +X), its body matches the simulation's contact box (3 × 4 tiles †), its hub the 1 × 1 tile † hurtbox near the top of the body, its curled wheel the roll's 2 × 1.5 tiles †, and its generated materials are replaced by the shared materials and the Drowned Mill palette slots.
+**And** it follows the model conventions (feet at the origin, 1 unit = 1 tile, facing +X), its body matches the simulation's contact box (3 × 4 tiles †), its hub the 1 × 1 tile † hurtbox at the top of the body's front face (readiness proposal 2026-11-13, Q3), its curled wheel the roll's 2 × 1.5 tiles †, and its generated materials are replaced by the shared materials and the Drowned Mill palette slots.
 
 **Given** the great wheel
 **When** the model is built
 **Then** its hub, the seal, is its own named node, marked with the Tithe's sign drawn from the design approved in Story 4.1, through the shared materials
 **And** the hub's open glow and its shut look are part of the model, the glow in a cold palette slot, never the warm one, so the weak point reads on the warden itself (sprint change proposal 2026-11-13, G2)
+**And** in the arena Story 4.10 built, the open hub and the shut hub tell apart at a glance at play distance against the millhouse behind them (NFR28; readiness proposal 2026-11-13, D5)
 **And** the hub is ready for Story 4.12's crack and shatter.
 
 **Given** the warden view
@@ -4622,7 +4708,7 @@ So that the warden reads as a sad opponent and every warning is visible in the w
 
 **Given** spots for the dormant warden, each warning, the roll out and back, the hub open and shut, the phase change and a hit flash, added to `src/debug/spots.ts`
 **When** the critic loop runs (`make shots ROUND=n`, at most 3 rounds)
-**Then** each round compares the shots with the approved concept and `docs/STYLE_GUIDE.md`, lists the three biggest problems and fixes them, and checks that the hero, the warden and the hazards stand out at a glance and that nothing on the warden is warm
+**Then** each round compares the shots with the approved concept and `docs/STYLE_GUIDE.md`, lists the three biggest problems and fixes them, and checks that the hero, the warden, the open hub (readiness proposal 2026-11-13, D5) and the hazards stand out at a glance and that nothing on the warden is warm
 **And** the developer sees before and after and approves the warden.
 
 Note: X-C11 dropped: the warden rolls back after the wheel roll (sprint change proposal 2026-11-13, G2), so no `walk` clip.
@@ -4720,7 +4806,7 @@ As a player,
 I want each attack to have its own warning sound, the great wheel to rush until the seal breaks, and Rowan's grip and climb to be heard,
 So that I can hear what is coming and hear the Miller's release.
 
-**Requirements:** FR205, FR206 (seal break), FR203 (ledge grab, climb), FR217 (the great wheel's loop), NR38, NR69, AR193 (seal-break cues), AR194 (arena loop), UX-DR87 (warden warnings, hub and splash cues)
+**Requirements:** FR205, FR206 (seal break), FR203 (ledge grab, climb), FR217 (the great wheel's loop), NR38, NR69, AR128 (`AudioAnchor` class), AR193 (seal-break cues), AR194 (arena loop), UX-DR87 (warden warnings, hub and splash cues)
 **Depends on:** the audio tools the developer chose in Epic 3, with their terms logged in `docs/ASSETS.md`
 
 **Acceptance Criteria:**
@@ -4742,7 +4828,8 @@ So that I can hear what is coming and hear the Miller's release.
 **Given** `test-warden-arena` with an `AudioAnchor` added at the great wheel
 **When** the level plays
 **Then** the great wheel's loop plays from the start on the ambience bus, its gain following Rowan's distance from the anchor through a curve in `audio/mix.ts` (starting values †); this story leaves tuning it across Level 2 to Epic 5
-**And** on `storyCueReached` for `wheelStop` the loop ends in a long creak, then silence, and doesn't come back.
+**And** on `storyCueReached` for `wheelStop` the loop ends in a long creak, then silence, and doesn't come back
+**And** the `AudioAnchor` class (a region marking the sound's source) joins the Tiled project and the compiler here, compiled as typed data, and a level test compiles a fixture holding one and asserts its compiled data (AR128, AR216; readiness proposal 2026-11-13, Q7).
 
 **Given** the seal break with all audio in place
 **When** it plays on a first play
@@ -4771,6 +4858,7 @@ I want proof that every attack can be dodged and a first-time playtest that meet
 So that Epic 4 exits on evidence and Epic 5 can join the arena to Level 2.
 
 **Requirements:** NFR46, NFR20, NFR47, NFR48, NFR49, PR11, PR28, UX-DR74 (Tomás's journey), PR14, NFR27
+**Depends on:** 3 to 5 first-time players from the primary audience (35–55, arcade-era players), found by the developer
 
 **Acceptance Criteria:**
 
@@ -4797,8 +4885,9 @@ So that Epic 4 exits on evidence and Epic 5 can join the arena to Level 2.
 
 **Given** a threshold is missed
 **When** the developer reviews the records
-**Then** he and the agent tune the † numbers, starting with the warden's HP † (starting value 30) and the hub window's length † (starting value 1.5 s), tuned together until a first-time player's fight lands in 60 to 120 s (sprint change proposal 2026-11-13, G2), rerun every affected test, the dodge and hub-window tests included, and repeat the playtest with new first-time testers
-**And** every † number changes only with the developer, and the unmarked ones only by his decision; the phase-2 threshold follows HP, at half health.
+**Then** he and the agent tune the † numbers, starting with the warden's HP † (starting value 30) and the hub window's length † (starting value 1.5 s), tuned together until a first-time player's fight lands in 60 to 120 s (sprint change proposal 2026-11-13, G2), rerun every affected test, the dodge, hub-window and hub-reachability tests included, and repeat the playtest once with new first-time testers; if the re-test misses a threshold too, there is no third round: the agent takes it to `gds-correct-course` with the developer (readiness proposal 2026-11-13, Q9)
+**And** every † number changes only with the developer, and the unmarked ones only by his decision; the phase-2 threshold follows HP, at half health
+**And** once the fight's † numbers are tuned, the HP † and the hub window † included, the developer re-records the no-damage run of the first criterion above, and its Vitest replay passes again, to `wardenDefeated` with `stats.hitsTaken` at 0 (readiness proposal 2026-11-13, Q9).
 
 **Given** ledge grab finished
 **When** `make check` runs
@@ -4928,8 +5017,9 @@ So that the Drowned Mill gives me one new tool, and a line of flyers becomes a c
 
 **Given** a piercing shot that meets a solid tile, a one-way ledge, a moving or waterwheel platform, a spitter's seed, or the warden
 **When** the step resolves
-**Then** it stops on the solid tile, passes through one-way ledges and platforms (FR45), destroys the seed and keeps flying, and hits the warden once per shot
-**And** unit tests cover each case
+**Then** it stops on the solid tile, passes through one-way ledges and platforms (FR45), and destroys the seed and keeps flying
+**And** against the warden it follows Story 4.2's hub rule and never passes through: on the open hub it does 1 damage and is used up, so it hits once per shot; on the body or the shut hub it splashes off, is used up and emits `wardenShotBlocked` (readiness proposal 2026-11-13, Q4)
+**And** unit tests cover each case, the warden's open hub, shut hub and body included
 
 **Given** Rowan holds one weapon pickup and takes the other (triple shot or piercing shot)
 **When** the pickup is taken
@@ -4947,7 +5037,7 @@ So that the Drowned Mill gives me one new tool, and a line of flyers becomes a c
 **When** the developer plays with it in the browser
 **Then** the developer signs off on its range and feel; the lifetime stays a † value in `CONFIG`
 
-Note: The GDD says the piercing shot "passes through enemies" but not how often it hits each one; this story hits each enemy, and the warden, once per shot, and lets the shot fly on after it destroys a seed.
+Note: The GDD says the piercing shot "passes through enemies" but not how often it hits each one; this story hits each enemy once per shot and lets the shot fly on after it destroys a seed. Against the warden it follows Story 4.2's hub rule and never passes through (readiness proposal 2026-11-13, Q4).
 Note: No document says a piercing shot looks different in flight; it reuses the ember-shot view.
 
 ### Story 5.3: Lay out grey-box Level 2 with its jump tests
@@ -5024,6 +5114,7 @@ So that I win Level 2 by beating the warden, as version one intends.
 **When** he enters the arena, dies, respawns at the door and enters again
 **Then** the warden behaves as in Epic 4: dormant until the `ArenaTrigger`, the door shuts behind Rowan, the warden bar shows, and after the respawn the warden is back at full health (FR83, FR88)
 **And** Epic 4's warden, seal-break and story-safety tests run against `drowned-mill`, spawned at the door checkpoint, and pass
+**And** the developer re-records Story 4.15's no-damage run in `drowned-mill`, started at the door checkpoint like these tests, since `world.rng` is seeded from the level id and the millstones fall differently here; it replaces the standalone arena's recording, and its Vitest replay passes again, to `wardenDefeated` with `stats.hitsTaken` at 0 (readiness proposal 2026-11-13, minor)
 
 **Given** the warden reaches 0 HP in the full level
 **When** the seal break ends
@@ -6135,7 +6226,7 @@ So that the reward lands when I earn it and I'm back where I can pick the next l
 **Given** the routes above
 **When** the tests run
 **Then** Vitest app tests cover each route, including the ninth bell found on a replay, 9 bells already found before it, and fewer than 9
-**And** the developer plays the Ines journey both ways (3 of 3 bells, and the 2 of 3 failure path) on a seeded save and signs off
+**And** the developer plays the routing steps of the Ines journey (steps 1–2, 4–5 and 7–8) and its 2 of 3 failure path on a seeded save and signs off; this story leaves the full walk to Story 6.16 (readiness proposal 2026-11-13, D6)
 
 ### Story 6.11: Finish the results screen with the stagger and "New best"
 
@@ -6349,11 +6440,12 @@ So that the performance pass measures the real game on real hardware.
 **Given** the page is opened with `?perf=1`, in any build, release included
 **When** the game runs
 **Then** `app/perf.ts` records the time of every frame (from the `requestAnimationFrame` timestamps) while the app is playing, story moments included and pause, menus and cards left out
+**And** it splits the record into segments, starting a new one at each `checkpointReached` and at each `arenaEntered`, each kept as a start index into the one buffer, so the warden fight and each stretch between checkpoints can be measured on their own; a Vitest test proves the split on a recorded event sequence (readiness proposal 2026-11-13, Q12)
 **And** it records each level's load time, from the start of the load to the end, not counting the reading floor
 
 **Given** recording is on
 **When** a level ends
-**Then** `ui/screens/perfReport.ts` shows the level, the frame count, the median and the 99th-percentile frame time in milliseconds, and the load time, in a corner beside the results, built from the shared components and tokens
+**Then** `ui/screens/perfReport.ts` shows the level, the frame count, the median and the 99th-percentile frame time in milliseconds for the whole level and for each segment, named by the event that started it (readiness proposal 2026-11-13, Q12), and the load time, in a corner beside the results, built from the shared components and tokens
 
 **Given** the recorder
 **When** it runs, or the parameter is absent
@@ -6458,7 +6550,7 @@ As a player,
 I want the title screens to carry the game's real name over a backdrop in its own look,
 So that the first thing I see is the game itself, not a placeholder.
 
-**Requirements:** UX-DR58 (title ground), UX-DR61, UX-DR111 (the backdrop build)
+**Requirements:** UX-DR58 (title ground), UX-DR61, UX-DR111 (the backdrop build), PR32 (credit check)
 
 **Acceptance Criteria:**
 
@@ -6479,6 +6571,7 @@ So that the first thing I see is the game itself, not a placeholder.
 **Given** any new asset the backdrop uses
 **When** it is added
 **Then** it is logged in `docs/ASSETS.md` with its tool, licence and AI flag, and `make build`'s budget checks still pass
+**And** its licence is read for an in-game credit requirement and the answer recorded in `docs/ASSETS.md`; if one exists, this story stops as Story 6.17 does, and the Credits surface goes through `gds-correct-course` before anything more is built (readiness proposal 2026-11-13, Q15)
 **And** this story leaves the first-input measurement to Story 6.19
 
 **Given** captures of boot, the gate, the title menu, the level select, Settings from the title and the device note, at 1280 × 720 and 1920 × 1080
@@ -6502,20 +6595,20 @@ So that players on a 2020-era laptop get a steady 60 fps and short loads.
 
 **Given** the release build (`make build`, served by `make preview`) on each reference machine at 1080p
 **When** the developer plays a full Level 1 with `?perf=1` in current Chrome, Edge and Firefox
-**Then** the median frame time is 16.7 ms or less and the 99th percentile 20 ms or less in each (NFR1, NFR3, AR224)
+**Then** the median frame time is 16.7 ms or less and the 99th percentile 20 ms or less in each, for the whole level and for every segment the `?perf=1` report shows (NFR1, NFR3, AR224; readiness proposal 2026-11-13, Q12)
 **And** headless or Playwright timings are never used (AR222)
 
 **Given** the same machines
-**When** the starting budgets (†) are measured with the debug overlay and the browser profiler (AR227)
+**When** the starting budgets (†) are measured with the browser profiler, and draw calls and triangles are read from the F1 overlay in a development build on the same machine, since the overlay isn't in release builds (AR227; readiness proposal 2026-11-13, Q12)
 **Then** one simulation step takes 1 ms or less; draw calls are 150 or fewer; triangles on screen 250,000 or fewer; GPU texture memory 256 MB or less; one shadow map of 2048 × 2048 at most; 2 post-processing passes at most; the pixel ratio is capped at 1.5 (AR225)
 
 **Given** the per-step event objects allowed by default X-B18
 **When** the profiler records a Level 1 run
 **Then** their garbage-collection cost is recorded, and if it shows in the 99th percentile they are pooled, with the developer's approval
 
-**Given** the warden fight in the Drowned Mill and the Harrowmere ruins mixed-enemy stretch
-**When** they are recorded the same way
-**Then** they hold 60 fps on each machine and browser (NFR1); a miss is fixed like a Level 1 miss
+**Given** the warden fight in the Drowned Mill and Level 3's last stretch, with the Harrowmere ruins mixed-enemy stretch
+**When** full plays of Levels 2 and 3 are recorded the same way
+**Then** each level as a whole and every segment meets the same pass mark, median 16.7 ms or less and 99th percentile 20 ms or less, on each machine and browser, the warden fight's segment (from `arenaEntered`) and Level 3's last segment included (NFR1); a miss is fixed like a Level 1 miss (readiness proposal 2026-11-13, Q12)
 
 **Given** a reference machine with the browser's network throttled to 50 Mbit/s and the cache disabled
 **When** the page opens
@@ -6554,7 +6647,7 @@ So that the release is one switch away and every asset is credited.
 
 **Given** `docs/ASSETS.md`
 **When** the credits are written
-**Then** every asset and tool that needs credit appears on the page, matching `docs/ASSETS.md` one to one (NFR44, FR192)
+**Then** every asset and tool that needs credit appears on the page, matching one to one the rows of `docs/ASSETS.md` whose licence asks for credit (NFR44, FR192; readiness proposal 2026-11-13, Q15)
 **And** if itch.io's form asks about AI-generated content, it is answered from `docs/ASSETS.md`
 
 **Given** the page's screenshots
@@ -6579,7 +6672,7 @@ As a developer,
 I want one `make release` target that builds, checks and uploads the game to itch.io,
 So that every upload is the same checked build and no credential ever enters the repository.
 
-**Requirements:** AR152 (final), AR228, AR229, AR230, AR231, NFR5, NFR10, UX-DR95 (embed set up)
+**Requirements:** AR152 (final), AR228, AR229, AR230, AR231, NFR5, NFR10, PR32 (credit check), UX-DR95 (embed set up)
 **Depends on:** the developer's itch.io account and a butler API key kept outside the repository
 
 **Acceptance Criteria:**
@@ -6589,11 +6682,13 @@ So that every upload is the same checked build and no credential ever enters the
 **Then** it is pinned in `mise.toml` at an exact version at least two weeks old, and `make setup` installs it (AR231)
 **And** if mise cannot install butler, the story stops and asks the developer; nothing is installed globally
 **And** butler and its licence are logged in `docs/ASSETS.md`
+**And** its licence is read for an in-game credit requirement and the answer recorded there; if one exists, this story stops as Story 6.17 does (readiness proposal 2026-11-13, Q15)
 
 **Given** `make release`
 **When** it runs
 **Then** it runs `make build` (level compile and validation, type check, tests, Vite build, manifest, budget checks) and only then uploads `dist/` with butler to the project's HTML5 channel (AR229, AR231)
 **And** any failed check stops it before the upload
+**And** a failed butler push (network, authentication or a wrong target) stops `make release` with a non-zero exit and a clear message naming the cause, and leaves nothing public (readiness proposal 2026-11-13, Q15)
 
 **Given** the final build
 **When** the budget checks run
@@ -6603,6 +6698,7 @@ So that every upload is the same checked build and no credential ever enters the
 **When** a release runs
 **Then** the key comes from the environment or butler's own login, never from the repository, the Makefile or a log
 **And** `git status` shows no credential file afterwards
+**And** the developer, not the agent, runs `butler login` or sets the API key in an environment variable outside the repository, and `.gitignore` gains `.env` (readiness proposal 2026-11-13, Q15)
 
 **Given** the first upload
 **When** the developer opens the private page
