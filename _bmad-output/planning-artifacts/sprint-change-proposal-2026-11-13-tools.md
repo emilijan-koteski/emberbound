@@ -456,7 +456,7 @@ OLD:
 
 NEW:
 
-> - Tool budgets: set 2026-11-13. Image model: the Google AI Pro plan's included use, at most 5 † attempts per kept image. Tripo: Pro, $20 a month from story 2.1. Nothing paid beyond them without the developer's approval. (gdd.md:121, 942)
+> - Tool budgets: set 2026-11-13. Image model: the Google AI Pro plan's included use, at most 5 † attempts per kept image. Tripo: Pro, $20 a month from story 2.1. Nothing paid beyond them without the developer's approval. (gdd.md:122, 942)
 
 ### 4.6 Project context (`project-context.md`)
 
@@ -528,3 +528,4 @@ NEW:
 - **Approved** by the developer on 2026-11-13 and applied the same day, by script, from the edit set rendered in Section 4.
 - **Verified:** all 34 edits applied; every NEW text occurs exactly once in its file; no stale wording remains ("tool budgets set in Epic 0", "image model chosen and its terms logged", "No image model chosen", "amounts not set", "Still open: the image model"); `git diff --stat` touches only the seven listed documents, plus this proposal.
 - **Changed while applying:** none.
+- **Corrected after applying (2026-11-13):** R4 cited `gdd.md:121` for the budget line, which sits at line 122; fixed in the inventory and in R4 above.

@@ -1858,7 +1858,7 @@ Everything else in the brief is superseded by the GDD or repeated by another sou
 - Story-card warm-light exception and card style pending Epic 0 sample card; card-shape source (hand-made vs generated) undecided. (gdd.md:670-671, 719)
 - Audio tools not chosen; needed by Epic 3 (Level 1 audio). (gdd.md:777, 939)
 - Tripo licence and commercial-use terms to be checked by Epic 2 (story 2.1), on the Pro plan chosen 2026-11-13. (gdd.md:940)
-- Tool budgets: set 2026-11-13. Image model: the Google AI Pro plan's included use, at most 5 † attempts per kept image. Tripo: Pro, $20 a month from story 2.1. Nothing paid beyond them without the developer's approval. (gdd.md:121, 942)
+- Tool budgets: set 2026-11-13. Image model: the Google AI Pro plan's included use, at most 5 † attempts per kept image. Tripo: Pro, $20 a month from story 2.1. Nothing paid beyond them without the developer's approval. (gdd.md:122, 942)
 - Reference test machines not named; needed before Epic 6 performance stories. (gdd.md:786, 944)
 - Release-success measurement undecided (analytics with consent / proxy signal / none); decide before Epic 6. Analytics would add a consent-prompt story. (gdd.md:897, 982)
 - Final title not chosen; needed before any public page and for the Epic 6 release ("released under the final title"). (gdd.md:859, 945, 958)
