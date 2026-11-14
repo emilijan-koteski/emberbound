@@ -1,5 +1,5 @@
 # generated: 2026-11-13 22:07
-# last_updated: 2026-11-14 11:50
+# last_updated: 2026-11-14 12:41
 # project: emberbound
 # project_key: NOKEY
 # tracking_system: file-system
@@ -41,7 +41,7 @@
 #   starts only after the previous epic's exit criteria are met and the developer approves.
 
 generated: "2026-11-13 22:07"
-last_updated: "2026-11-14 11:50"
+last_updated: "2026-11-14 12:41"
 project: emberbound
 project_key: NOKEY
 tracking_system: file-system
@@ -51,7 +51,7 @@ development_status:
   # Epic 0: Reference and style lock
   epic-0: in-progress
   0-1-scaffold-the-repository-toolchain-and-code-rules: done
-  0-2-check-the-download-and-asset-budgets-in-make-build: backlog
+  0-2-check-the-download-and-asset-budgets-in-make-build: done
   0-3-emit-the-design-md-tokens-as-css-custom-properties-with-a-contrast-check: backlog
   0-4-generate-the-hero-and-emberwood-references-in-each-candidate-style: backlog
   0-5-pick-the-style-and-write-docs-style-guide-md: backlog

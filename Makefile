@@ -71,11 +71,17 @@ check: ## Lint, format check, type check and tests: run before saying a change w
 	$(MAKE) typecheck
 	$(MAKE) test
 
-build: ## Lint, type check, test, then build the release into dist/
+# make build, in the architecture's order (Build and Release). Epic 1 fills in the gaps:
+#   story 1.2: the level compile, before the type check
+#   story 1.3: the release manifest, before vite build (Vite copies it into dist/)
+#   story 1.2: removing test levels from dist/assets/levels/, before the budget check
+# Lint runs first so a release can't ship a layer violation (story 0.1 review).
+build: ## Lint, type check, test, build into dist/, then check the download budgets
 	$(MAKE) lint
 	$(MAKE) typecheck
 	$(MAKE) test
 	$(MISE) $(BIN)/vite build
+	$(MISE) node scripts/checkBudgets.ts dist
 
 preview: ## Serve the production build in dist/ on PREVIEW_PORT (default 4173)
 	@test -f dist/index.html || { echo "dist/ has no build: run 'make build' first" >&2; exit 1; }
