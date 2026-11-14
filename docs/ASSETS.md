@@ -70,12 +70,36 @@ Checked 2026-11-14 on Google's own pages. Facts marked *(developer)* come from t
 | `art-src/reference/emberwood-key-art-dark-fantasy.jpeg` | Gemini app, Nano Banana Pro | Gemini row, Tools | yes | P4 | 1 | 2026-11-14 |
 | `art-src/reference/emberwood-key-art-comic.jpeg` | Gemini app, Nano Banana Pro | Gemini row, Tools | yes | P5 | 1 | 2026-11-14 |
 | `art-src/reference/emberwood-key-art-mix.jpeg` | Gemini app, Nano Banana Pro | Gemini row, Tools | yes | P6 | 1 | 2026-11-14 |
+| `public/assets/fonts/alegreya-latin-400-normal.woff2` | none: Alegreya by Juan Pablo del Peral (Huerta Tipográfica), from Fontsource | SIL OFL 1.1, see Fonts | no | — | — | 2026-11-14 |
+| `public/assets/fonts/alegreya-latin-600-normal.woff2` | none: Alegreya, as above | SIL OFL 1.1, see Fonts | no | — | — | 2026-11-14 |
+| `public/assets/fonts/alegreya-latin-700-normal.woff2` | none: Alegreya, as above | SIL OFL 1.1, see Fonts | no | — | — | 2026-11-14 |
+| `public/assets/fonts/source-sans-3-vf-upright.woff2` | none: Source Sans 3 by Paul D. Hunt (Adobe), Adobe's release | SIL OFL 1.1, Reserved Font Name "Source", see Fonts | no | — | — | 2026-11-14 |
 
 Reference images: generated once in story 0.4 to choose the style. They never ship. They are kept exactly as downloaded, with no re-encoding.
 
 - Each file holds a Content Credentials (C2PA) block: `strings <file> | grep urn:c2pa` finds 28 to 98 matches per file.
 - SynthID can't be read locally and wasn't verified. Google's check is to upload an image to gemini.google.com and ask whether Google AI made it; that is an optional step for the developer.
 - No visible watermark appeared on any of them, although the setting was on.
+
+### Fonts
+
+The two overlay typefaces, chosen in story 0.5 (`docs/STYLE_GUIDE.md`, Typefaces) and shipped in story 0.8. Typefaces made by people, not AI-generated. They ship in `public/assets/fonts/`, beside their licences, and load only from the game's own files (no font service).
+
+| Shipped file | Source | Bytes | SHA-256 |
+| --- | --- | --- | --- |
+| `alegreya-latin-400-normal.woff2` | npm `@fontsource/alegreya@5.3.0`, `files/alegreya-latin-400-normal.woff2` | 22,884 | `7cbcf38a5ef682a8b9e2ef4a330b31a08b33bf1ae08e338267c0d1292479c68a` |
+| `alegreya-latin-600-normal.woff2` | the same package, `files/alegreya-latin-600-normal.woff2` | 24,448 | `613096d65a0b482ba1576510fcbed26db985c67aaa76d76b233321e75d1ff1ba` |
+| `alegreya-latin-700-normal.woff2` | the same package, `files/alegreya-latin-700-normal.woff2` | 24,352 | `1c582501cee54f7137a80732266cbd3f0e9ef1f0e85d093228fb4f4db852df4e` |
+| `source-sans-3-vf-upright.woff2` | Adobe's release 3.052R (4 April 2023), `WOFF2-source-sans-3.052R.zip`, `WOFF2/VF/SourceSans3VF-Upright.ttf.woff2`, renamed only | 170,188 | `5f16566f7a40d39b339ad26be151fa5a1ab1f0c2574c7a2e619765584a1acbd8` |
+| `OFL-alegreya.txt` | `https://raw.githubusercontent.com/huertatipografica/Alegreya/2268f9e49bd8b13e095f76dd941792fa72d2d379/OFL.txt` | 4,395 | `f6f60d5d4cf4f4b1fc4e41353c897a2f5a16e6396c0cd8fa8bdfd2f4586a9a68` |
+| `OFL-source-sans-3.txt` | `https://raw.githubusercontent.com/adobe-fonts/source-sans/3.052R/LICENSE.md` | 4,579 | `89ad2c4f66dd29127527493e729c31e731f111cf10faf5774c3db9275ed0c22c` |
+| **Total**, counted against the 0.3 MB fonts budget by `make build` | | **250,846** | |
+
+- **Alegreya**, version 2.009, by Juan Pablo del Peral (Huerta Tipográfica). Source <https://github.com/huertatipografica/Alegreya>; files from Fontsource (<https://fontsource.org/fonts/alegreya>), its Latin subset, static, weights 400, 600 and 700. Byte-identical to Fontsource's CDN files (checked 2026-11-14). SIL Open Font License 1.1, "Copyright 2011 The Alegreya Project Authors", with no Reserved Font Name.
+- **Source Sans 3**, release 3.052R, by Paul D. Hunt (Adobe). Source <https://github.com/adobe-fonts/source-sans/releases>; Adobe's own variable file (`wght` 200 to 900), unmodified. Only the file name changed, to the project's kebab-case rule; the font itself is unchanged. That a rename isn't a Modified Version under the OFL is our reading, not legal advice. SIL Open Font License 1.1, "Copyright 2010-2022 Adobe, with Reserved Font Name 'Source'", so a subset or other modified file couldn't keep the name. That is why the whole file ships.
+- **Both:** self-hosting, embedding in the game and commercial use are allowed; the fonts may not be sold by themselves. The OFL asks that the copyright notice and the licence travel with the font: the two `OFL-*.txt` files ship beside them in `public/assets/fonts/`.
+- **Credit inside the game:** the OFL asks for none. Both faces are still **flagged for the Credits question in Epic 6** (story 6.17, the credit requirements), where listing them is a courtesy to decide.
+- Licence texts and terms read 2026-11-14 (`docs/STYLE_GUIDE.md`, Typefaces, Licences).
 
 ## Prompts
 

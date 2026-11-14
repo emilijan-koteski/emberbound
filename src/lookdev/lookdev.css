@@ -417,3 +417,75 @@ body {
   font-variant-numeric: tabular-nums;
   white-space: pre;
 }
+
+/* The type view (story 0.8): overlay content, so token properties only. The second exception to
+   that rule (the first is the bar padding above; this one is story 0.8 D5) is set in typeView.ts,
+   not here: each sample's font-family names its face, since the tokens still say system-ui until
+   story 0.14. Two columns under a full-width header: Alegreya with the story
+   characters on the left, Source Sans 3 on the right. It fits 1920 × 1080 and 1280 × 720. */
+.lookdev-main > .ui-overlay.lookdev-typeface {
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--spacing-4) var(--spacing-6);
+}
+
+.lookdev-typeface-header {
+  grid-column: 1 / -1;
+}
+
+.lookdev-typeface-column {
+  min-width: 0;
+}
+
+.lookdev-typeface-note,
+.lookdev-typeface-tokens,
+.lookdev-typeface-heading,
+.lookdev-typeface-label {
+  margin: 0;
+  color: var(--colors-text-muted);
+  font-family: var(--typography-ui-sm-font-family);
+  font-size: var(--typography-ui-sm-font-size);
+  font-weight: var(--typography-ui-sm-font-weight);
+  line-height: var(--typography-ui-sm-line-height);
+  letter-spacing: var(--typography-ui-sm-letter-spacing);
+}
+
+.lookdev-typeface-wordmark {
+  margin-top: var(--spacing-2);
+  color: var(--colors-text-primary);
+}
+
+.lookdev-typeface-face,
+.lookdev-typeface-charset {
+  margin-bottom: var(--spacing-4);
+}
+
+.lookdev-typeface-name {
+  color: var(--colors-text-primary);
+}
+
+.lookdev-typeface-tokens {
+  margin-bottom: var(--spacing-3);
+}
+
+.lookdev-typeface-row {
+  margin-bottom: var(--spacing-3);
+}
+
+.lookdev-typeface-sample {
+  color: var(--colors-text-primary);
+}
+
+/* The story characters are one run with a single space in it: let it wrap anywhere. typeView.ts
+   spaces them apart inline (a judging aid, critic round 10), after the token, so a letter-spacing
+   token can't override it. */
+.lookdev-typeface-chars {
+  overflow-wrap: anywhere;
+}
+
+/* DESIGN.md's typography `note`: numeric tokens use tabular figures. Each sample is a block of its
+   own text's width, so the check measures the text and the eye compares the two lines. */
+.lookdev-typeface-figures {
+  display: block;
+  width: max-content;
+  font-variant-numeric: tabular-nums;
+}

@@ -34,7 +34,11 @@ interface TypographyToken {
   readonly attributes: ReadonlyMap<TypographyAttribute, string>;
 }
 
-/** The `.ui-overlay` rule from base.css, or undefined if no loaded sheet has it. */
+/**
+ * The `.ui-overlay` rule from base.css that declares the tokens, or undefined if no loaded sheet has
+ * one. Other `.ui-overlay` rules (base.css's text-rendering rule, story 0.8) declare no custom
+ * property and are skipped, so their order doesn't matter.
+ */
 function findTokenRule(): CSSStyleRule | undefined {
   for (const sheet of Array.from(document.styleSheets)) {
     let rules: CSSRuleList;
@@ -44,7 +48,8 @@ function findTokenRule(): CSSStyleRule | undefined {
       continue; // A cross-origin sheet can't be read; base.css is never one.
     }
     for (const rule of Array.from(rules)) {
-      if (rule instanceof CSSStyleRule && rule.selectorText === TOKEN_SELECTOR) return rule;
+      if (!(rule instanceof CSSStyleRule) || rule.selectorText !== TOKEN_SELECTOR) continue;
+      if (Array.from(rule.style).some((name) => name.startsWith('--'))) return rule;
     }
   }
   return undefined;

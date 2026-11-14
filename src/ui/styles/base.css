@@ -9,7 +9,64 @@
  * Not emitted: spacing.tile (ui/overlay.ts sets --tile; never in CSS), typography `note`
  * (tabular figures are applied by each numeric component), components (built from these).
  * Overlay CSS reads these properties, never raw values.
+ *
+ * The overlay typefaces (docs/STYLE_GUIDE.md, Typefaces; story 0.8) are declared here, before the
+ * tokens, from the game's own files in public/assets/fonts/. The typography tokens name them only
+ * after story 0.14 updates DESIGN.md; until then they say system-ui, and only the look-dev type
+ * view uses the faces.
+ *
+ * The URLs are the one asset reference by path rather than manifest id, since CSS can't read the
+ * manifest. They are root-absolute, as Vite requires for public/ files; Vite rewrites them to
+ * relative URLs under base './' at build time (story 0.8, D3). A relative path into public/ would
+ * make Vite hash the file into dist/assets/, where no budget group takes it.
+ *
+ * font-display: block, so text waits for its face instead of flashing a fallback (story 0.8, D2).
+ * After the block period (about 3 s), or if a load fails, the fallback face does show. Epic 1's
+ * loader loads the faces at boot, before the first screen with text (story 1.3).
  */
+@font-face {
+  font-family: 'Alegreya';
+  src: url('/assets/fonts/alegreya-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Alegreya';
+  src: url('/assets/fonts/alegreya-latin-600-normal.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Alegreya';
+  src: url('/assets/fonts/alegreya-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+
+/* Adobe's unmodified variable file (Reserved Font Name "Source": no subset), renamed only. */
+@font-face {
+  font-family: 'Source Sans 3';
+  src: url('/assets/fonts/source-sans-3-vf-upright.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: block;
+}
+
+/*
+ * Overlay text is laid out at fractional pixel positions. At small sizes (ui-sm, 13 px) Chromium on
+ * Linux otherwise snaps Source Sans 3's hinted glyphs to whole pixels and opens gaps inside words
+ * ("quart z"); this keeps the spacing even (story 0.8, critic round 11). Not a token: the drift test
+ * reads only the custom properties, and this rule declares none.
+ */
+.ui-overlay {
+  text-rendering: geometricPrecision;
+}
+
 .ui-overlay {
   /* colors */
   --colors-surface-screen: #0e0f11;

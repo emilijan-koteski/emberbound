@@ -411,7 +411,7 @@ Two faces cover the three roles: Source Sans 3's digits are tabular by default, 
 | Role | Face | Tokens and weights | File to ship (story 0.8) | Size |
 | --- | --- | --- | --- | --- |
 | Display | **Alegreya** (Juan Pablo del Peral, Huerta Tipográfica), version 2.009 | `display-xl` 700, `display-lg` 600, `display-body` 400 | The Latin subset, static: `latin-400-normal`, `latin-600-normal`, `latin-700-normal` `.woff2`, from the npm package `@fontsource/alegreya@5.3.0`, `files/alegreya-latin-{400,600,700}-normal.woff2` (byte-identical to Fontsource's CDN files measured first) | 22,884 + 24,448 + 24,352 = 71,684 bytes |
-| UI and numeric | **Source Sans 3** (Paul D. Hunt, Adobe), release 3.052R | `ui-lg` 500, `ui-md` 400, `ui-sm` 500, `numeric-lg` 600, `numeric-md` 500 | Adobe's unmodified variable file `SourceSans3VF-Upright.ttf.woff2` (`wght` 200 to 900), from the `adobe-fonts/source-sans` release | 170,188 bytes |
+| UI and numeric | **Source Sans 3** (Paul D. Hunt, Adobe), release 3.052R | `ui-lg` 500, `ui-md` 400, `ui-sm` 500, `numeric-lg` 600, `numeric-md` 500 | Adobe's unmodified variable file `SourceSans3VF-Upright.ttf.woff2` (`wght` 200 to 900), from the `adobe-fonts/source-sans` release; shipped as `source-sans-3-vf-upright.woff2`, renamed only | 170,188 bytes |
 | **Total** | | | | **241,872 bytes (0.24 MB), within 0.3 MB** |
 
 **Licences**, read on 2026-11-14:

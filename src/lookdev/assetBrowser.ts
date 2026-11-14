@@ -5,6 +5,7 @@
 import { mountOverlayView } from './overlayView.ts';
 import { mountPalettesView } from './palettesView.ts';
 import { mountRendererView } from './rendererView.ts';
+import { mountTypeView } from './typeView.ts';
 import type { LookdevSpot } from './spots.ts';
 
 export interface LookdevViewHandle {
@@ -29,6 +30,7 @@ export const LOOKDEV_VIEWS: readonly LookdevView[] = [
   { id: 'overlay', label: 'Overlay', mount: mountOverlayView },
   { id: 'renderer', label: 'Renderer', mount: mountRendererView },
   { id: 'palettes', label: 'Palettes', mount: mountPalettesView },
+  { id: 'type', label: 'Type', mount: mountTypeView },
 ];
 
 export function findView(id: string): LookdevView | undefined {
