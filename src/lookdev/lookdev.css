@@ -489,3 +489,203 @@ body {
   width: max-content;
   font-variant-numeric: tabular-nums;
 }
+
+/* The materials view (story 0.9): page chrome, not the overlay, so raw neutral values. Three columns
+   under the bar: the row labels, the canvas, and the side panel. The labels are placed from the
+   scene's layout(), so they line up with the 3D rows at any window size. `overflow: auto` on the root
+   makes any overflow measurable by the look-dev check. */
+.lookdev-materials {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  --lookdev-materials-labels-width: 470px;
+  --lookdev-materials-side-width: 450px;
+}
+
+.lookdev-materials-labels,
+.lookdev-materials-canvas,
+.lookdev-materials-side {
+  position: absolute;
+  top: var(--lookdev-bar-height);
+  bottom: 0;
+  box-sizing: border-box;
+}
+
+.lookdev-materials-labels {
+  left: 0;
+  width: var(--lookdev-materials-labels-width);
+}
+
+.lookdev-materials-canvas {
+  left: var(--lookdev-materials-labels-width);
+  right: var(--lookdev-materials-side-width);
+}
+
+.lookdev-materials-side {
+  right: 0;
+  width: var(--lookdev-materials-side-width);
+  padding: 16px 20px;
+  overflow: hidden;
+  border-left: 1px solid #2e2e30;
+}
+
+/* A label block is centred on its row's screen position. */
+.lookdev-materials-row {
+  position: absolute;
+  left: 16px;
+  right: 12px;
+  transform: translateY(-50%);
+}
+
+.lookdev-materials-row-title {
+  margin: 0 0 2px;
+  color: #f2f2f2;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lookdev-materials-slot-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font:
+    11px/1.5 ui-monospace,
+    monospace;
+}
+
+.lookdev-materials-slot {
+  width: 84px;
+  flex: none;
+  color: #c4c4c4;
+}
+
+.lookdev-materials-swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lookdev-materials-chip {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  flex: none;
+  /* A mid-grey mat, so the darkest slots don't read as holes in the page (story 0.7's lesson). */
+  box-shadow: 0 0 0 1px #5a5a5e;
+}
+
+.lookdev-materials-hex {
+  color: #a8a8a8;
+  white-space: nowrap;
+}
+
+.lookdev-materials-captions {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.lookdev-materials-caption {
+  position: absolute;
+  transform: translate(-50%, 0);
+  padding: 0 4px;
+  background: rgb(0 0 0 / 55%);
+  color: #e0e0e0;
+  font:
+    11px/1.4 ui-monospace,
+    monospace;
+  white-space: nowrap;
+}
+
+.lookdev-materials-title {
+  margin: 0 0 10px;
+  color: #f2f2f2;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.lookdev-materials-picker {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.lookdev-materials-level {
+  padding: 4px 10px;
+  background: #26262a;
+  border: 1px solid #3a3a3e;
+  color: #c4c4c4;
+  font: inherit;
+  cursor: pointer;
+}
+
+.lookdev-materials-level[aria-pressed='true'] {
+  background: #3a4a52;
+  border-color: #8fa3ad;
+  color: #f2f2f2;
+}
+
+.lookdev-materials-art {
+  margin: 0 0 12px;
+}
+
+.lookdev-materials-art-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.lookdev-materials-note {
+  margin: 4px 0 0;
+  color: #8a8a8a;
+  font-size: 12px;
+}
+
+.lookdev-materials-heading {
+  margin: 0 0 4px;
+  color: #f2f2f2;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lookdev-materials-rig-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 2px;
+  font:
+    12px/1.5 ui-monospace,
+    monospace;
+}
+
+.lookdev-materials-rig-name {
+  width: 64px;
+  flex: none;
+  color: #c4c4c4;
+}
+
+.lookdev-materials-rig-detail {
+  color: #8a8a8a;
+}
+
+.lookdev-materials-warm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 12px;
+  font:
+    12px/1.5 ui-monospace,
+    monospace;
+}
+
+.lookdev-materials-tag {
+  padding: 0 6px;
+  border: 1px solid #5a5a5e;
+  color: #e0e0e0;
+}
+
+/* The renderer view's statistics panel, placed in the side column instead of floating. */
+.lookdev-materials-side .lookdev-stats {
+  position: static;
+}

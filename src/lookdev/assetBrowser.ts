@@ -2,6 +2,7 @@
 // story adds its view here: palettes (0.7), type (0.8), materials (0.9), staging (0.10), the test
 // scene (0.12), the sample card (0.13). Every view needs at least one spot in spots.ts; the
 // look-dev check fails otherwise.
+import { mountMaterialsView } from './materialsView.ts';
 import { mountOverlayView } from './overlayView.ts';
 import { mountPalettesView } from './palettesView.ts';
 import { mountRendererView } from './rendererView.ts';
@@ -11,12 +12,23 @@ import type { LookdevSpot } from './spots.ts';
 export interface LookdevViewHandle {
   /** Draws one frame at `timeSeconds` (frozen when a spot is open). */
   frame(timeSeconds: number): void;
+  /**
+   * Settles when the view's own assets are ready to be seen (an image decoded, for example). main.ts
+   * waits for it, after the fonts, before it reports ready; a rejection ends in the error state.
+   */
+  readonly ready?: Promise<void>;
   dispose(): void;
 }
 
-/** What a view is mounted with: the open spot, if any. Story 0.10 adds camera presets here. */
+/** What a view is mounted with. Story 0.10 adds camera presets here. */
 export interface LookdevMountOptions {
+  /** The open spot, if any. */
   readonly spot: LookdevSpot | undefined;
+  /**
+   * The level asked for: the spot's `level`, else `?level=`; undefined if neither. Views that show a
+   * level resolve it (and throw on an unknown id); the others ignore it.
+   */
+  readonly level: string | undefined;
 }
 
 export interface LookdevView {
@@ -31,6 +43,7 @@ export const LOOKDEV_VIEWS: readonly LookdevView[] = [
   { id: 'renderer', label: 'Renderer', mount: mountRendererView },
   { id: 'palettes', label: 'Palettes', mount: mountPalettesView },
   { id: 'type', label: 'Type', mount: mountTypeView },
+  { id: 'materials', label: 'Materials', mount: mountMaterialsView },
 ];
 
 export function findView(id: string): LookdevView | undefined {

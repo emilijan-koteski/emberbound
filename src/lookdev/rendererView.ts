@@ -26,7 +26,8 @@ const STAT_ROWS: readonly { key: StatKey; label: string; format: (value: number)
   { key: 'pixelRatio', label: 'Pixel ratio', format: (ratio) => ratio.toFixed(2) },
 ];
 
-function buildStatsPanel(
+/** The statistics panel: scene label, GPU, and three.js's counts. The materials view reuses it. */
+export function buildStatsPanel(
   sceneLabel: string,
   gpuName: string,
 ): {

@@ -22,12 +22,41 @@ const three = {
   // three.js only in render/ (and debug/, main.ts, tests).
   whole: { regex: '^three(/|$)', message: 'three.js is imported only in render/' },
   // Shader code only in render/materials/ (architecture Decision 1: WebGLRenderer with GLSL).
+  // ShaderChunk and ShaderLib are GLSL source; UniformsLib and UniformsUtils only make sense with them
+  // (story 0.9, D11).
   shaderNames: {
     name: 'three',
-    importNames: ['ShaderMaterial', 'RawShaderMaterial'],
+    importNames: [
+      'ShaderMaterial',
+      'RawShaderMaterial',
+      'ShaderChunk',
+      'ShaderLib',
+      'UniformsLib',
+      'UniformsUtils',
+    ],
     message:
-      'ShaderMaterial and RawShaderMaterial only in render/materials/. Outside it, import three.js by name, not as a namespace.',
+      'ShaderMaterial, RawShaderMaterial, ShaderChunk, ShaderLib, UniformsLib and UniformsUtils only in render/materials/. Outside it, import three.js by name, not as a namespace.',
   },
+  // onBeforeCompile patches three's shader source, so it is shader code too (AR160). It is a property,
+  // not an import, so no-restricted-imports can't see it: match it in the syntax tree instead.
+  // Named, string-keyed, template-literal and reflective forms (code review, 2026-11-14). A name built
+  // at run time ('onBefore' + 'Compile') can't be seen statically; review catches that.
+  onBeforeCompile: [
+    "MemberExpression[property.name='onBeforeCompile']",
+    "MemberExpression[property.value='onBeforeCompile']",
+    "MemberExpression[property.type='TemplateLiteral'][property.quasis.0.value.cooked='onBeforeCompile']",
+    "Property[key.name='onBeforeCompile']",
+    "Property[key.value='onBeforeCompile']",
+    "MethodDefinition[key.name='onBeforeCompile']",
+    "MethodDefinition[key.value='onBeforeCompile']",
+    "PropertyDefinition[key.name='onBeforeCompile']",
+    "PropertyDefinition[key.value='onBeforeCompile']",
+    "CallExpression[callee.property.name=/^(defineProperty|set)$/] > Literal[value='onBeforeCompile']",
+  ],
+  // Rewriting a material's shader source is shader code too, whatever the material came from.
+  shaderSource: [
+    'AssignmentExpression > MemberExpression.left[property.name=/^(vertexShader|fragmentShader)$/]',
+  ],
   shaderPaths: [
     {
       regex: '^three/(addons|examples/jsm)/postprocessing/',
@@ -238,14 +267,23 @@ function layerConfig(layer) {
   if (paths.length > 0 || patterns.length > 0) {
     rules['no-restricted-imports'] = ['error', { paths, patterns }];
   }
+  // One no-restricted-syntax entry per layer holds every selector: flat config replaces a rule's
+  // options rather than merging them (story 0.9, T6).
+  const syntax = [];
   if (layer.noDynamicImport) {
     // no-restricted-imports sees only static imports; a dynamic import() would bypass every ban.
-    rules['no-restricted-syntax'] = [
-      'error',
+    syntax.push(
       { selector: 'ImportExpression', message: message('no dynamic import()') },
       { selector: 'TSImportType', message: message("no import('…') type queries") },
-    ];
+    );
   }
+  if (!layer.shaderAllowed) {
+    const text = 'onBeforeCompile only in render/materials/ (it patches shader code)';
+    for (const selector of three.onBeforeCompile) syntax.push({ selector, message: message(text) });
+    const source = 'shader source is written only in render/materials/';
+    for (const selector of three.shaderSource) syntax.push({ selector, message: message(source) });
+  }
+  if (syntax.length > 0) rules['no-restricted-syntax'] = ['error', ...syntax];
   if (layer.sim) {
     const deterministic = 'sim/ is deterministic: use sim/math.ts and world.rng';
     rules['no-restricted-properties'] = [

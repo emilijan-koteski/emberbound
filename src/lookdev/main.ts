@@ -3,10 +3,12 @@
 // bans importing lookdev/ from the game's entry.
 //
 // URL: ?view=<id> opens a view (default: the first, also for an empty value); ?spot=<id> opens a
-// spot's view with its animation time frozen (D3).
+// spot's view with its animation time frozen (D3); ?level=<id> asks a view that shows a level for
+// that level (a spot's own `level` wins; story 0.9).
 //
 // <html data-lookdev-ready> is "false" while the view starts, "true" once it has drawn a frame,
-// laid out, and every font in use has loaded, and "error" if anything failed (an unknown view or
+// laid out, every font in use has loaded and the view's own `ready` has settled, and "error" if
+// anything failed (an unknown view or
 // spot, a view that can't mount, a frame that throws). The error is shown on the page and logged,
 // so the screenshot harness and the look-dev checks fail at once with the message.
 import '../ui/styles/base.css';
@@ -44,11 +46,21 @@ function fail(main: HTMLElement, message: string, error?: unknown): void {
   html.dataset.lookdevReady = 'error';
 }
 
-async function markReadyAfterFonts(): Promise<void> {
+async function markReadyAfterFonts(viewReady: Promise<void>): Promise<void> {
   // One frame for layout and text shaping, which is when web-font loads start; then wait for
-  // them; then one more frame so the loaded faces are painted.
+  // them, and for the view's own assets; then one more frame so they are painted. Each wait names
+  // its own cause if it fails.
   await nextFrame();
-  await document.fonts.ready;
+  try {
+    await document.fonts.ready;
+  } catch (error) {
+    throw new Error(`the fonts did not load: ${describe(error)}`);
+  }
+  try {
+    await viewReady;
+  } catch (error) {
+    throw new Error(`the view's assets did not load: ${describe(error)}`);
+  }
   await nextFrame();
   if (html.dataset.lookdevReady === 'false') html.dataset.lookdevReady = 'true';
 }
@@ -84,13 +96,27 @@ function start(): void {
     return;
   }
 
+  // A spot is fixed by its own data: its level (or none), never the URL's (code review, 2026-11-14).
+  const levelParam = params.get('level');
+  const level =
+    spot !== undefined
+      ? spot.level
+      : levelParam !== null && levelParam !== ''
+        ? levelParam
+        : undefined;
+
   let handle: LookdevViewHandle;
   try {
-    handle = view.mount(main, { spot });
+    handle = view.mount(main, { spot, level });
   } catch (error) {
     fail(main, `The "${view.id}" view could not start: ${describe(error)}`, error);
     return;
   }
+
+  // Observed now, so a rejection before the first frame is never an unhandled one; it is reported
+  // when the ready signal reaches it.
+  const viewReady = handle.ready ?? Promise.resolve();
+  viewReady.catch(() => undefined);
 
   const startMs = performance.now();
   let hasDrawn = false;
@@ -106,8 +132,8 @@ function start(): void {
     }
     if (!hasDrawn) {
       hasDrawn = true;
-      markReadyAfterFonts().catch((error: unknown) => {
-        fail(main, `The ready signal failed: ${describe(error)}`, error);
+      markReadyAfterFonts(viewReady).catch((error: unknown) => {
+        fail(main, `The "${view.id}" view did not get ready: ${describe(error)}`, error);
       });
     }
     requestAnimationFrame(tick);

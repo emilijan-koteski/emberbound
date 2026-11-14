@@ -1,5 +1,5 @@
 # generated: 2026-11-13 22:07
-# last_updated: 2026-11-14 19:42
+# last_updated: 2026-11-14 21:06
 # project: emberbound
 # project_key: NOKEY
 # tracking_system: file-system
@@ -41,7 +41,7 @@
 #   starts only after the previous epic's exit criteria are met and the developer approves.
 
 generated: "2026-11-13 22:07"
-last_updated: "2026-11-14 19:42"
+last_updated: "2026-11-14 21:06"
 project: emberbound
 project_key: NOKEY
 tracking_system: file-system
@@ -58,7 +58,7 @@ development_status:
   0-6-build-the-look-dev-page-and-the-screenshot-harness: done
   0-7-put-the-level-palettes-and-lighting-rigs-in-data: done
   0-8-self-host-the-overlay-typefaces: done
-  0-9-build-the-shared-materials: backlog
+  0-9-build-the-shared-materials: done
   0-10-frame-the-play-plane-with-the-view-camera-and-the-depth-layers: backlog
   0-11-add-shadows-and-the-outline-and-grading-passes-the-style-calls-for: backlog
   0-12-build-the-test-scene-and-check-it-against-the-budgets: backlog

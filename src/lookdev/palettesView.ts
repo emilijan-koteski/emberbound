@@ -9,49 +9,11 @@ import { parse } from 'yaml';
 import styleGuideSource from '../../docs/STYLE_GUIDE.md?raw';
 import { LEVEL_PALETTE_SLOTS } from '../core/paletteSlots.ts';
 import type { LevelPalette, LevelPaletteSlot } from '../core/paletteSlots.ts';
-import { DROWNED_MILL_RIG } from '../render/lighting/drownedMill.ts';
-import { EMBERWOOD_RIG } from '../render/lighting/emberwood.ts';
-import { HARROWMERE_RIG } from '../render/lighting/harrowmere.ts';
-import type { Direction, LightingRig, RigLight } from '../render/lighting/lightingRig.ts';
-import { DROWNED_MILL_PALETTE } from '../render/palettes/drownedMill.ts';
-import { EMBERWOOD_PALETTE } from '../render/palettes/emberwood.ts';
-import { HARROWMERE_PALETTE } from '../render/palettes/harrowmere.ts';
+import type { Direction, RigLight } from '../render/lighting/lightingRig.ts';
 import { isWarm } from '../render/palettes/warmth.ts';
 import type { LookdevViewHandle } from './assetBrowser.ts';
-
-interface LevelLook {
-  /** The level id (kebab-case, the level-id rule). */
-  readonly id: string;
-  readonly label: string;
-  /** The level's key under the style guide's `palettes:` (camelCase there). */
-  readonly guideKey: string;
-  readonly palette: LevelPalette;
-  readonly rig: LightingRig;
-}
-
-const LEVELS: readonly LevelLook[] = [
-  {
-    id: 'emberwood',
-    label: 'Emberwood',
-    guideKey: 'emberwood',
-    palette: EMBERWOOD_PALETTE,
-    rig: EMBERWOOD_RIG,
-  },
-  {
-    id: 'drowned-mill',
-    label: 'The Drowned Mill',
-    guideKey: 'drownedMill',
-    palette: DROWNED_MILL_PALETTE,
-    rig: DROWNED_MILL_RIG,
-  },
-  {
-    id: 'harrowmere',
-    label: 'Harrowmere',
-    guideKey: 'harrowmere',
-    palette: HARROWMERE_PALETTE,
-    rig: HARROWMERE_RIG,
-  },
-];
+import { LEVEL_LOOKS as LEVELS } from './levelLooks.ts';
+import type { LevelLook } from './levelLooks.ts';
 
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/;
 const BOM = '\uFEFF';

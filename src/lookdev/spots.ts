@@ -13,6 +13,8 @@ export interface LookdevSpot {
   readonly height: number;
   /** Animation time, frozen for every frame of the spot. Each view's camera is its fixed default. */
   readonly animTimeSeconds: number;
+  /** A level id, for views that show a level (story 0.9); the view checks it. */
+  readonly level?: string;
 }
 
 export const LOOKDEV_SPOTS: readonly LookdevSpot[] = [
@@ -22,4 +24,28 @@ export const LOOKDEV_SPOTS: readonly LookdevSpot[] = [
   { id: 'lookdev-palettes-1080', view: 'palettes', width: 1920, height: 1080, animTimeSeconds: 0 },
   { id: 'lookdev-type-1080', view: 'type', width: 1920, height: 1080, animTimeSeconds: 0 },
   { id: 'lookdev-type-720', view: 'type', width: 1280, height: 720, animTimeSeconds: 0 },
+  {
+    id: 'lookdev-materials-emberwood-1080',
+    view: 'materials',
+    width: 1920,
+    height: 1080,
+    animTimeSeconds: 0,
+    level: 'emberwood',
+  },
+  {
+    id: 'lookdev-materials-drowned-mill-1080',
+    view: 'materials',
+    width: 1920,
+    height: 1080,
+    animTimeSeconds: 0,
+    level: 'drowned-mill',
+  },
+  {
+    id: 'lookdev-materials-harrowmere-1080',
+    view: 'materials',
+    width: 1920,
+    height: 1080,
+    animTimeSeconds: 0,
+    level: 'harrowmere',
+  },
 ];

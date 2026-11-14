@@ -9,6 +9,7 @@ import { isWarm } from '../palettes/warmth.ts';
 import { DROWNED_MILL_RIG } from './drownedMill.ts';
 import { EMBERWOOD_RIG } from './emberwood.ts';
 import { HARROWMERE_RIG } from './harrowmere.ts';
+import { FIRE_LIGHTS } from './fireLights.ts';
 import { FIRE_FAMILY } from './lightingRig.ts';
 import type { Direction, LightingRig, WarmCarrier } from './lightingRig.ts';
 
@@ -93,4 +94,24 @@ describe('the fills (style guide, section 2)', () => {
     expect(DROWNED_MILL_RIG.fill.color).toBe('treeMid');
     expect(HARROWMERE_RIG.fill.color).toBe('treeMid');
   });
+});
+
+describe('the fire family’s own lights (story 0.9, D8)', () => {
+  it('belong to Rowan and his shots only; embers, bells and pickups glow without one', () => {
+    expect(Object.keys(FIRE_LIGHTS).sort()).toEqual(['rowan', 'shot']);
+    for (const carrier of Object.keys(FIRE_LIGHTS)) {
+      expect((FIRE_FAMILY as readonly string[]).includes(carrier), carrier).toBe(true);
+    }
+  });
+
+  it.each(LEVELS)(
+    'are warm in $name’s palette, with a usable reach and intensity',
+    ({ palette }) => {
+      for (const [carrier, light] of Object.entries(FIRE_LIGHTS)) {
+        expect(isWarm(palette[light.color]), `${carrier}: ${light.color}`).toBe(true);
+        expect(light.reachTiles, carrier).toBeGreaterThan(0);
+        expect(light.intensity, carrier).toBeGreaterThan(0);
+      }
+    },
+  );
 });
