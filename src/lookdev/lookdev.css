@@ -111,6 +111,215 @@ body {
   color: #f2f2f2;
 }
 
+/* The palettes view (story 0.7): page chrome, not the overlay, so raw neutral values. It fits
+   1920 × 1080 with no scrolling, so one shot holds every slot and rig (D9); `overflow: auto` makes
+   any overflow measurable by the look-dev check. */
+.lookdev-palettes {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 32px;
+  padding: calc(var(--lookdev-bar-height) + 16px) 24px 16px;
+}
+
+.lookdev-palettes-column {
+  min-width: 0;
+}
+
+.lookdev-palettes-title {
+  margin: 0 0 4px;
+  color: #f2f2f2;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.lookdev-palettes-note {
+  margin: 0 0 8px;
+  color: #8a8a8a;
+  font-size: 12px;
+}
+
+.lookdev-palettes-table {
+  border-collapse: collapse;
+  font:
+    12px/1.3 ui-monospace,
+    monospace;
+}
+
+.lookdev-palettes-table th,
+.lookdev-palettes-table td {
+  padding: 2px 10px 2px 0;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.lookdev-palettes-table thead th {
+  padding-bottom: 4px;
+  color: #f2f2f2;
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  border-bottom: 1px solid #2e2e30;
+}
+
+.lookdev-palettes-table tbody th {
+  color: #c4c4c4;
+  font-weight: 400;
+}
+
+.lookdev-palettes-cell-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* A hairline border and a mid-grey mat, so the darkest slots (pit, foregroundDark, ink, water)
+   read as dark chips rather than holes in the dark page (critic round 6). */
+.lookdev-palettes-chip {
+  display: inline-block;
+  flex: none;
+  width: 44px;
+  height: 16px;
+  border: 1px solid #6a6a6e;
+  border-radius: 2px;
+  box-shadow: 0 0 0 2px #3c3c40;
+}
+
+.lookdev-palettes-hex {
+  color: #e6e6e6;
+}
+
+.lookdev-palettes-guide {
+  color: #8a8a8a;
+}
+
+.lookdev-palettes-warm {
+  padding: 0 4px;
+  border: 1px solid #8a6a4a;
+  border-radius: 2px;
+  color: #e0b080;
+  font-size: 11px;
+}
+
+.lookdev-palettes-table .lookdev-palettes-group-label {
+  padding: 6px 0 2px;
+  color: #8a8a8a;
+  font-family: system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lookdev-palettes-strips {
+  margin-top: 4px;
+}
+
+.lookdev-palettes-strip-grid {
+  display: grid;
+  justify-content: start;
+  align-items: center;
+  gap: 6px 20px;
+}
+
+.lookdev-palettes-strip-level {
+  color: #c4c4c4;
+  font-size: 12px;
+}
+
+.lookdev-palettes-strip-group {
+  color: #8a8a8a;
+  font-size: 11px;
+}
+
+.lookdev-palettes-strip {
+  display: flex;
+  gap: 4px;
+}
+
+.lookdev-palettes-strip-name {
+  width: 32px;
+  writing-mode: vertical-rl;
+  color: #8a8a8a;
+  font:
+    10px/32px ui-monospace,
+    monospace;
+}
+
+.lookdev-palettes-strip-chip {
+  width: 30px;
+  height: 36px;
+  border: 1px solid #6a6a6e;
+  box-shadow: 0 0 0 2px #3c3c40;
+}
+
+.lookdev-palettes-cell[data-mismatch] {
+  outline: 2px solid #ff5a4a;
+  outline-offset: 1px;
+}
+
+.lookdev-palettes-flag {
+  color: #ff8a80;
+}
+
+.lookdev-palettes-rig {
+  margin: 0 0 20px;
+  padding: 10px 14px;
+  border: 1px solid #2e2e30;
+  background: #161618;
+}
+
+.lookdev-palettes-rig-title {
+  margin: 0 0 6px;
+  color: #f2f2f2;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lookdev-palettes-rig-row {
+  display: grid;
+  grid-template-columns: 96px auto 1fr;
+  align-items: center;
+  gap: 12px;
+  min-height: 24px;
+  font:
+    12px/1.3 ui-monospace,
+    monospace;
+}
+
+.lookdev-palettes-rig-name {
+  color: #8a8a8a;
+  font-family: system-ui, sans-serif;
+}
+
+.lookdev-palettes-rig-color {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lookdev-palettes-rig-detail {
+  color: #c4c4c4;
+}
+
+.lookdev-palettes-rig-warm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  grid-column: 2 / -1;
+}
+
+.lookdev-palettes-carrier {
+  padding: 0 5px;
+  border: 1px solid #8a6a4a;
+  border-radius: 2px;
+  color: #e0b080;
+}
+
 /* --- Overlay content: token properties only ------------------------------------------------ */
 
 .lookdev-main > .ui-overlay {

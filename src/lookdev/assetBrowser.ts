@@ -3,6 +3,7 @@
 // scene (0.12), the sample card (0.13). Every view needs at least one spot in spots.ts; the
 // look-dev check fails otherwise.
 import { mountOverlayView } from './overlayView.ts';
+import { mountPalettesView } from './palettesView.ts';
 import { mountRendererView } from './rendererView.ts';
 import type { LookdevSpot } from './spots.ts';
 
@@ -27,6 +28,7 @@ export interface LookdevView {
 export const LOOKDEV_VIEWS: readonly LookdevView[] = [
   { id: 'overlay', label: 'Overlay', mount: mountOverlayView },
   { id: 'renderer', label: 'Renderer', mount: mountRendererView },
+  { id: 'palettes', label: 'Palettes', mount: mountPalettesView },
 ];
 
 export function findView(id: string): LookdevView | undefined {

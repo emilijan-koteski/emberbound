@@ -31,7 +31,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **ESLint 10.x** (flat config only) with **typescript-eslint 8.72.x** `strictTypeChecked`, plus **Prettier 3.x**.
 - **Node.js 26.13.x**, pinned in `mise.toml`. It runs `scripts/*.ts` natively, with no runner.
 - **`@gltf-transform/cli` 4.5.x** (development only) and **`@types/node`**.
-- **`yaml`** (development only, the token drift test, approved 2026-11-13).
+- **`yaml`** (development only: the token drift test, approved 2026-11-13; also the palette drift test and the look-dev palettes view, which read `docs/STYLE_GUIDE.md`, approved 2026-11-14, story 0.7). Never imported by the game.
 - **Outside npm:**
   - Tiled 1.12.x, the level editor.
   - Blender, version pinned in Epic 2.

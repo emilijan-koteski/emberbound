@@ -33,7 +33,7 @@ Playwright doesn't officially support Arch-based systems. It warns about that an
 
 ## The look-dev page and the critic loop
 
-- **Look-dev page:** run `make dev`, then open <http://localhost:5173/lookdev.html>. It shows the game's look in the engine: the renderer with its statistics, and the overlay's colour roles and type. Every asset and screen is judged there against `docs/STYLE_GUIDE.md`. It is development only: `make build` leaves it out.
+- **Look-dev page:** run `make dev`, then open <http://localhost:5173/lookdev.html>. It shows the game's look in the engine: the renderer with its statistics, the overlay's colour roles and type, and each level's palette and lighting rig beside the style guide's values. Every asset and screen is judged there against `docs/STYLE_GUIDE.md`. It is development only: `make build` leaves it out.
 - **Screenshots:** `make shots ROUND=n` (n a whole number, no leading zero) first runs the look-dev checks in `tests/e2e/lookdev/`, then captures every look-dev spot (listed in `src/lookdev/spots.ts`) as `shots/round-<n>/<spotId>.png`, in headless Chromium against its own dev server on port 5174 (`SHOTS_PORT`). A spot shows the full window with no look-dev bar. A failing check stops it before any shot is taken; a round that already exists is refused; a run that fails part-way leaves only `shots/round-<n>.partial/`, and the number stays free.
 - Shots are compared by eye, never pixel-diffed, and never used for performance numbers: headless timings aren't a real frame. `shots/` is git-ignored, and `make clean` keeps it.
 

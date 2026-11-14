@@ -9,8 +9,15 @@
 // frontmatter has one (story 0.5 re-measures the style guide's values this way).
 import { readFileSync } from 'node:fs';
 import { relative } from 'node:path';
+import { CHANNEL_MAX, parseHex, relativeLuminance } from '../src/core/color.ts';
+import type { Rgba } from '../src/core/color.ts';
 import { log } from '../src/core/log.ts';
 import { DESIGN_MD_PATH, parseYaml, readFrontmatter } from './designTokens.ts';
+
+// parseHex, relativeLuminance and Rgba moved to src/core/color.ts in story 0.7, so render/ can use
+// them too; they stay exported from here, unchanged.
+export { parseHex, relativeLuminance };
+export type { Rgba };
 
 /** WCAG 2.x success criterion 1.4.3 (AA), normal text. */
 export const TEXT_MIN_RATIO = 4.5;
@@ -18,23 +25,10 @@ export const TEXT_MIN_RATIO = 4.5;
 export const NON_TEXT_MIN_RATIO = 3;
 
 /**
- * WCAG 2.x relative luminance and contrast ratio (https://www.w3.org/TR/WCAG22/#dfn-relative-luminance,
- * #dfn-contrast-ratio). The spec's constants, not tuning numbers.
+ * WCAG 2.x contrast ratio (https://www.w3.org/TR/WCAG22/#dfn-contrast-ratio): the flare term. The
+ * spec's constant, not a tuning number. Relative luminance is in src/core/color.ts.
  */
-const WCAG = {
-  linearBelow: 0.04045,
-  linearDivisor: 12.92,
-  gammaOffset: 0.055,
-  gammaDivisor: 1.055,
-  gamma: 2.4,
-  redWeight: 0.2126,
-  greenWeight: 0.7152,
-  blueWeight: 0.0722,
-  flare: 0.05,
-} as const;
-
-/** 8-bit channel maximum; also white, the backdrop alpha is composited over. */
-const CHANNEL_MAX = 255;
+const WCAG_FLARE = 0.05;
 
 /** DESIGN.md's colour roles (UX-DR2). Role names never change; only values do. */
 export const COLOR_ROLES = [
@@ -57,15 +51,6 @@ export const COLOR_ROLES = [
 ] as const;
 export type ColorRole = (typeof COLOR_ROLES)[number];
 export type Colors = Readonly<Record<ColorRole, string>>;
-
-export interface Rgba {
-  /** Channels 0 to 255; fractional after compositing. */
-  readonly r: number;
-  readonly g: number;
-  readonly b: number;
-  /** 0 (transparent) to 1 (opaque). */
-  readonly a: number;
-}
 
 export interface ContrastPair {
   readonly fg: ColorRole;
@@ -128,20 +113,6 @@ export const PAIRS: readonly ContrastPair[] = [
 /** Measured and reported, never asserted: DESIGN.md forbids muted text on the scrim (D8). */
 export const NEVER_PAIRS: readonly ContrastPair[] = [pair('text-muted', 'surface-scrim', 'text')];
 
-const HEX = /^#(?:[0-9a-f]{6}|[0-9a-f]{8})$/i;
-
-/** `#RRGGBB` or `#RRGGBBAA`, either case; anything else is null. */
-export function parseHex(hex: string): Rgba | null {
-  if (!HEX.test(hex)) return null;
-  const channel = (start: number): number => parseInt(hex.slice(start, start + 2), 16);
-  return {
-    r: channel(1),
-    g: channel(3),
-    b: channel(5),
-    a: hex.length === 9 ? channel(7) / CHANNEL_MAX : 1,
-  };
-}
-
 const WHITE: Rgba = { r: CHANNEL_MAX, g: CHANNEL_MAX, b: CHANNEL_MAX, a: 1 };
 
 /**
@@ -156,22 +127,6 @@ function over(color: Rgba, backdrop: Rgba): Rgba {
     b: mix(color.b, backdrop.b),
     a: 1,
   };
-}
-
-function linear(channel: number): number {
-  const s = channel / CHANNEL_MAX;
-  return s <= WCAG.linearBelow
-    ? s / WCAG.linearDivisor
-    : ((s + WCAG.gammaOffset) / WCAG.gammaDivisor) ** WCAG.gamma;
-}
-
-/** WCAG relative luminance of an opaque colour, 0 (black) to 1 (white). */
-export function relativeLuminance(rgb: Pick<Rgba, 'r' | 'g' | 'b'>): number {
-  return (
-    WCAG.redWeight * linear(rgb.r) +
-    WCAG.greenWeight * linear(rgb.g) +
-    WCAG.blueWeight * linear(rgb.b)
-  );
 }
 
 function colour(hex: string): Rgba {
@@ -190,7 +145,7 @@ export function contrastRatio(fg: string, bg: string): number {
   const background = over(colour(bg), WHITE);
   const a = relativeLuminance(over(colour(fg), background));
   const b = relativeLuminance(background);
-  return (Math.max(a, b) + WCAG.flare) / (Math.min(a, b) + WCAG.flare);
+  return (Math.max(a, b) + WCAG_FLARE) / (Math.min(a, b) + WCAG_FLARE);
 }
 
 /**
