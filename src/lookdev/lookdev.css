@@ -1,0 +1,210 @@
+/*
+ * The look-dev page (development only). Two kinds of rule live here (story 0.6, D12):
+ *
+ * - Page chrome (the bar, the statistics panel, the error line): development tooling, not the
+ *   overlay, so it may use raw values. It stays quiet and neutral, so it never competes with what
+ *   is being judged, and it never sits inside `.ui-overlay`.
+ * - Everything drawn inside `.ui-overlay`: overlay content, so it uses the DESIGN.md token
+ *   properties only (--colors-*, --typography-*, --spacing-*, --rounded-*) and sizes in --tile.
+ *   The one exception is the root's top padding, which clears the bar (--lookdev-bar-height).
+ *
+ * The bar floats over the page, so the overlay root fills the whole window as it will in the game
+ * and --tile (computed from the window) matches its proportions (code review, 2026-11-14). A spot
+ * shows no bar at all.
+ */
+
+:root {
+  --lookdev-bar-height: 32px;
+}
+
+/* A spot (the screenshot harness) has no bar, so nothing needs clearing. */
+:root[data-lookdev-spot] {
+  --lookdev-bar-height: 0px;
+}
+
+/* --- Page chrome --------------------------------------------------------------------------- */
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #1c1c1e;
+  color: #c4c4c4;
+  font:
+    13px/1.4 system-ui,
+    sans-serif;
+}
+
+.lookdev-bar {
+  position: fixed;
+  inset: 0 0 auto;
+  height: var(--lookdev-bar-height);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 12px;
+  background: #111112;
+  border-bottom: 1px solid #2e2e30;
+}
+
+.lookdev-bar a {
+  color: #8fa3ad;
+  text-decoration: none;
+}
+
+.lookdev-bar a[aria-current='page'] {
+  color: #f2f2f2;
+  text-decoration: underline;
+}
+
+.lookdev-main {
+  position: fixed;
+  inset: 0;
+}
+
+.lookdev-error {
+  position: relative;
+  margin: calc(var(--lookdev-bar-height) + 16px) 16px 16px;
+  color: #ff8a80;
+  font-family: ui-monospace, monospace;
+}
+
+.lookdev-canvas-host {
+  position: absolute;
+  inset: 0;
+}
+
+.lookdev-stats {
+  position: absolute;
+  top: calc(var(--lookdev-bar-height) + 12px);
+  right: 12px;
+  padding: 8px 12px;
+  background: rgb(0 0 0 / 75%);
+  border: 1px solid #2e2e30;
+  font:
+    12px/1.5 ui-monospace,
+    monospace;
+}
+
+.lookdev-stats-scene {
+  margin: 0;
+  color: #f2f2f2;
+}
+
+.lookdev-stats-gpu {
+  margin: 0 0 6px;
+  color: #8a8a8a;
+}
+
+.lookdev-stats dl {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 2px 16px;
+  margin: 0;
+}
+
+.lookdev-stats dd {
+  margin: 0;
+  text-align: right;
+  color: #f2f2f2;
+}
+
+/* --- Overlay content: token properties only ------------------------------------------------ */
+
+.lookdev-main > .ui-overlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: calc(var(--tile) * 7) 1fr;
+  align-content: start;
+  gap: var(--spacing-6);
+  padding: var(--spacing-safe-margin);
+  padding-top: calc(var(--lookdev-bar-height) + var(--spacing-safe-margin));
+  background: var(--colors-surface-screen);
+  color: var(--colors-text-primary);
+}
+
+.lookdev-heading {
+  margin: 0 0 var(--spacing-3);
+  color: var(--colors-text-muted);
+  font-family: var(--typography-ui-sm-font-family);
+  font-size: var(--typography-ui-sm-font-size);
+  font-weight: var(--typography-ui-sm-font-weight);
+  line-height: var(--typography-ui-sm-line-height);
+  letter-spacing: var(--typography-ui-sm-letter-spacing);
+}
+
+.lookdev-swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-4) var(--spacing-3);
+}
+
+.lookdev-swatch {
+  margin: 0;
+  min-width: 0;
+}
+
+/* The chip's backing is light on the left and dark on the right (the lightest and darkest roles),
+   so a colour with alpha (the scrim) shows it. */
+.lookdev-swatch-chip {
+  background: linear-gradient(to right, var(--colors-warning) 50%, var(--colors-hud-outline) 50%);
+  height: calc(var(--tile) * 0.8);
+  border: var(--spacing-hud-outline) solid var(--colors-border-subtle);
+  border-radius: var(--rounded-sm);
+  overflow: hidden;
+}
+
+.lookdev-swatch-fill {
+  height: 100%;
+}
+
+.lookdev-swatch-caption {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--spacing-1);
+  font-family: var(--typography-ui-sm-font-family);
+  font-size: var(--typography-ui-sm-font-size);
+  font-weight: var(--typography-ui-sm-font-weight);
+  line-height: var(--typography-ui-sm-line-height);
+  letter-spacing: var(--typography-ui-sm-letter-spacing);
+}
+
+.lookdev-swatch-name {
+  color: var(--colors-text-primary);
+}
+
+.lookdev-swatch-value {
+  color: var(--colors-text-muted);
+}
+
+.lookdev-type {
+  min-width: 0;
+}
+
+.lookdev-type-row {
+  margin-bottom: var(--spacing-3);
+}
+
+.lookdev-type-label {
+  color: var(--colors-text-muted);
+  font-family: var(--typography-ui-sm-font-family);
+  font-size: var(--typography-ui-sm-font-size);
+  font-weight: var(--typography-ui-sm-font-weight);
+  line-height: var(--typography-ui-sm-line-height);
+}
+
+.lookdev-type-sample {
+  color: var(--colors-text-primary);
+}
+
+/* DESIGN.md's typography `note`: the numeric tokens use tabular figures (not emitted by base.css).
+   The sample's two lines keep their spaces, so the columns of digits can be checked by eye. */
+.lookdev-type-sample-numeric {
+  font-variant-numeric: tabular-nums;
+  white-space: pre;
+}

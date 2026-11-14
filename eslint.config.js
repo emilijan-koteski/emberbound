@@ -62,6 +62,13 @@ const NODE_GLOBALS = [
   'setImmediate',
 ];
 
+// The look-dev page's 3D builders live in render/ (lookdev/ may not import three.js) but are
+// development only: nothing in the game's graph may import them (story 0.6 code review).
+const LOOKDEV_SCENES = {
+  regex: '(^|/)lookdevScenes(\\.ts)?$',
+  message: 'render/lookdevScenes.ts is for the look-dev page only (development only)',
+};
+
 const SIM_VALUES_EXCEPT_CONFIG = {
   regex: '(^|/)sim(/(?!config\\.ts$)|$)',
   allowTypeImports: true,
@@ -132,7 +139,7 @@ const LAYERS = [
     files: ['src/render/**/*.ts'],
     ignores: ['src/render/materials/**'],
     bans: ['app', 'ui', 'audio', 'platform', 'input', 'debug', 'lookdev'],
-    extra: [SIM_VALUES_EXCEPT_CONFIG],
+    extra: [SIM_VALUES_EXCEPT_CONFIG, LOOKDEV_SCENES],
   },
   {
     name: 'render/materials/',
@@ -174,7 +181,8 @@ const LAYERS = [
     banThree: true,
     bans: ['sim', 'app', 'audio', 'platform', 'input', 'debug'],
   },
-  { name: 'main.ts', files: ['src/main.ts'] },
+  // The game's entry: the look-dev page is development only and never part of the game's graph.
+  { name: 'main.ts', files: ['src/main.ts'], bans: ['lookdev'], extra: [LOOKDEV_SCENES] },
   {
     name: 'scripts/',
     files: ['scripts/**/*.ts'],

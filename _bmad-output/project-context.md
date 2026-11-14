@@ -27,7 +27,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
   - No enums, namespaces or parameter properties (`erasableSyntaxOnly`).
 - **Vite 8.3.x** (8.3.3 or later): dev server, production build with `base: './'`, and a second entry `lookdev.html` for development only.
 - **Vitest 5.x**, Node environment only. There is no jsdom; DOM screens are tested through Playwright.
-- **Playwright 1.65.x**: smoke checks in Chromium and Firefox, and critic-loop screenshots against the dev server.
+- **Playwright 1.65.x**: smoke checks in Chromium and Firefox, and critic-loop screenshots against the dev server. **Every browser test runs WebGL on the NVIDIA GTX 1650** (`GPU=nvidia`, the Makefile's default; README, "The GPU"). Keep it so, and check the WebGL renderer string before claiming that a render ran on the GPU.
 - **ESLint 10.x** (flat config only) with **typescript-eslint 8.72.x** `strictTypeChecked`, plus **Prettier 3.x**.
 - **Node.js 26.13.x**, pinned in `mise.toml`. It runs `scripts/*.ts` natively, with no runner.
 - **`@gltf-transform/cli` 4.5.x** (development only) and **`@types/node`**.

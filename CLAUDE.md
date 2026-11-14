@@ -65,6 +65,7 @@ Still open: the audio tools, chosen at the start of story 3.15. Do not pick them
 - The renderer owns the style. Generated images choose the direction once; after that the look comes from the shared shaders, the palette module and the per-level lighting rig. Every asset uses them, and is judged on the look-dev page, not against a newly generated image.
 - After any visual change, run the critic loop from the brief: screenshot fixed spots, compare with the reference and style guide, list the top three problems, fix, repeat. Stop after three rounds and report.
 - Look at an image before placing it or describing it. Never claim to have checked a render you did not see.
+- Every test and development run uses the laptop's NVIDIA GTX 1650 for WebGL, never the Intel GPU or software rendering. The local browser is Chromium, not Chrome. How is in README, "The GPU". The binding performance pass in Epic 6 still uses the reference machines.
 
 ## Hard limits
 

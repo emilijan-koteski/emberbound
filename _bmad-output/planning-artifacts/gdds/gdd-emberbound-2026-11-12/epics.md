@@ -830,7 +830,7 @@ So that every asset and screen is judged in the engine against the style guide, 
 **Given** two `make shots` runs with different round numbers
 **When** their shots are compared by eye
 **Then** they match
-**And** shots are never pixel-diffed, and no performance number is ever taken from them, since headless WebGL renders in software
+**And** shots are never pixel-diffed, and no performance number is ever taken from them: they are judged by eye, and headless runs aren't real frames, even with WebGL on the developer's GTX 1650 (sprint change proposal 2026-11-14, GPU)
 
 **Given** the look-dev spots at 1920 × 1080 and 1280 × 720
 **When** the critic loop runs (`make shots ROUND=n`, at most 3 rounds)
@@ -1044,10 +1044,10 @@ So that I see the chosen look working in the engine, and know it fits the starti
 **Then** it fails above the starting budgets: 150 draw calls †, 250,000 triangles †, 256 MB of estimated texture memory †, one shadow map of 2048 × 2048 at most †, 2 post-processing passes †, a pixel ratio of 1.5 †
 **And** these counts don't depend on the GPU, so a headless run may check them; frame times from headless runs are never used
 
-**Given** the test scene on the developer's own machine, in a real browser
+**Given** the test scene on the developer's own machine, in Chromium on its GTX 1650 (sprint change proposal 2026-11-14, GPU)
 **When** it runs for a sustained stretch
 **Then** a frame-time readout on the look-dev page, added here, shows a median of 16.7 ms or less and a 99th percentile of 20 ms or less
-**And** the result is recorded with the machine's name as an early check only: it is the development build, and the binding measurement is Epic 6's, with `?perf=1` on the release build and the named reference machines
+**And** the result is recorded with the machine's name and GPU as an early check only: it is the development build on a discrete GPU, so it is optimistic against the Iris Xe-class reference, and the binding measurement is Epic 6's, with `?perf=1` on the release build and the named reference machines
 
 **Given** a budget that is missed
 **When** the check or the readout shows it

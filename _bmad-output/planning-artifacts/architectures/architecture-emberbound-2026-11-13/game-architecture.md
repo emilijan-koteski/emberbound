@@ -3,7 +3,7 @@ title: 'Game Architecture'
 project: 'Emberbound (working title)'
 date: '2026-11-13'
 author: 'Emilijan'
-version: '1.4'
+version: '1.5'
 stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8, 9]
 status: 'complete'
 engine: 'three.js r187 (WebGLRenderer, GLSL), TypeScript 6.0, Vite 8.3'
@@ -177,7 +177,7 @@ This architecture document was created through the GDS Architecture Workflow on 
 | AI-generated meshes need clean rigging and animation | The GDD's top risk. Epic 2 proves the pipeline; the fallback is a model built by hand. |
 | WebGL performance on integrated graphics | Shadows, post-processing passes and many props on an Iris Xe-class laptop. Must be measured on real hardware. |
 | itch.io runs the game in a cross-origin iframe | Gamepad security errors (already seen in the prototype), partitioned or blocked storage, autoplay rules for audio, permission for fullscreen. Verify against current itch.io and browser documentation. |
-| Headless WebGL in Playwright renders in software | Slow, and possibly different from a GPU. Screenshots are only for the critic loop, never for performance. |
+| Headless browser runs are not real frames | Tests run headless. On the developer's laptop every browser test runs WebGL on the NVIDIA GTX 1650 (Testing Strategy). Without a usable GPU, WebGL falls back to software (SwiftShader), which is slow and can composite differently: story 0.6 saw a 32 px unpainted strip under a full-width bar. Screenshots are only for the critic loop, never for performance. |
 | Level editor not chosen | Resolved: Tiled (Architectural Decisions, decision 9). |
 | three.js API changes between versions | Check the current documentation (CLAUDE.md); pin the version. |
 | Determinism | Simulation and jump tests need identical results on every run: no unseeded randomness and no wall-clock time in the simulation. |
@@ -285,7 +285,7 @@ mise exec -- npm create vite@latest <temp-dir> -- --template vanilla-ts
 | Maths | three.js maths, in rendering only | The simulation keeps its own small vector maths and imports nothing from three.js (CLAUDE.md). |
 | Build and dev server | Vite 8 | Static build uploaded to itch.io. |
 | Unit tests | Vitest 5 | Runs the simulation in Node. |
-| Screenshot and browser tests | Playwright 1.65 | Headless; WebGL renders in software, so no performance numbers from it. |
+| Screenshot and browser tests | Playwright 1.65 | Headless, with WebGL on the developer's NVIDIA GTX 1650 (Testing Strategy); no performance numbers from it. |
 | Physics | None: a custom tile simulation | By design (CLAUDE.md). |
 | Input | None: custom, over the browser's keyboard and Gamepad APIs | |
 | Audio | None chosen | Decision below. |
@@ -297,7 +297,7 @@ mise exec -- npm create vite@latest <temp-dir> -- --template vanilla-ts
 
 | MCP | Use | Status |
 | --- | --- | --- |
-| Playwright MCP | Drive the game in a real browser: the critic loop, run checks, screenshots | Already available in the Claude Code environment |
+| Playwright MCP | Drive the game in a real browser (Chromium on the GTX 1650; Testing Strategy): the critic loop, run checks, screenshots | Already available in the Claude Code environment |
 | Blender MCP | Clean-up, rigging, animation and glTF export (asset pipeline) | Settled in CLAUDE.md |
 | Context7 (`upstash/context7`) | Current documentation for three.js, Vite, Vitest and Playwright, instead of training data | Plugin installed. The developer authorizes it through `/mcp` in an interactive session. |
 
@@ -654,7 +654,7 @@ frame(now):
 | First load | Browser developer tools | Release build | Real hardware, network throttled to 50 Mbit/s | First input within 10 s (GDD) |
 
 - No DOM test environment is added (no jsdom): interface screens are checked through Playwright.
-- `make test` runs the Node layers. `make smoke` and `make shots` run Playwright. `make check` runs lint, the format check, the type check and `make test`.
+- `make test` runs the Node layers. `make smoke` and `make shots` run Playwright. `make check` runs lint, the format check, the type check and `make test`. **Every browser test runs WebGL on the developer's NVIDIA GTX 1650,** never the integrated Intel UHD 630 or software (the developer's decision, 2026-11-14; `sprint-change-proposal-2026-11-14-gpu.md`). `GPU=nvidia`, the Makefile's default, makes `playwright.config.ts` launch the browsers with NVIDIA PRIME render offload and Chromium with ANGLE's GL path (`--use-angle=gl --ignore-gpu-blocklist`). A look-dev check fails if WebGL isn't on the GTX 1650, and `GPU=default` turns it off on a machine without that card. Development uses the same card, in Chromium, the local browser: `prime-run chromium --ozone-platform=x11 --use-angle=gl --ignore-gpu-blocklist`. This is a development rule: the binding performance pass still measures on the reference machines (Performance Budget).
 
 ### Performance Budget
 
@@ -1399,7 +1399,7 @@ for (const spot of SPOTS) {
 
 - `make shots ROUND=n` saves each critic-loop round to `shots/round-n/`, so the before and after shots are kept for the developer.
 - Spots are added when a level or set piece is built.
-- Screenshots are compared by eye against the style guide, never pixel-diffed. Software WebGL output differs from GPU output.
+- Screenshots are compared by eye against the style guide, never pixel-diffed: output differs between GPUs, drivers and the software fallback, and only the look is judged.
 
 ### Communication Patterns
 
@@ -1607,7 +1607,7 @@ ui.loadingCard.show(STORY_TEXT.levelLine['drowned-mill']);
 
 **v1.3 (2026-11-13):** the sprint change proposal `sprint-change-proposal-2026-11-13-readiness.md` closed gaps the implementation readiness check found: the arena camera lock and the respawn snap (Gameplay Camera, Level Data), the World's last step at `levelCompleted` (State Management), bundle membership and two budget groups (Asset Management), when `regionEntered` fires (Event System), the debug-URL bypass, `reducedMotion=1` and `?perf=1` segments (Debug Tools), and the look-dev checks run by `make shots` (Testing Strategy).
 
-**v1.4 (2026-11-13):** the sprint change proposal `sprint-change-proposal-2026-11-13-tools.md` recorded the tool choices: the image model and Tripo's input views (Settled stack, First Steps).
+**v1.4 (2026-11-13):** the sprint change proposal `sprint-change-proposal-2026-11-13-tools.md` recorded the tool choices: the image model and Tripo's input views (Settled stack, First Steps). **v1.5 (2026-11-14):** the sprint change proposal `sprint-change-proposal-2026-11-14-gpu.md` recorded that tests and development run WebGL on the GTX 1650, in Chromium (Technical Risks, Toolchain, Development Tools, Testing Strategy, Deterministic Screenshot Spots); it was appended to this line so no cited line number moves.
 
 ### Follow-ups Outside This Document
 
@@ -1643,7 +1643,7 @@ The following MCP servers were selected during architecture to enhance AI-assist
 
 | MCP Server | Purpose | Install Type |
 | --- | --- | --- |
-| Playwright MCP | Drive the game in a real browser: the critic loop, run checks, screenshots | Already configured in the Claude Code environment |
+| Playwright MCP | Drive the game in a real browser (Chromium on the GTX 1650; Testing Strategy): the critic loop, run checks, screenshots | Already configured in the Claude Code environment |
 | Blender MCP | Clean-up, rigging, animation and glTF export | Blender add-on plus MCP server, set up in Epic 2 following its own documentation |
 | Context7 (`upstash/context7`) | Current documentation for three.js, Vite, Vitest and Playwright | Claude Code plugin, already installed. Authorize it with `/mcp` in an interactive session. |
 
