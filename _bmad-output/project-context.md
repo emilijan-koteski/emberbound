@@ -150,7 +150,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - **Start tests anywhere** with `createWorld(level, { spawnAt })`. There are no test-only code paths in the simulation.
 - **No jsdom.** DOM screens are covered by Playwright smoke checks. Screenshots are compared by eye, never pixel-diffed. So navigation rules (confirm dialog, settings return, auto-pause, card guard, hold-to-repeat) live in `app/` and `input/`, where Vitest covers them.
 - **Before saying a change works:** run `make check`.
-- **For any visual change:** run the critic loop with `make shots ROUND=n`: at most 3 rounds, then report before and after. It runs the look-dev checks in `tests/e2e/lookdev/` first.
+- **For any visual change:** run one round of `make shots ROUND=1`, look at every shot, fix clear breaks, run the readability check, and list the before and after shots in the story file. The full critic loop (at most 3 rounds, then report) runs in gate stories and after a three.js upgrade. `make shots` runs the look-dev checks in `tests/e2e/lookdev/` first.
 
 ### Platform & Build Rules
 

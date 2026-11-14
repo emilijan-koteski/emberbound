@@ -862,7 +862,7 @@ Each milestone in the planning doc becomes an epic. An epic starts only after th
 
 **Order:** 0 → 1 → 2 → 3 → 4 → 5 → 6. Epic 3 is the MVP. Version one ships at the end of Epic 6.
 
-**The critic loop**, used after every visual change and in every exit criterion that mentions it:
+**The critic loop**, used in full in every exit criterion that mentions it and in each epic's gate story. After other visual changes it runs one round, and its shots are shown to the developer at the next gate (sprint change proposal 2026-11-14, agentic):
 
 1. Capture screenshots at a fixed list of camera spots, with the game running headless.
 2. Compare each screenshot with the reference image and the style guide.

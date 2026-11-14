@@ -29,7 +29,7 @@ planning_doc: 'docs/PROJECT_BRIEF.md'
 
 - **A pure, deterministic simulation** (`sim/`: no three.js, no DOM), stepped at a fixed 60 Hz. Rendering, audio and the interface read a `DeepReadonly` snapshot plus typed events, and never write.
 - **The simulation owns the gameplay camera and the in-level story moments** (the seal break, the held beat). So the on-screen attack rule, story safety and clear time are deterministic and testable.
-- **Levels are authored in Tiled and compiled at build time** into a validated game format. A marked-jump search on the real simulation proves every jump is possible.
+- **Levels are Tiled JSON (`.tmj`), written by the agent and editable in Tiled, compiled at build time** into a validated game format. A marked-jump search on the real simulation proves every jump is possible.
 - **The renderer owns the style.**
   - All shader and material code lives in `render/materials`: WebGL and GLSL now, and a one-module switch to TSL later.
   - Palette and lighting are data, per level.
@@ -487,7 +487,7 @@ frame(now):
 
 ### Level Data
 
-- **Editor:** Tiled 1.12.x. Levels are authored as Tiled JSON (`.tmj`, with `.tsj` tilesets) under `levels/`.
+- **Editor:** Tiled 1.12.x. Levels are Tiled JSON (`.tmj`, with `.tsj` tilesets) under `levels/`. The agent writes them directly; the developer may edit them in Tiled. The compiler depends only on the fields listed here, so a file Tiled never saved compiles the same way (sprint change proposal 2026-11-14, agentic).
 - **Tiled layers, by convention:**
 
 | Layer | Type | Holds |

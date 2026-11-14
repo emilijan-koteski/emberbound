@@ -36,10 +36,89 @@ This document provides the complete epic and story breakdown for Emberbound, dec
 
 - An epic starts only when the previous epic's exit criteria are met and the developer approves.
 - Every simulation rule gets a unit test.
-- After any visual change, the critic loop defined in `gdd.md` (Development Epics) runs.
+- The critic loop defined in `gdd.md` (Development Epics) runs in full in gate stories and after a three.js upgrade. In every other story, an acceptance criterion that says "the critic loop runs (at most 3 rounds)" means one round: capture the spots, look at every shot, fix clear breaks, run the readability check, and save and list the before and after shots in the story file for the developer to see at the next gate (sprint change proposal 2026-11-14, agentic).
+- Stories are built and reviewed under the working agreement below.
 - Every asset and tool is logged in `docs/ASSETS.md`, including whether the asset is AI-generated.
 - Overlay surfaces read the DESIGN.md tokens, never raw values, and follow EXPERIENCE.md for behaviour and strings. EXPERIENCE.md's provisional UI timings are tuned in the epic that builds each surface.
 - Every story follows `_bmad-output/project-context.md` and CLAUDE.md. Their conventions (naming, layering, testing, failures, logging) apply to every story without being repeated in its acceptance criteria.
+
+## Working agreement and story merge map (2026-11-14)
+
+From `sprint-change-proposal-2026-11-14-agentic.md`. The story texts below are unchanged; this map says how they are built.
+
+- **Merged stories.** Open stories are built as the merged stories in the table. A merged story keeps the id and position of its first original and every acceptance criterion of the stories it absorbs, run in their original order. Before starting, its create step checks that every absorbed story's "Depends on" is done. A reference to an absorbed story (for example "Story 1.25") means the merged story that holds it.
+- **"Next story".** One command runs a story end to end with no approval between steps: create (`gds-create-story`, medium effort; folded into dev when every absorbed story has three or fewer acceptance criteria), dev (`gds-dev-story`, at the story's effort), `make check`, commit on master. CLAUDE.md holds the steps.
+- **Gates (`G`).** Human checkpoints: the developer approves the look, signs off the feel, runs playtests, uses the reference machines or releases. The full critic loop runs here. Each epic's start is approved at the previous epic's gate.
+- **Human input (`H`).** The story pauses at the step that needs the developer (Gemini or Tripo runs, Blender open, an account, a choice CLAUDE.md reserves), asks, then continues. The create step flags any other story that needs it.
+- **Effort.** The dev pass runs at the listed effort; create and review run at medium.
+- **Review.** A full `gds-code-review` runs on the commits since the last review, after every third story and before any gate. Each finding is fixed, mapped to the planned story that covers it, or dropped with a reason.
+- **Full critic loop** at 0.15, 2.11, 3.19 (with 3.20), 4.15 (taking over 4.10 and 4.12's loops), 5.17, and after a three.js upgrade.
+
+| New story | Absorbs | Effort | Flag |
+| --- | --- | --- | --- |
+| **Epic 0** | | | |
+| 0.11 Add shadows, and the outline and grading passes | | high | |
+| 0.12 Build the test scene, the sample story card and the DESIGN.md overlay update | 0.12, 0.13, 0.14 | high | |
+| 0.15 Run the critic loop on the test scene and approve the look | | high | G |
+| **Epic 1** | | | |
+| 1.1 Build the simulation core and step it from a fixed 60 Hz loop with keyboard input | 1.1, 1.4 | xhigh | |
+| 1.2 Author, compile and load levels | 1.2, 1.3 | high | |
+| 1.5 Draw interpolated grey boxes and follow Rowan with the gameplay camera | 1.5, 1.8 | high | |
+| 1.6 Move Rowan to the feel table, with one-way ledges and moving platforms | 1.6, 1.7 | xhigh | |
+| 1.9 Read gamepads, route pause and menu actions, and show the placeholder pause | 1.9, 1.10, 1.11 | high | |
+| 1.12 Ember spit, spikes and hearts, checkpoints, pits and the exit | 1.12, 1.13, 1.14 | high | |
+| 1.15 Debug overlay, URL parameters, cheats and input recording | | high | |
+| 1.16 Add the walker and hit feedback | 1.16, 1.17 | high | |
+| 1.18 Add the thorn flyer and the rooted spitter | 1.18, 1.19 | high | |
+| 1.20 Embers, bells, the triple shot, the placeholder HUD and basic results | 1.20, 1.21, 1.22, 1.23 | high | |
+| 1.24 Prove every marked jump, and check the main path, metrics and caps | 1.24, 1.25 | xhigh | |
+| 1.26 Build grey-box Level 1 with its control signs | 1.26, 1.27 | high | |
+| 1.28 Measure the grey-box pace, sign off the feel and close the epic | | high | G |
+| **Epic 2** | | | |
+| 2.1 Clear Tripo's terms, set up the Blender MCP, and make Rowan's views and mesh | 2.1, 2.2 | high | H |
+| 2.3 Clean up and rig Rowan | 2.3, 2.4 | high | H |
+| 2.5 Animate Rowan's movement and action clips | 2.5, 2.8 | high | |
+| 2.6 Export Rowan and show him on the look-dev page | 2.6, 2.7 | high | |
+| 2.9 Put Rowan in the grey-box level, following every gameplay state | 2.9, 2.10 | high | |
+| 2.11 Run the hero critic loop and get the developer's sign-off | | high | G |
+| **Epic 3** | | | |
+| 3.1 Finalise Emberwood's layout and dress its ground, ledges, platforms and spikes | 3.1, 3.2 | high | |
+| 3.3 Build Emberwood's backdrops, dusk lighting and the wedding glade | 3.3, 3.4 | high | |
+| 3.5 Make the waymarkers, control-sign icons and pickup art | 3.5, 3.6 | high | |
+| 3.7 Build the walker, thorn flyer and rooted spitter models | 3.7, 3.8, 3.9 | high | H |
+| 3.10 Start sound, add the title gate and Emberwood's loading card | 3.10, 3.11, 3.12 | high | |
+| 3.13 Build the intro cards and play the intro after the gate | 3.13, 3.14 | high | |
+| 3.15 Add Emberwood's music and ambience | | high | H |
+| 3.16 Add the hero, enemy, world, interface and bell sounds | 3.16, 3.17, 3.18 | high | |
+| 3.19 Finish the HUD and run the full critic loop on the Level 1 spots | 3.19, 3.20 | high | |
+| 3.21 Playtest Emberwood, fix the findings and get the developer's approval | 3.21, 3.22 | high | G |
+| **Epic 4** | | | |
+| 4.1 Check the symbols, and build the warden arena, door and body | 4.1, 4.2 | high | |
+| 4.3 Build the warden fight: both phases, defeat and the warden bar | 4.3, 4.4, 4.5 | xhigh | |
+| 4.6 Add ledge grab and the story director with the seal break | 4.6, 4.7 | xhigh | |
+| 4.8 Build Rowan stage 2 and animate hang and climb-up | 4.8, 4.9 | high | |
+| 4.10 Build the millhouse arena art and the Drowned Miller | 4.10, 4.11 | high | H |
+| 4.12 Stage the seal break, with its music and sounds | 4.12, 4.13, 4.14 | high | |
+| 4.15 Playtest the warden and close the epic | | high | G |
+| **Epic 5** | | | |
+| 5.1 Add waterwheel platforms, deep water and the piercing shot | 5.1, 5.2 | xhigh | |
+| 5.3 Lay out grey-box Level 2 and join the warden arena | 5.3, 5.4 | high | |
+| 5.5 Lay out grey-box Level 3 and route the campaign through the loading cards | 5.5, 5.6 | high | |
+| 5.7 Play the fallen-bell beat, the closing cards and Level 3's end order | 5.7, 5.8, 5.9 | high | |
+| 5.10 Build and dress the Drowned Mill, with the piercing-shot pickup | 5.10, 5.11, 5.12 | high | |
+| 5.13 Build and dress Harrowmere ruins | 5.13, 5.14 | high | |
+| 5.15 Add the Level 2 and 3 audio | 5.15, 5.16 | high | |
+| 5.17 Run the critic loop across Levels 2 and 3, and playtest version one | 5.17, 5.18 | high | G |
+| **Epic 6** | | | |
+| 6.1 Settings model, versioned save, and saving progress | 6.1, 6.2, 6.3 | high | |
+| 6.4 Build the widgets, the boot loading screen and the device note | 6.4, 6.5, 6.6 | high | |
+| 6.7 Add the title menu and the level select | 6.7, 6.8 | high | |
+| 6.9 Replays, replay-end routing and the final results screen | 6.9, 6.10, 6.11 | high | |
+| 6.12 Build the pause menu, settings screen, and bug and Retry panels | 6.12, 6.13, 6.14 | high | |
+| 6.15 Add the perf recorder and complete the smoke checks and journeys | 6.15, 6.16 | high | |
+| 6.17 Check and show the final title, and prepare the itch.io page | 6.17, 6.18, 6.20 | high | H |
+| 6.19 Run the performance pass on the reference machines | | high | G |
+| 6.21 Add `make release`, check the private upload and release version one | 6.21, 6.22, 6.23 | high | G |
 
 ## Requirements Inventory
 
@@ -1300,6 +1379,10 @@ So that every later mechanic is tested and felt on real levels, and art never de
 **And** `levels/tilesets/collision.tsj` gives each tile exactly one class: empty, solid, one-way or spike (AR124)
 **And** layer names are exactly `collision`, `entities`, `regions`, `dressing` and `jumps` (AR123, AR125)
 
+**Given** a `.tmj` file written by hand or by the agent, never opened in Tiled
+**When** `make levels` compiles it
+**Then** it compiles exactly as a Tiled-saved file would: the compiler needs only the layers, classes and properties in Level Data, never fields only Tiled's editor writes, and a Vitest fixture written as plain JSON proves it (sprint change proposal 2026-11-14, agentic)
+
 **Given** one or more `levels/*.tmj` files
 **When** `make levels` runs (and `make test` and `make build`, which run it first)
 **Then** `scripts/compileLevels.ts`, run by Node with no runner, writes each level as JSON in the game's format (`sim/level/levelData.ts`), with the level id equal to its kebab-case file name (AR129)
@@ -2400,6 +2483,11 @@ So that the layout is proven fun and fair before any art goes on it.
 
 **Acceptance Criteria:**
 
+**Given** the teaching order below and the level rules in `CONFIG.levels`
+**When** the agent builds Level 1
+**Then** the agent writes `levels/emberwood.tmj` directly, sketching each section as an ASCII grid in the story file first, and iterates until `make levels` and `make test` pass (compile validation, the jump search and the coverage check) and its screenshots read correctly
+**And** the developer plays it at the epic gate (Story 1.28) and gives notes, which the agent applies; the developer may also edit the file in Tiled (sprint change proposal 2026-11-14, agentic)
+
 **Given** `levels/emberwood.tmj`
 **When** it compiles
 **Then** it is a standard level: side-scrolling and linear, left to right with vertical variation, within the level height in `CONFIG.levels` (starting values 18 to 24 tiles †), with 3 checkpoints, 3 bells and an exit marker where the wedding glade's arch will stand; nothing locks off an area (FR141, FR143, FR145)
@@ -3104,6 +3192,7 @@ So that I can finish it without help and the art goes onto a level that already 
 **When** the final layout is set in `levels/emberwood.tmj`
 **Then** the main path's length targets 6 to 8 minutes of first play at that pace (NFR23), and each of the four sections targets 60 to 120 s, so no single failure costs more than about 120 s of replay (NFR17, NFR18)
 **And** the level stays linear, left to right, within the level height in `CONFIG` (starting value 18 to 24 tiles †) (FR143)
+**And** the agent writes and edits the `.tmj` directly, as in Story 1.26; the developer's notes come from the gate playtest (sprint change proposal 2026-11-14, agentic)
 
 **Given** the final layout
 **When** the developer walks it section by section
@@ -4899,7 +4988,7 @@ So that Epic 4 exits on evidence and Epic 5 can join the arena to Level 2.
 **And** the developer plays the test room with stage 2 and its animations and signs off that ledge grab feels right (the third exit criterion).
 
 **Given** everything above passes
-**When** a last critic-loop round runs on the arena and seal-break spots
+**When** the full critic loop runs on the arena, millhouse art, Drowned Miller and seal-break spots (taking over the loops of 4.10 and 4.12)
 **Then** the hero, the warden, the hazards and the pickups stand out at a glance in every shot
 **And** the playtest results are written into this story's file, the developer confirms PR11's list (the warden in its arena, the seal-break moment, Rowan stage 2, ledge grab, the Level 2 tune and its warden arrangement), and approves the epic.
 
@@ -5059,6 +5148,7 @@ So that Level 2 plays well before any art dresses it.
 **Then** it compiles and passes validation with one `PlayerStart`, 3 checkpoints, 3 bells, 100 to 150 embers †, a height of 18 to 24 tiles †, and a temporary `Exit` where the warden's door will be; this story leaves the arena join to Story 5.4
 **And** `?level=drowned-mill` loads it with Rowan as the full beast, without ledge grab (`CONFIG.levelForm`)
 **And** progress is linear, left to right with vertical variation, with nothing locked off (FR141)
+**And** the agent writes and edits the `.tmj` directly, as in Story 1.26; the developer's notes come from the gate playtest (sprint change proposal 2026-11-14, agentic)
 
 **Given** the level's length
 **When** it is set
@@ -5154,6 +5244,7 @@ So that the hand the seal gave back carries the hardest platforming in version o
 **When** `make levels` runs
 **Then** it compiles and passes validation with one `PlayerStart`, 3 checkpoints, 3 bells, 100 to 150 embers †, a height of 18 to 24 tiles †, and an `Exit` where the fallen fire bell will lie (FR143)
 **And** `?level=harrowmere` loads it with Rowan changed, with ledge grab (`CONFIG.levelForm`)
+**And** the agent writes and edits the `.tmj` directly, as in Story 1.26; the developer's notes come from the gate playtest (sprint change proposal 2026-11-14, agentic)
 
 **Given** the level's shape
 **When** it is laid out
