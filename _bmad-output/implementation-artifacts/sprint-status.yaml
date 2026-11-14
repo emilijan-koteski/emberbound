@@ -1,5 +1,5 @@
 # generated: 2026-11-13 22:07
-# last_updated: 2026-11-14 14:31
+# last_updated: 2026-11-14 16:12
 # project: emberbound
 # project_key: NOKEY
 # tracking_system: file-system
@@ -41,7 +41,7 @@
 #   starts only after the previous epic's exit criteria are met and the developer approves.
 
 generated: "2026-11-13 22:07"
-last_updated: "2026-11-14 14:31"
+last_updated: "2026-11-14 16:12"
 project: emberbound
 project_key: NOKEY
 tracking_system: file-system
@@ -54,7 +54,7 @@ development_status:
   0-2-check-the-download-and-asset-budgets-in-make-build: done
   0-3-emit-the-design-md-tokens-as-css-custom-properties-with-a-contrast-check: done
   0-4-generate-the-hero-and-emberwood-references-in-each-candidate-style: done
-  0-5-pick-the-style-and-write-docs-style-guide-md: backlog
+  0-5-pick-the-style-and-write-docs-style-guide-md: done
   0-6-build-the-look-dev-page-and-the-screenshot-harness: backlog
   0-7-put-the-level-palettes-and-lighting-rigs-in-data: backlog
   0-8-self-host-the-overlay-typefaces: backlog

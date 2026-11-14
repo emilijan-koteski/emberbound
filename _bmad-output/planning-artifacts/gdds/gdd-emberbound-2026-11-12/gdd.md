@@ -5,7 +5,7 @@ platforms:
   - desktop web browser (keyboard, gamepad)
 status: final
 created: 2026-11-12
-updated: 2026-11-13
+updated: 2026-11-14
 inputs:
   - _bmad-output/planning-artifacts/briefs/brief-emberbound-2026-11-12/brief.md
   - _bmad-output/planning-artifacts/briefs/brief-emberbound-2026-11-12/addendum.md
@@ -718,19 +718,19 @@ Six seals are held by six wardens. How wardens 2 to 6 map onto Levels 3 to 6 is 
 **Fixed rules, whatever the style:**
 
 - 3D characters on a 2D play plane, in front of layered backdrops: foreground, play layer, middle distance, far distance.
-- **Warm light belongs only to the hero, embers and lanterns.** Rowan, his shots and the collectables are always the warmest things on screen. Lanterns appear only in Emberwood. The story cards may be an exception, pending Epic 0 (see Story Delivery).
+- **Warm light belongs only to the hero, embers and lanterns.** "The embers" means Rowan's whole fire family: his shots, the collectables (embers and bells, which are warm brass) and the weapon pickups. Rowan, his shots and the collectables are always the warmest things on screen; lanterns stay less saturated than all of them. Lanterns appear only in Emberwood. The story cards may be an exception, pending Epic 0 (see Story Delivery). The values are in `docs/STYLE_GUIDE.md`, section 3.
 - The hero, enemies, hazards and pickups can each be told apart from the background at a glance.
 - The look comes from the game, not from the image generator. Every asset takes the game's own look (its materials, its palette per level, its lighting per level) and is judged in the engine against the style guide, not against a newly generated image. The architecture document defines how.
 
-**Hero: Rowan in cursed form:**
+**Hero: Rowan in cursed form.** The concept was signed off on 2026-11-14, as drawn on `art-src/reference/hero-sheet-mix.jpeg`. `docs/STYLE_GUIDE.md`, section 6, is the concept Epic 2 models from.
 
-- A horned ember-beast, clearly not an ape.
-- Upright, with two legs and two arms, about 3 heads tall, with a human-shaped skeleton.
+- A horned ember-beast, clearly not an ape, with pointed ears.
+- Upright, with two legs and two arms, about 4 heads tall, with a human-shaped skeleton. Heavy arms, the hands at mid-thigh.
 - Readable as a small figure on screen. The features were chosen for that:
-  - two bone horns sweeping back
+  - two bone horns that don't match: his left sweeps out and back, his right curls up into a hook
   - a furnace glow in the chest
   - ember-bright eyes
-- Charcoal skin with glowing seams, and a torn red woodsman's scarf as his human trace.
+- Charcoal skin with glowing seams, and a torn red woodsman's scarf as his human trace; worn, dark woodsman's trousers, torn at the knees and shins, with a belt; bare clawed feet.
 - Determined, not monstrous.
 - Three stages:
   1. full beast
@@ -739,13 +739,13 @@ Six seals are held by six wardens. How wardens 2 to 6 map onto Levels 3 to 6 is 
 
   Version one shows stages 1 and 2.
 
-Design sign-off happens in Epic 0 (concept) and Epic 2 (model).
+Design sign-off happens in Epic 0 (concept, done 2026-11-14) and Epic 2 (model).
 
 **Level looks:**
 
 - Emberwood: dusk forest lit by lanterns.
 - The Drowned Mill: fog over a marsh, black water and turning wheels.
-- Harrowmere: charred ruins, cold and grey. The fire is long dead, so warm light is still reserved for Rowan.
+- Harrowmere: charred ruins, cold and grey. The fire is long dead, so warm light is still reserved for Rowan and his fire family (his shots, the embers, the bells and the weapon pickups).
 
 ### Audio and Music
 

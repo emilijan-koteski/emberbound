@@ -6,7 +6,7 @@ ux:
   - _bmad-output/planning-artifacts/ux-designs/ux-emberbound-2026-11-13/DESIGN.md
   - _bmad-output/planning-artifacts/ux-designs/ux-emberbound-2026-11-13/EXPERIENCE.md
 created: 2026-11-12
-updated: 2026-11-13
+updated: 2026-11-14
 stepsCompleted: [1, 2, 3, 4]
 status: complete
 inputDocuments:
@@ -781,7 +781,7 @@ So that every later material, asset and screen is built and judged against one w
 **Given** DESIGN.md's 16 overlay colour roles and 3 type roles
 **When** their values are chosen
 **Then** the guide gives a value for every colour role, role names unchanged; `ember` is the only warm value, and hearts, bells, timer, warden bar and focus stay neutral or cool; values may be copied from palette slots
-**And** it names three typefaces (display, UI, numeric), each with its licence checked (OFL or an equivalent that allows self-hosting and commercial use), together 0.3 MB or less as `.woff2` in the weights the typography tokens use, covering Latin plus the story text's punctuation, with tabular figures for the numeric role or a separate numeric face
+**And** it names the typefaces for the three roles (display, UI, numeric), two faces if the UI face has tabular figures and serves the numeric role, each with its licence checked (OFL or an equivalent that allows self-hosting and commercial use), together 0.3 MB or less as `.woff2` in the weights the typography tokens use, covering Latin plus the story text's punctuation, with tabular figures for the numeric role or a separate numeric face
 **And** the contrast table is re-measured with Story 0.3's check on the proposed values and every target is met; a value that misses is changed before the guide is approved
 
 **Given** the rest of the overlay's look
@@ -862,7 +862,7 @@ So that every material reads its colours and light from one place per level, and
 
 **Given** the three rigs
 **When** `make test` runs
-**Then** unit tests check that every level allows warm light only for Rowan, his shots and the collectables, and that Emberwood alone also allows lanterns
+**Then** unit tests check that every level allows warm light only for Rowan and his fire family (his shots, the embers, the bells and the weapon pickups), and that Emberwood alone also allows lanterns
 **And** the warmth falling from Emberwood to the Drowned Mill to Harrowmere, and pits and deep water reading as dark, are judged on screenshots, since no number defines them
 
 **Given** the look-dev page
@@ -877,16 +877,16 @@ So that every material reads its colours and light from one place per level, and
 ### Story 0.8: Self-host the overlay typefaces
 
 As a developer,
-I want the three overlay typefaces self-hosted, licensed and within their budget,
+I want the overlay typefaces self-hosted, licensed and within their budget,
 So that every overlay surface from Epic 1 on can use the chosen faces with no request to another server and no surprise in the download.
 
 **Requirements:** AR152 (fonts budget), AR157, UX-DR6 (the faces), UX-DR7, UX-DR61
 
 **Acceptance Criteria:**
 
-**Given** the three typefaces named in `docs/STYLE_GUIDE.md`
+**Given** the typefaces named in `docs/STYLE_GUIDE.md` (two faces for the three roles)
 **When** they are added
-**Then** only the weights the typography tokens use are shipped, as `.woff2` in `public/assets/fonts/` (in Git LFS), together 0.3 MB or less, which `make build`'s fonts budget enforces
+**Then** only the weights the typography tokens use are shipped, as `.woff2` in `public/assets/fonts/`: static files, or one unmodified variable file covering them where the style guide names one (Source Sans 3, whose Reserved Font Name rules out a subset), (in Git LFS), together 0.3 MB or less, which `make build`'s fonts budget enforces
 **And** if they don't fit, subsetting to Latin plus the story text's punctuation is proposed to the developer, with any tool it needs; no tool is added without his approval
 
 **Given** the font files
@@ -1037,7 +1037,7 @@ So that I see the chosen look working in the engine, and know it fits the starti
 **Given** the same scene
 **When** the page switches between Emberwood, the Drowned Mill and Harrowmere
 **Then** only the palette and the rig change
-**And** the lanterns show only in Emberwood; the warmth falls from Emberwood to the Drowned Mill to Harrowmere; Harrowmere shows no warm light but the hero, his shot and the collectables; the enemy stand-ins change colour by palette alone
+**And** the lanterns show only in Emberwood; the warmth falls from Emberwood to the Drowned Mill to Harrowmere; Harrowmere shows no warm light but the hero and his fire family (his shot, the collectables and the weapon pickup); the enemy stand-ins change colour by palette alone
 
 **Given** the look-dev statistics on each level's test scene
 **When** a Playwright check in `tests/e2e/lookdev/` reads them (readiness proposal 2026-11-13, Q12)
@@ -1088,7 +1088,7 @@ So that the card style, the cards' warm-light exception, the story palette and t
 **Given** the sample card and the story palettes on the look-dev page
 **When** the developer decides the cards' warm-light exception
 **Then** if he confirms it, warm light on cards may also mark Elin and home, and the story palettes' home and forge slots are warm; if he refuses it, the forge glow on cards turns pale and cold
-**And** in play, warm light stays reserved for Rowan, the embers and the lanterns either way
+**And** in play, warm light stays reserved for Rowan and his fire (his shots, the embers, the bells and the weapon pickups) and the lanterns either way (`docs/STYLE_GUIDE.md`, section 3)
 **And** the decision, and the silhouette style checked against the locked style, are recorded in `docs/STYLE_GUIDE.md`
 
 **Given** `src/ui/screens/cardText.ts`
@@ -1117,7 +1117,7 @@ So that Epic 1's first overlay builds on the final values, and no later story tr
 
 **Given** `docs/STYLE_GUIDE.md`
 **When** `gds-ux` Update runs with the developer
-**Then** DESIGN.md's 16 colour values and the three typefaces (each font family with its fallbacks) take the style guide's values, with role names unchanged and `ember` still the only warm value
+**Then** DESIGN.md's 16 colour values and the typefaces for the three roles (each font family with its fallbacks) take the style guide's values, with role names unchanged and `ember` still the only warm value
 **And** the [PROVISIONAL] markers are removed from what is now set, and the contrast table shows the re-measured values with every target met
 
 **Given** the UX spine inconsistencies in X-C6
@@ -2625,7 +2625,7 @@ So that the pipeline starts from one consistent design, and the mesh is judged f
 
 **Given** the four views
 **When** the agent looks at each one beside the concept, and the developer reviews them
-**Then** all four show every feature of the design: a horned ember-beast, clearly not an ape; upright, with two legs and two arms, about 3 heads tall, on a human-shaped skeleton; two bone horns sweeping back; a furnace glow in the chest; ember-bright eyes; charcoal skin with glowing seams; the torn red woodsman's scarf; determined, not monstrous (FR210, NR56, NR58)
+**Then** all four show every feature of the concept signed off in `docs/STYLE_GUIDE.md`, section 6: a horned ember-beast, clearly not an ape, with pointed ears; upright, with two legs and two arms, about 4 heads tall, on a human-shaped skeleton, with heavy arms; two mismatched bone horns, each on the same side as on the concept (his left sweeps out and back, his right curls up into a hook); a furnace glow in the chest; ember-bright eyes; charcoal skin with glowing seams; the torn red woodsman's scarf; worn, belted woodsman's trousers; bare clawed feet; determined, not monstrous (FR210, NR56, NR58)
 **And** any views that disagree with each other (horn shape, scarf side, proportions, claws) are regenerated until the set agrees, within the tool budget in the GDD's Dependencies table, and the developer approves the set
 **And** if Tripo's views still disagree after the regenerations the developer allows, the views are made in the Gemini app instead, from the concept with the brief's view prompt (the same character and outfit, arms slightly away from the body, a plain background), at most 5 † attempts per kept view (tools decision 2026-11-13)
 **And** if the budget runs out before the set agrees, the story stops, reports the spend and what still disagrees, and the developer decides (readiness proposal 2026-11-13, Q9).
@@ -2857,7 +2857,7 @@ So that he is judged in the engine against the style guide, not against a genera
 **Given** Rowan on the look-dev page
 **When** hero spots are added to the screenshot harness (each movement clip frozen at a fixed time and framed at the gameplay camera's distance, plus `idle` close up and `idle` under the Drowned Mill look) and a critic-loop round runs with `make shots ROUND=n`
 **Then** the shots are compared with the concept and `docs/STYLE_GUIDE.md`, the top three problems are listed, most important first, and fixed, for at most three rounds (PR14, PR23)
-**And** every round checks that he reads at a glance at the play framing (horns, chest glow, eyes, scarf) and is the warmest thing in view
+**And** every round checks that he reads at a glance at the play framing (horns, chest glow, eyes, scarf) and, with his fire family, is the warmest thing in view
 **And** the developer sees the before and after shots.
 
 ### Story 2.8: Animate Rowan's action clips
@@ -3031,7 +3031,7 @@ So that Epic 2 closes on its exit criterion and the pipeline is proven before an
 **Given** the look-dev hero spots (all 11 clips) and Epic 1's gameplay spots, now with Rowan
 **When** the critic loop runs with `make shots ROUND=n`
 **Then** each round compares the shots with the signed-off concept and `docs/STYLE_GUIDE.md`, writes down the three biggest problems, most important first, and fixes them, for at most three rounds (PR14)
-**And** every round checks that Rowan stands out from the background at a glance (NFR27), is the warmest thing on screen, reads as a horned ember-beast and clearly not an ape, and stays readable as a small figure (horns, chest glow, eyes, scarf) at the 1280 × 720 embed, where a tile is about 67 px
+**And** every round checks that Rowan stands out from the background at a glance (NFR27), is, with his fire family, the warmest thing on screen, reads as a horned ember-beast and clearly not an ape, and stays readable as a small figure (horns, chest glow, eyes, scarf) at the 1280 × 720 embed, where a tile is about 67 px
 **And** the developer sees the before and after shots.
 
 **Given** the build after the last round
@@ -3212,7 +3212,7 @@ So that the wood reads as home on the night it turned strange.
 
 **Given** `render/lighting/emberwood.ts` and `render/palettes/emberwood.ts`
 **When** they are tuned on the dressed level for dusk
-**Then** warm light comes only from Rowan, his shots, the embers and the lanterns, and Rowan, his shots and the collectables stay the warmest things on screen (NFR28, NR100)
+**Then** warm light comes only from Rowan, his shots, the collectables (embers and bells), the weapon pickups and the lanterns, and Rowan, his shots and the collectables stay the warmest things on screen (NFR28, NR100)
 **And** every pit reads as dark: no lantern or backdrop light lifts a `KillZone` above the ground around it (NFR29, NR102)
 
 **Given** the lit level
@@ -4015,7 +4015,7 @@ So that the finished Emberwood is judged in the engine against the style guide b
 **When** the readability checks run
 **Then** the hero, enemies, hazards and pickups stand out from the background at a glance (NFR27), pits read as dark (NFR29, NR102), hazards contrast with the ground around them (NFR30), and the aim-up and low-flyer spots have a clear line of sight (NFR31)
 **And** control signs stay clear of the play area (FR42), collectable embers differ from shots in shape and motion (NFR32), and each bell's hint is visible (FR123)
-**And** warm light comes only from Rowan, his shots, the embers and the lanterns, with Rowan and the collectables the warmest things on screen (NFR28, NR100)
+**And** warm light comes only from Rowan, his shots, the collectables (embers and bells), the weapon pickups and the lanterns, with Rowan and the collectables the warmest things on screen (NFR28, NR100)
 
 **Given** the full Level 1 shot set
 **When** the developer looks through it
@@ -4565,7 +4565,7 @@ So that the curse visibly loosens and the new hand explains the new ability.
 
 **Given** stage 2
 **When** it is shown under the game's look
-**Then** the chest glow is dimmer than stage 1's by a value in the hero's look data (†, set with the developer), while Rowan, his shots and the embers stay the warmest things on screen
+**Then** the chest glow is dimmer than stage 1's by a value in the hero's look data (†, set with the developer), while Rowan, his shots and the collectables stay the warmest things on screen
 **And** the red scarf shows in both stages.
 
 **Given** stage 2 playing every clip
@@ -4634,7 +4634,7 @@ So that the fight has a place and every hazard reads clearly against it.
 
 **Given** no Drowned Mill look data yet
 **When** the arena's look is set up
-**Then** `render/palettes/drownedMill.ts` and `render/lighting/drownedMill.ts` hold it as data: cold fog, black water, almost no warm light, with warm light allowed only on Rowan, his shots and the embers
+**Then** `render/palettes/drownedMill.ts` and `render/lighting/drownedMill.ts` hold it as data: cold fog, black water, almost no warm light, with warm light allowed only on Rowan, his shots, the embers, the bells and the weapon pickups
 **And** this story leaves extending them across the level to Epic 5.
 
 **Given** `test-warden-arena`
@@ -4667,7 +4667,7 @@ So that the fight has a place and every hazard reads clearly against it.
 
 **Given** spots for the door open and shut, a wave mid-sweep, a phase-1 and a phase-2 millstone warning, a blocked shot, and the arena in a 21:9 and a 4:3 window, added to `src/debug/spots.ts` (the hub's spots are Story 4.11's; readiness proposal 2026-11-13, D5)
 **When** the critic loop runs (`make shots ROUND=n`, at most 3 rounds)
-**Then** each round compares the shots with `docs/STYLE_GUIDE.md`, lists the three biggest problems and fixes them, and checks that the hero, the warden, the hazards and the pickups stand out at a glance and that Rowan is the warmest thing on screen
+**Then** each round compares the shots with `docs/STYLE_GUIDE.md`, lists the three biggest problems and fixes them, and checks that the hero, the warden, the hazards and the pickups stand out at a glance and that Rowan and his fire family are the warmest things on screen
 **And** the developer sees before and after and approves the arena.
 
 ### Story 4.11: Build the Drowned Miller model and animations
@@ -4756,7 +4756,7 @@ So that the win lands as a release and the change in Rowan is impossible to miss
 
 **Given** spots at the crack, the shatter, the stopped wheel, the sinking, the flash's peak and the push-in on the hand, with and without reduced motion, added to `src/debug/spots.ts`
 **When** the critic loop runs (`make shots ROUND=n`, at most 3 rounds)
-**Then** each round compares the shots with `docs/STYLE_GUIDE.md`, lists the three biggest problems and fixes them, and checks that Rowan reads at a glance, is the warmest thing on screen, and that the seal's light is cold
+**Then** each round compares the shots with `docs/STYLE_GUIDE.md`, lists the three biggest problems and fixes them, and checks that Rowan reads at a glance, is, with his fire family, the warmest thing on screen, and that the seal's light is cold
 **And** the developer sees before and after, approves the sequence, and signs off on each beat's visual timing; the timing sign-off with sound is in Story 4.14.
 
 Note: Reduced motion's "short fade" has no duration in any document, and no flash length is given either. Both use the flash window's named value in `CONFIG.story.sealBreak`, set with the developer.
@@ -5400,7 +5400,7 @@ So that Level 2 feels like a new, colder place in the same game.
 
 **Given** `render/palettes/drownedMill.ts` and `render/lighting/drownedMill.ts`
 **When** Level 2 is lit
-**Then** it has almost no warm light: Rowan, his shots, the embers and the pickups are the warmest things on screen, and there are no lanterns (NR100, NR101, NFR28)
+**Then** it has almost no warm light: Rowan, his shots, the embers, the bells and the weapon pickups are the warmest things on screen, and there are no lanterns (NR100, NR101, NFR28)
 **And** hazards contrast with the ground around them (NFR30)
 **And** 3 or 4 backdrop layers show the drowned valley, the fog and distant turning wheels, each covering the view out to the same 3-tile margin
 
@@ -5513,7 +5513,7 @@ So that the town he burned feels like the coldest place in the game.
 
 **Given** `render/palettes/harrowmere.ts` and `render/lighting/harrowmere.ts`
 **When** Level 3 is lit
-**Then** it has no warm light but Rowan's, his shots', the embers' and the warm pickups'; the dimmer stage-2 Rowan is still the warmest thing on screen; there are no lanterns (NFR28, NR62, NR100, NR101)
+**Then** it has no warm light but Rowan's, his shots', the embers', the bells' and the weapon pickups'; the dimmer stage-2 Rowan and his fire family are still the warmest things on screen; there are no lanterns (NFR28, NR62, NR100, NR101)
 **And** pits read as dark and hazards contrast with the ground (NR102, NFR29, NFR30)
 **And** 3 or 4 backdrop layers show the walls, the ruined town and an ash sky, cold and grey, each covering the view out to the same 3-tile margin
 
@@ -5682,7 +5682,7 @@ So that version one reads as one game whose warmth fades level by level, and I c
 
 **Given** Emberwood's, the Drowned Mill's and Harrowmere's spots side by side
 **When** their warmth is compared
-**Then** Emberwood has the most warm light, the Drowned Mill almost none, and Harrowmere none but Rowan, his shots, the embers and the pickups (NR100, NFR28)
+**Then** Emberwood has the most warm light, the Drowned Mill almost none, and Harrowmere none but Rowan, his shots, the embers, the bells and the weapon pickups (NR100, NFR28)
 
 **Given** the HUD over each new level's brightest and busiest spots
 **When** it is checked

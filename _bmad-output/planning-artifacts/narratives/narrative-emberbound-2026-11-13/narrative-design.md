@@ -53,7 +53,7 @@ Ten years ago Rowan Ashby, a Cindersworn fire-caster, burned the town of Harrowm
 
 **Atmosphere:**
 
-- **Visual: a cold world, a warm hero.** The GDD's rule that warm light belongs only to Rowan, embers and lanterns carries the theme. Rowan's fire is both his crime and the only warmth on screen. Harrowmere is cold because its fire went out ten years ago.
+- **Visual: a cold world, a warm hero.** The GDD's rule that warm light belongs only to Rowan, his fire's family (the embers, the bells, the pickups) and the lanterns carries the theme. Rowan's fire is both his crime and the only warmth on screen. Harrowmere is cold because its fire went out ten years ago.
 - **Audio:** the bell is Elin's sound; the GDD already ties the bell effect to her. The music follows the GDD.
 - **Pacing:** urgent in play, still in story moments. The intro cards, the seal break and the end of Harrowmere are short and quiet.
 - **Text register:** plain, short lines, like a tale read aloud. One idea per line. No names the player hasn't been given, and no lore dumps.
@@ -205,7 +205,7 @@ The warden is the loudest moment and Harrowmere is the heaviest. The quiet after
 
 #### Rowan Ashby
 
-**Description:** A former Cindersworn fire-caster in his mid-thirties, cursed into a horned ember-beast. About 3 heads tall. Charcoal skin with glowing seams, two bone horns sweeping back, a furnace glow in his chest, ember-bright eyes. A torn red woodsman's scarf is his human trace. Determined, not monstrous.
+**Description:** A former Cindersworn fire-caster in his mid-thirties, cursed into a horned ember-beast. About 4 heads tall, with pointed ears. Charcoal skin with glowing seams, two mismatched bone horns (one sweeps out and back, the other curls up into a hook), a furnace glow in his chest, ember-bright eyes. A torn red woodsman's scarf is his human trace; he still wears his worn, belted woodsman's trousers, and his feet are bare and clawed. Determined, not monstrous. The signed-off concept is `docs/STYLE_GUIDE.md`, section 6.
 
 **Background:** Ten years ago he was a hired fire-caster. On a lord's order he burned the granary town of Harrowmere to end a siege, with fire from a bargain with the Ember Below. He left that life, settled at the edge of Emberwood as a woodsman, and told no one, including Elin, what he had been.
 
@@ -723,7 +723,7 @@ Version one tells most of its story here. The text sets the frame; the places, t
 - **Warmth fades across version one.**
   - Emberwood has the most warm light: the wedding lanterns, home.
   - The Drowned Mill has almost none: cold fog and black water.
-  - Harrowmere has none but Rowan and the embers. The town that burned is the coldest place in the game.
+  - Harrowmere has none but Rowan and his fire family (his shots, the embers, the bells and the weapon pickups). The town that burned is the coldest place in the game.
 - **Rowan's own glow dims at the seal break** (GDD), so in Harrowmere the warmest thing on screen is a dimmer Rowan.
 - **Pits and deep water read as dark** (GDD readability). Story lighting never overrides it.
 
@@ -794,7 +794,7 @@ Version one tells most of its story here. The text sets the frame; the places, t
 
 - In-engine sequences use the game's renderer and existing animations. No new animations beyond the GDD's list and the seal-break changes.
 - Story cards are layered paper-cut silhouettes, built in-engine from flat layers using the palette module, so the renderer owns their style. Confirm against the art style chosen in Epic 0.
-- **Card warm-light exception:** on cards, warm light also marks Elin and home. In play it stays reserved for Rowan, embers and lanterns. Confirm in Epic 0.
+- **Card warm-light exception:** on cards, warm light also marks Elin and home. In play it stays reserved for Rowan and his fire (his shots, the embers, the bells and the weapon pickups) and the lanterns (`docs/STYLE_GUIDE.md`, section 3). Confirm in Epic 0.
 
 **Skippable:**
 

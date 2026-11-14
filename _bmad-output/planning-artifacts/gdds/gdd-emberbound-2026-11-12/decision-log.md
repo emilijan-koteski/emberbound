@@ -259,3 +259,12 @@ Canonical record of decisions, changes and version transitions made while writin
   - **The four views come from Tripo's own multiview tool,** made from the signed-off concept, with the Gemini app as the fallback. Views made one at a time can disagree and warp the mesh.
   - **The developer runs both web apps by hand** and saves the files in `art-src/`; the agent writes the prompts, checks each result and logs it. Tripo's web credits probably don't pay for its API (unverified), so the API, its MCP server and its CLI stay off unless he approves them.
 - **Settled without a design choice:** at most 5 † image generations or edits per kept image, then stop and ask, since a flat-rate plan never runs out of money; a visible watermark the plan adds stays on the references, which never ship, and is cropped out of the concept before it goes to Tripo.
+
+### Update from the style lock (2026-11-14)
+
+- **Intent: update, through `gds-correct-course`.** Change signal: story 0.5, `docs/STYLE_GUIDE.md` approved 2026-11-14. Proposal: `sprint-change-proposal-2026-11-14-style-lock.md`.
+- **Developer decisions:**
+  - **Style: the mix.** Comic shading and ink outlines with the dark-fantasy palette. The guide records the rest of the look.
+  - **Rowan's concept is signed off as drawn** on `hero-sheet-mix.jpeg`: about 4 heads tall, two mismatched horns, heavy arms, pointed ears, belted torn trousers, bare clawed feet. The recommendation was to write corrections (3 heads, horns sweeping back, lighter arms); he kept the sheet.
+  - **Bells are warm brass, part of Rowan's fire family,** so the collectables really are among the warmest things on screen (NFR28). This resolves the clash with NR15's in-play list.
+- **Settled without a design choice:** "the embers" in the warm-light rule means the fire family (shots, embers, bells, weapon pickups); lanterns stay less saturated than all of it.

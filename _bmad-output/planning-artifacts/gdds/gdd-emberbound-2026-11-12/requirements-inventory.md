@@ -19,6 +19,7 @@ sources:
 - The full requirements inventory behind `epics.md`, produced in step 1 of `gds-create-epics-and-stories` (2026-11-13). `epics.md` carries the coverage map and the stories; this file carries every requirement with its source citation.
 - It is an extract, not a new source of truth. When a requirement here and its source disagree, the source wins; fix this file.
 - Refreshed 2026-11-13 by `sprint-change-proposal-2026-11-13-readiness.md`: FR27, FR52, FR64, FR66, FR84–FR86, FR90, FR91, FR93, FR94, NR79 and the AR items changed by architecture v1.2 and v1.3 now match their sources.
+- Refreshed 2026-11-14 by `sprint-change-proposal-2026-11-14-style-lock.md`: FR210, NR15, NR56, NR100 and NFR28 now match the signed-off concept and the bell decision; gaps 14 and 20 are resolved.
 - Citations: `gdd.md:` the GDD; `narrative-design.md:` the narrative design; `ga:` the game architecture; `EXPERIENCE.md:` and `DESIGN.md:` the UX spines; `PROJECT_BRIEF.md:` the brief. `†` marks a starting guess, tuned with the developer in the epic named.
 - `[epic: En]` tags appear only where the source itself assigns the item to an epic. The coverage map in `epics.md` assigns everything else.
 
@@ -421,7 +422,7 @@ FR207: Interface sounds: menu move, confirm, back, pause. About 30 sound effects
 
 FR208: Rendering composition: 3D characters on a 2D play plane in front of layered backdrops (foreground, play layer, middle distance, far distance). (gdd.md:718)
 FR209: Lanterns appear only in Emberwood. (gdd.md:482, 719, 827)
-FR210: Rowan's cursed-form design: a horned ember-beast, clearly not an ape; upright, two legs and two arms, about 3 heads tall, human-shaped skeleton; two bone horns sweeping back; a furnace glow in the chest; ember-bright eyes; charcoal skin with glowing seams; a torn red woodsman's scarf; determined, not monstrous; readable as a small figure on screen. (gdd.md:725-731) [epic: E0 concept, E2 model]
+FR210: Rowan's cursed-form design, as signed off on 2026-11-14 (`docs/STYLE_GUIDE.md`, section 6): a horned ember-beast, clearly not an ape, with pointed ears; upright, two legs and two arms, about 4 heads tall, human-shaped skeleton, heavy arms; two mismatched bone horns (his left sweeps out and back, his right curls up into a hook); a furnace glow in the chest; ember-bright eyes; charcoal skin with glowing seams; a torn red woodsman's scarf; worn, belted woodsman's trousers; bare clawed feet; determined, not monstrous; readable as a small figure on screen. (gdd.md:725-731) [epic: E0 concept, E2 model]
 FR211: Hero model: 1 rig with 2 visual stages; 13 animations (idle, run, jump, fall, land, spit, spit aiming up, spit aiming down, crouch, hurt, death, hang, climb-up); stage 2 reuses the rig and animations. (gdd.md:532, 824) [epic: E2 (stage 1, base set), E4 (stage 2, hang and climb-up)]
 FR212: Enemy animations: walker move, death; thorn flyer move, death (no hurt animation, 1 HP); spitter idle, swell and fire, hurt, death. (gdd.md:825)
 FR213: Warden animations: idle, three attacks with their warnings, the roll curl, hurt, phase change, defeat. (gdd.md:826) [epic: E4]
@@ -454,7 +455,7 @@ FR217: Music and ambience assets: 3 tunes, a warden arrangement, stingers, 3 amb
 #### Story cards: style and behaviour
 
 - NR14: The story cards (intro, closing, all-bells) are layered paper-cut silhouettes, built in-engine from flat layers using the palette module, so the renderer owns their style. Epic 0 confirms the style against the locked art style and records it in `docs/STYLE_GUIDE.md`. (narrative-design.md:796, 1050) [epic: E0]
-- NR15: Card warm-light exception: on cards, warm light also marks Elin and home. In play, warm light stays reserved for Rowan, embers and lanterns. Epic 0 confirms the exception and records it in `docs/STYLE_GUIDE.md`. (narrative-design.md:797, 1050) [epic: E0]
+- NR15: Card warm-light exception: on cards, warm light also marks Elin and home. In play, warm light stays reserved for Rowan and his fire (his shots, the embers, the bells and the weapon pickups) and the lanterns. Epic 0 confirms the exception and records it in `docs/STYLE_GUIDE.md`. (narrative-design.md:797, 1050) [epic: E0]
 - NR16: Cards advance on confirm after a short minimum display of about 1.5 s (a guess), so a double press doesn't skip one. (narrative-design.md:803)
 - NR17: Cutscenes and cards have no interactive elements. (narrative-design.md:805)
 - NR18: Maldrek never carries warm light. On screen he belongs with the cold world, never with Rowan's fire. (narrative-design.md:254)
@@ -519,7 +520,7 @@ FR217: Music and ambience assets: 3 tunes, a warden arrangement, stingers, 3 amb
 
 #### Rowan: form and ability per seal
 
-- NR56: Rowan in cursed form: about 3 heads tall, charcoal skin with glowing seams, two bone horns sweeping back, a furnace glow in his chest, ember-bright eyes, a torn red woodsman's scarf. Determined, not monstrous. (narrative-design.md:208)
+- NR56: Rowan in cursed form: about 4 heads tall, pointed ears, charcoal skin with glowing seams, two mismatched bone horns, a furnace glow in his chest, ember-bright eyes, a torn red woodsman's scarf, worn belted trousers, bare clawed feet. Determined, not monstrous. The signed-off concept is `docs/STYLE_GUIDE.md`, section 6. (narrative-design.md:208)
 - NR57: Stage 1 (full beast) in Levels 1 and 2. Stage 2 in Level 3: one broken horn, a human right hand, a dimmer chest glow. Replays follow the GDD's replay-form rule. (narrative-design.md:705-706)
 - NR58: The red scarf appears in every stage. (narrative-design.md:707, 719)
 - NR59: The first seal gives back ledge grab (the human hand is the ability). It is the one story-driven mechanic in version one. (narrative-design.md:929, 937)
@@ -572,7 +573,7 @@ FR217: Music and ambience assets: 3 tunes, a warden arrangement, stingers, 3 amb
 - NR97: Harrowmere exit: after the last hard section, a short calm stretch with no enemies leads to the square, where Harrowmere's fire bell lies cracked where its tower fell. The collapsed bell tower and the fallen fire bell are set-piece props. (narrative-design.md:701, 781, 1053) [epic: E5]
 - NR98: Level 3 has no text inside the level. Its inhabitants are creatures twisted by the ash; no people. (narrative-design.md:188, 520)
 - NR99: Harrowmere's mark (placeholder design: a sheaf of grain in a ring) and the Tithe's sign are two decals. Both get an originality check before they are drawn, in Epic 4. (narrative-design.md:716-717, 782, 1052, 1059) [epic: E4]
-- NR100: Warmth fades across version one: Emberwood has the most warm light (the wedding lanterns), the Drowned Mill almost none, and Harrowmere none but Rowan and the embers. (narrative-design.md:723-726)
+- NR100: Warmth fades across version one: Emberwood has the most warm light (the wedding lanterns), the Drowned Mill almost none, and Harrowmere none but Rowan and his fire family (his shots, the embers, the bells and the weapon pickups). (narrative-design.md:723-726)
 - NR101: Lanterns appear only in Emberwood. (narrative-design.md:714)
 - NR102: Pits and deep water read as dark, and story lighting never overrides that. (narrative-design.md:728)
 - NR103: Weapon pickups look warm, part of Rowan's palette. Enemy deaths use the GDD's plain arcade burst. (narrative-design.md:949, 951)
@@ -653,7 +654,7 @@ NFR25: Intro is about 60 s at most; seal break 15 s or less †; held beat about
 
 NFR26: Pillar 1 decision test: if a player needs a hint box to get past a spot, the spot is wrong; layout teaches, text does not. (gdd.md:136-137)
 NFR27: The hero, enemies, hazards and pickups can each be told apart from the background at a glance. (gdd.md:134, 720, 871)
-NFR28: Warm light belongs only to the hero, embers and lanterns; Rowan, his shots and the collectables are always the warmest things on screen (story cards may be an exception pending Epic 0); Harrowmere has no warm light other than Rowan's. (gdd.md:143, 719, 746)
+NFR28: Warm light belongs only to the hero, embers and lanterns, where "the embers" means Rowan's fire family: his shots, the collectables (embers and bells) and the weapon pickups. Rowan, his shots and the collectables are always the warmest things on screen, and lanterns stay less saturated than all of them (story cards may be an exception pending Epic 0). Harrowmere has no warm light other than Rowan's and his fire family's. (gdd.md:143, 719, 746; `docs/STYLE_GUIDE.md`, section 3)
 NFR29: Pits read as dark. (gdd.md:509)
 NFR30: Hazards contrast with the ground around them. (gdd.md:510)
 NFR31: Wherever a level teaches aiming, the line of sight is clear. (gdd.md:512)
@@ -1901,7 +1902,7 @@ Kept for traceability. The triage at the top cites these as gdd#n, ga#n, UX#n, n
 17. **Settings persistence.** Saving is described for progress "after each level" (gdd.md:809). Whether and when settings (volumes, reduced motion, fullscreen) persist is not stated, though a new save takes its reduced-motion default from the OS (gdd.md:816).
 18. **Timers during non-play time.** It is not specified whether the weapon timer runs during pause, hit-stop, the pit fade, the death sequence or story moments (gdd.md:332-335). For clear time, only pauses and story moments are excluded; hit-stop and death sequences are not mentioned (gdd.md:640).
 19. **Weapon pickups returning on respawn.** "Every pickup Rowan has taken … goes back in the level" (gdd.md:335). It is unclear whether this includes pickups in sections before the current checkpoint.
-20. **Warm-light ranking vs lanterns.** Warm light belongs to the hero, embers and lanterns, yet "Rowan, his shots and the collectables are always the warmest things on screen" (gdd.md:143, 719). It is unclear whether lanterns must be cooler than Rowan.
+20. **Warm-light ranking vs lanterns.** Warm light belongs to the hero, embers and lanterns, yet "Rowan, his shots and the collectables are always the warmest things on screen" (gdd.md:143, 719). It is unclear whether lanterns must be cooler than Rowan. **Resolved 2026-11-14** (`sprint-change-proposal-2026-11-14-style-lock.md`): lanterns stay less saturated than Rowan and the collectables (`docs/STYLE_GUIDE.md`, section 3).
 21. **Hero animation list gaps.** The 13-animation list (gdd.md:824) has no crouch-spit, stomp or turn animation, though crouched firing exists (gdd.md:309). Epic 2 delivers "all base animations" (gdd.md:855). Hang and climb-up are "on top of the base set" (gdd.md:532), so Epic 2 is presumably 11 animations, but this isn't stated.
 22. **Playtest threshold for 4 testers.** Epic 3's pass is "at least 4 of 5 (or 3 of 3)" (gdd.md:856), while playtests use "3 to 5" players (gdd.md:886). No threshold is given for 4 testers. Epic 4 gives only "4 of 5" (gdd.md:857).
 23. **Thorn-flyer amplitude.** "Swings ±0.9 to 1.2 tiles" (gdd.md:371) reads as a per-placement range, but it is not stated whether it is a per-instance parameter or random, nor the path shape (sinusoidal or otherwise).
@@ -2012,7 +2013,7 @@ Kept for traceability. The triage at the top cites these as gdd#n, ga#n, UX#n, n
 11. **Waymarker icons have to swap.** Control signs have "the icon burned into the wood" (narrative-design.md:678), but the GDD requires the icon to match the device last used (gdd.md:266). The burned-in look must still swap at runtime; how is unspecified.
 12. **Silence after the seal break has no play to appear in.** "After the seal breaks: silence and still water" (narrative-design.md:505), but play in Level 2 doesn't resume afterwards; the sequence fades to results (narrative-design.md:816, 898). This can only be checked as the end state of the sequence.
 13. **Story timings are guesses.** All story timings are marked as guesses: the 1.5 s card minimum, the 3 s loading-card floor, the about 3 s held beat, the seal-break timetable (tuned in Epic 4), and the 80-character limit. Acceptance criteria need config-referenced values or tolerances.
-14. **Warm light in Harrowmere.** "Harrowmere has none but Rowan and the embers" (narrative-design.md:726), but weapon pickups are warm (narrative-design.md:951), and the GDD makes all collectables, bells included, the warmest things on screen (gdd.md:719).
+14. **Warm light in Harrowmere.** "Harrowmere has none but Rowan and the embers" (narrative-design.md:726), but weapon pickups are warm (narrative-design.md:951), and the GDD makes all collectables, bells included, the warmest things on screen (gdd.md:719). **Resolved 2026-11-14** (`sprint-change-proposal-2026-11-14-style-lock.md`): the fire family (shots, embers, bells, weapon pickups) is the only warm light in Harrowmere besides Rowan; NR100's "the embers" means that family.
 15. **The level-line card's style is not defined.** The doc counts "up to 7 story cards" (narrative-design.md:791) but 10 text moments (narrative-design.md:1040), so the level-line loading card is not a silhouette story card. Its look is left to UX.
 16. **Localisation sizing is conditional.** Card text boxes of about 105 characters or a two-line wrap are conditional on future localisation (narrative-design.md:1071). It is unclear whether the version one layout must reserve the space.
 
