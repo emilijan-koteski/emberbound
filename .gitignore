@@ -34,3 +34,7 @@ mise.local.toml
 shots/
 public/assets/levels/
 public/assets/manifest.json
+
+# Local staging folder for generated images while they are checked (story 0.4 on).
+# Kept images are copied into art-src/; nothing here is ever committed.
+/.staging/
