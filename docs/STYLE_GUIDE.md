@@ -198,7 +198,8 @@ Where a value or rule here is a starting guess to tune with the developer, it ca
 ### Camera
 
 - **Perspective,** with a narrow field of view, about 30° † (AR162). The depth layers get their parallax from the camera; 3D characters keep a little depth. Decided by the developer on 2026-11-14.
-- The framing and its margin are locked in story 0.10.
+- **Framing, locked by the developer on 2026-11-14 (story 0.10):** a vertical field of view of 30° and no margin around the 19 × 10.4-tile logical view (`CONFIG.view`). The camera's distance follows the window's shape, so the logical view fills the axis that limits it and a wider or taller window shows more around it, never bigger tiles; even 16:9 is limited by its width and shows a little extra height. `--tile` stays DESIGN.md's (about 101 px at 1080 lines, 67 px at 720). The camera is `src/render/viewCamera.ts`.
+- **The depth layers** (`src/render/stage.ts`, `STAGE_LAYERS`), in tiles along z: far distance −36, middle distance −8, the play layer 0, the foreground +3 (locked on 2026-11-14; † story 0.12 judges them again on the test scene). The foreground never covers the logical view on screen, so with no margin it shows mostly below it on taller windows; whether level dressing may overlap it away from the route is decided in Epic 3.
 
 ### Shadows
 
@@ -458,7 +459,7 @@ What they say:
 | --- | --- |
 | Shadows: snapped directional or blob | Story 0.11 |
 | The outline pass's exact width and edge thresholds | Story 0.11 |
-| The camera's field of view and framing margin | Story 0.10 |
+| ~~The camera's field of view and framing margin~~ | Story 0.10: closed 2026-11-14 (section 2, Camera) |
 | The cards' warm-light exception; the card-shape source; the story palettes | Story 0.13 |
 | DESIGN.md takes the overlay colours, faces and fallbacks | Story 0.14 |
 | The derived palettes, the enemy colours and the warmth fall-off, judged in the engine | Story 0.12 |

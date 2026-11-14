@@ -1,25 +1,24 @@
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import type { Browser, Page } from '@playwright/test';
-import { readFrontmatter } from '../../../scripts/designTokens.ts';
 import { LOOKDEV_SPOTS } from '../../../src/lookdev/spots.ts';
-import { expectLookdevReady, waitForLookdevSettled } from '../lookdevReady.ts';
+import {
+  expectLookdevReady,
+  programs,
+  waitForLookdevSettled,
+  waitFrames,
+} from '../lookdevReady.ts';
 import { collectPageErrors, expectNoPageErrors } from '../pageErrors.ts';
+import { channels, pixelAt } from '../pixels.ts';
+import { GUIDE_LEVELS, guideHex } from '../styleGuidePalettes.ts';
 
 // The materials view's checks (story 0.9, AC19; P1–P8). Shown values are compared with
 // docs/STYLE_GUIDE.md read here in Node, never with the page itself. A shader that fails to compile is
 // a console error from three.js, so P1 fails on it.
 
-const STYLE_GUIDE_PATH = fileURLToPath(new URL('../../../docs/STYLE_GUIDE.md', import.meta.url));
 const SPOT_SIZE = { width: 1920, height: 1080 } as const;
 
-/** The level ids the view uses, and each one's key under the style guide's `palettes:`. */
-const LEVELS = [
-  { id: 'emberwood', guideKey: 'emberwood', hasLanterns: true },
-  { id: 'drowned-mill', guideKey: 'drownedMill', hasLanterns: false },
-  { id: 'harrowmere', guideKey: 'harrowmere', hasLanterns: false },
-] as const;
+/** The level ids the view uses, with each one's style-guide key and whether it hangs lanterns. */
+const LEVELS = GUIDE_LEVELS;
 type LevelId = (typeof LEVELS)[number]['id'];
 
 /** The seven factories, in story 0.9's AC1 order. */
@@ -38,72 +37,10 @@ const CHANNEL_TOLERANCE = 1;
 /** Frames to wait after a switch: the statistics panel refreshes every 15. */
 const FRAMES_AFTER_SWITCH = 20;
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function guidePalettes(): Map<string, Map<string, string>> {
-  const frontmatter = readFrontmatter(readFileSync(STYLE_GUIDE_PATH, 'utf8'));
-  if (!isRecord(frontmatter) || !isRecord(frontmatter.palettes)) {
-    throw new Error('docs/STYLE_GUIDE.md has no palettes: map');
-  }
-  const palettes = new Map<string, Map<string, string>>();
-  for (const [key, value] of Object.entries(frontmatter.palettes)) {
-    if (!isRecord(value)) throw new Error(`palettes.${key} is not a map`);
-    palettes.set(key, new Map(Object.entries(value).map(([slot, hex]) => [slot, String(hex)])));
-  }
-  return palettes;
-}
-
-const guide = guidePalettes();
-
-function guideHex(levelId: string, slot: string): string {
-  const level = LEVELS.find((each) => each.id === levelId);
-  const hex = level === undefined ? undefined : guide.get(level.guideKey)?.get(slot);
-  if (hex === undefined) throw new Error(`The style guide has no ${slot} for ${levelId}`);
-  return hex;
-}
-
-function channels(hex: string): [number, number, number] {
-  const value = Number.parseInt(hex.slice(1, 7), 16);
-  return [(value >> 16) & 0xff, (value >> 8) & 0xff, value & 0xff];
-}
-
 async function openLevel(page: Page, levelId: string): Promise<void> {
   await page.setViewportSize(SPOT_SIZE);
   await page.goto(`/lookdev.html?view=materials&level=${levelId}`);
   await expectLookdevReady(page);
-}
-
-/**
- * The colour at a page pixel, as the screen shows it: a 1 × 1 screenshot, decoded in a blank page's
- * canvas (no image library needed). The viewport's device scale factor is 1, so a CSS pixel is one.
- */
-async function pixelAt(
-  page: Page,
-  browser: Browser,
-  x: number,
-  y: number,
-): Promise<[number, number, number]> {
-  const png = await page.screenshot({ clip: { x, y, width: 1, height: 1 } });
-  const decoder = await browser.newPage();
-  try {
-    return await decoder.evaluate(async (base64) => {
-      const image = new Image();
-      image.src = `data:image/png;base64,${base64}`;
-      await image.decode();
-      const canvas = document.createElement('canvas');
-      canvas.width = 1;
-      canvas.height = 1;
-      const context = canvas.getContext('2d');
-      if (context === null) throw new Error('no 2D context');
-      context.drawImage(image, 0, 0);
-      const [red, green, blue] = context.getImageData(0, 0, 1, 1).data;
-      return [red, green, blue] as [number, number, number];
-    }, png.toString('base64'));
-  } finally {
-    await decoder.close();
-  }
 }
 
 async function probe(page: Page): Promise<{ x: number; y: number; slot: string }> {
@@ -126,29 +63,6 @@ async function expectProbeShows(page: Page, browser: Browser, levelId: string): 
     Math.max(...differences),
     `${levelId} ${slot}: seen rgb(${seen.join(', ')}), expected rgb(${expected.join(', ')})`,
   ).toBeLessThanOrEqual(CHANNEL_TOLERANCE);
-}
-
-function programs(page: Page): Promise<string> {
-  return page
-    .locator('[data-lookdev-stat="programs"]')
-    .textContent()
-    .then((text) => text ?? '');
-}
-
-function waitFrames(page: Page, count: number): Promise<void> {
-  return page.evaluate(
-    (frames) =>
-      new Promise<void>((resolve) => {
-        let left = frames;
-        const tick = (): void => {
-          left -= 1;
-          if (left <= 0) resolve();
-          else requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-      }),
-    count,
-  );
 }
 
 for (const level of LEVELS) {
@@ -296,11 +210,13 @@ test('an unknown level ends in the error state, naming it (P7)', async ({ page }
 
 test('every spot with a level names a known one (P8)', () => {
   const known = new Set<string>(LEVELS.map((level) => level.id));
-  const levelSpots = LOOKDEV_SPOTS.filter((spot) => spot.level !== undefined);
-  expect(levelSpots.map((spot) => spot.id)).toEqual([
+  const materialsSpots = LOOKDEV_SPOTS.filter((spot) => spot.view === 'materials');
+  expect(materialsSpots.map((spot) => spot.id)).toEqual([
     'lookdev-materials-emberwood-1080',
     'lookdev-materials-drowned-mill-1080',
     'lookdev-materials-harrowmere-1080',
   ]);
+  // Every view's spots, the staging view's included (story 0.10).
+  const levelSpots = LOOKDEV_SPOTS.filter((spot) => spot.level !== undefined);
   for (const spot of levelSpots) expect(known.has(spot.level ?? ''), spot.id).toBe(true);
 });

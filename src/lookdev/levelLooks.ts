@@ -47,3 +47,14 @@ export const LEVEL_LOOKS: readonly LevelLook[] = [
 export function findLevelLook(id: string): LevelLook | undefined {
   return LEVEL_LOOKS.find((level) => level.id === id);
 }
+
+/** The level's look; throws, naming the known ids, for an unknown one (a view then ends in error). */
+export function levelLookOrThrow(id: string): LevelLook {
+  const level = findLevelLook(id);
+  if (level === undefined) {
+    throw new Error(
+      `Unknown level "${id}" (known: ${LEVEL_LOOKS.map((each) => each.id).join(', ')})`,
+    );
+  }
+  return level;
+}

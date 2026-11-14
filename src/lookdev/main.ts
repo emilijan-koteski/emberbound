@@ -4,7 +4,8 @@
 //
 // URL: ?view=<id> opens a view (default: the first, also for an empty value); ?spot=<id> opens a
 // spot's view with its animation time frozen (D3); ?level=<id> asks a view that shows a level for
-// that level (a spot's own `level` wins; story 0.9).
+// that level (a spot's own `level` wins; story 0.9). A spot's `panTiles` fixes a panning view's camera
+// (story 0.10); there is no URL parameter for it.
 //
 // <html data-lookdev-ready> is "false" while the view starts, "true" once it has drawn a frame,
 // laid out, every font in use has loaded and the view's own `ready` has settled, and "error" if
@@ -107,7 +108,8 @@ function start(): void {
 
   let handle: LookdevViewHandle;
   try {
-    handle = view.mount(main, { spot, level });
+    // The pan comes only from a spot (story 0.10): without one, a panning view sweeps.
+    handle = view.mount(main, { spot, level, panTiles: spot?.panTiles });
   } catch (error) {
     fail(main, `The "${view.id}" view could not start: ${describe(error)}`, error);
     return;

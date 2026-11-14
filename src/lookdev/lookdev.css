@@ -605,13 +605,14 @@ body {
   font-weight: 600;
 }
 
-.lookdev-materials-picker {
+/* The level picker, shared by the materials and staging views (levelPicker.ts). */
+.lookdev-level-picker {
   display: flex;
   gap: 8px;
   margin-bottom: 12px;
 }
 
-.lookdev-materials-level {
+.lookdev-level-button {
   padding: 4px 10px;
   background: #26262a;
   border: 1px solid #3a3a3e;
@@ -620,7 +621,7 @@ body {
   cursor: pointer;
 }
 
-.lookdev-materials-level[aria-pressed='true'] {
+.lookdev-level-button[aria-pressed='true'] {
   background: #3a4a52;
   border-color: #8fa3ad;
   color: #f2f2f2;
@@ -688,4 +689,83 @@ body {
 /* The renderer view's statistics panel, placed in the side column instead of floating. */
 .lookdev-materials-side .lookdev-stats {
   position: static;
+}
+
+/* --- The staging view (story 0.10): page chrome over a full-window canvas ------------------ */
+
+.lookdev-staging {
+  position: absolute;
+  inset: 0;
+}
+
+/* The canvas fills the window, as the game's does, so its tile matches --tile. */
+.lookdev-staging-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+/* The logical-view box: a dashed outline placed from the scene's projected corners. */
+.lookdev-staging-box {
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px dashed rgb(236 236 236 / 70%);
+  pointer-events: none;
+}
+
+.lookdev-staging-box-caption {
+  position: absolute;
+  left: 8px;
+  bottom: 6px;
+  padding: 1px 6px;
+  background: rgb(17 17 18 / 70%);
+  color: #e0e0e0;
+  font:
+    12px/1.5 ui-monospace,
+    monospace;
+}
+
+.lookdev-staging-side {
+  position: absolute;
+  top: calc(var(--lookdev-bar-height) + 12px);
+  right: 12px;
+  width: 360px;
+  padding: 10px 12px;
+  background: rgb(17 17 18 / 85%);
+  border: 1px solid #2e2e30;
+}
+
+/* A spot shows the framing with nothing over the scene but the outline. */
+:root[data-lookdev-spot] .lookdev-staging-side {
+  display: none;
+}
+
+.lookdev-staging-title {
+  margin: 0 0 10px;
+  color: #f2f2f2;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.lookdev-staging-framing,
+.lookdev-staging-note {
+  margin: 0 0 10px;
+  font:
+    12px/1.5 ui-monospace,
+    monospace;
+}
+
+.lookdev-staging-note {
+  color: #8a8a8a;
+}
+
+.lookdev-staging-side .lookdev-stats {
+  position: static;
+}
+
+/* The staging view's overlay root only carries --tile (ui/overlay.ts). It holds nothing, shows the
+   canvas through it as the game's overlay does (the overlay views above give the root a screen
+   background), and takes no pointer events, so the page chrome under it stays usable. */
+.lookdev-main > .ui-overlay.lookdev-staging-overlay {
+  background: none;
+  pointer-events: none;
 }

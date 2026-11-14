@@ -1,7 +1,8 @@
 // 3D content for the look-dev page (story 0.6, D4). lookdev/ may not import three.js, so every
 // scene and camera the page shows is built here; the page holds the returned objects and hands
 // them to the renderer without naming three.js types. Stories 0.9, 0.10 and 0.12 add their
-// builders here; story 0.10 replaces the placeholder camera with render/viewCamera.ts.
+// builders here. Every scene is framed by render/viewCamera.ts (story 0.10, D10): the empty and
+// staging scenes frame the logical view; the materials scene frames its own rows the same way.
 import {
   Bone,
   BoxGeometry,
@@ -10,7 +11,6 @@ import {
   Float32BufferAttribute,
   Group,
   InstancedMesh,
-  MathUtils,
   Matrix4,
   Mesh,
   PerspectiveCamera,
@@ -26,6 +26,7 @@ import {
 import type { Material, Object3D } from 'three';
 import { invariant } from '../core/invariant.ts';
 import type { LevelPalette, LevelPaletteSlot } from '../core/paletteSlots.ts';
+import { CONFIG } from '../sim/config.ts';
 import type { LightingRig } from './lighting/lightingRig.ts';
 import { createBackdropMaterial } from './materials/backdropMaterial.ts';
 import { createCardSilhouetteMaterial } from './materials/cardSilhouetteMaterial.ts';
@@ -36,6 +37,22 @@ import { createGroundMaterial } from './materials/groundMaterial.ts';
 import { createLook } from './materials/look.ts';
 import type { Look } from './materials/look.ts';
 import { createPropMaterial } from './materials/propMaterial.ts';
+import {
+  coverageNeeded,
+  createStage,
+  foregroundIntruders,
+  logicalViewBox,
+  STAGE_LAYERS,
+} from './stage.ts';
+import type { Rect, StageLayer } from './stage.ts';
+import {
+  createViewCamera,
+  frameBox,
+  tilePx,
+  VIEW_FAR,
+  VIEW_NEAR,
+  viewFraming,
+} from './viewCamera.ts';
 
 export interface LookdevScene {
   /** Shown on the look-dev page, so a shot says which scene it holds. */
@@ -47,13 +64,6 @@ export interface LookdevScene {
   update(timeSeconds: number): void;
   dispose(): void;
 }
-
-/** † Placeholder until story 0.10's view camera: the architecture's "about 30°". */
-const PLACEHOLDER_FOV_DEGREES = 30;
-/** Placeholder camera distance from the play plane (z = 0), in tiles. */
-const PLACEHOLDER_CAMERA_Z = 10;
-const NEAR = 0.1;
-const FAR = 1000;
 
 /** Frees the GPU resources under `root`: geometries, materials and the textures they hold. */
 function disposeTree(root: Object3D): void {
@@ -70,12 +80,11 @@ function disposeTree(root: Object3D): void {
   }
 }
 
-/** An empty scene with a placeholder camera on the z axis, looking at the origin. */
+/** An empty scene, with the view camera framing the logical view about the origin. */
 export function createEmptyLookdevScene(): LookdevScene {
   const scene = new Scene();
-  const camera = new PerspectiveCamera(PLACEHOLDER_FOV_DEGREES, 1, NEAR, FAR);
-  camera.position.set(0, 0, PLACEHOLDER_CAMERA_Z);
-  camera.lookAt(0, 0, 0);
+  const view = createViewCamera();
+  const { camera } = view;
 
   return {
     label: 'Empty scene (later stories add to it)',
@@ -83,8 +92,7 @@ export function createEmptyLookdevScene(): LookdevScene {
     camera,
     setAspect(aspect) {
       if (!Number.isFinite(aspect) || aspect <= 0) return;
-      camera.aspect = aspect;
-      camera.updateProjectionMatrix();
+      view.frame(0, 0, aspect);
     },
     update() {
       // Nothing animates in an empty scene.
@@ -378,7 +386,7 @@ export function createMaterialsLookdevScene(options: {
   const scene = new Scene();
   const background = new Color(current.palette.skyFar);
   scene.background = background;
-  const camera = new PerspectiveCamera(PLACEHOLDER_FOV_DEGREES, 1, NEAR, FAR);
+  const camera = new PerspectiveCamera(CONFIG.view.fovDeg, 1, VIEW_NEAR, VIEW_FAR);
   const look = createLook(current.palette, current.rig);
 
   const add = (...objects: Object3D[]): void => {
@@ -486,8 +494,9 @@ export function createMaterialsLookdevScene(options: {
   const centreY = rowY('fog');
   const halfHeight = Math.max(contentTop - centreY, centreY - contentBottom);
   const halfWidth = (contentRight - contentLeft) / 2;
-  const tanHalfFov = Math.tan(MathUtils.degToRad(PLACEHOLDER_FOV_DEGREES) / 2);
-  let distance = halfHeight / tanHalfFov;
+  // The rows' box, framed like the logical view (viewCamera.ts), with the game's field of view.
+  const framing = frameBox(2 * halfWidth, 2 * halfHeight, 1, CONFIG.view.fovDeg);
+  let distance = framing.distance;
 
   function placeFogSamples(): void {
     const { startDepth, fullDepth } = current.rig.fog;
@@ -508,7 +517,13 @@ export function createMaterialsLookdevScene(options: {
   }
 
   function frame(aspect: number): void {
-    distance = Math.max(halfHeight / tanHalfFov, halfWidth / (tanHalfFov * aspect));
+    distance = frameBox(
+      2 * halfWidth,
+      2 * halfHeight,
+      aspect,
+      CONFIG.view.fovDeg,
+      framing,
+    ).distance;
     camera.aspect = aspect;
     camera.position.set(centreX, centreY, distance);
     camera.lookAt(centreX, centreY, 0);
@@ -631,6 +646,405 @@ export function createMaterialsLookdevScene(options: {
       disposeTree(scene);
       lanternGlassGeometry.dispose();
       scene.clear();
+    },
+  };
+}
+
+// --- The staging view (story 0.10) --------------------------------------------------------------
+//
+// The stage's four layers filled with placeholder shapes from the backdrop material only, the view
+// camera panning across them, and the tile ruler on the play layer (D9). Shapes are authored as they
+// should look on the play plane at 16:9 with the camera at pan 0, then placed at their layer's depth
+// scaled about the box centre by (D − z) / D, so each layer reads where it was drawn. Every layer
+// spans coverageNeeded(), so none shows an edge at 4:3, 16:9 or 21:9 anywhere in the pan range. The
+// foreground stays below the logical-view box on screen at every pan and window shape (D4).
+
+/** † The staging layout, in tiles (story 0.10's critic loop). The ground's top is at y = 0. */
+const GROUND_TOP_Y = 0;
+/** How far the ground's top sits above the logical view's bottom edge, as a level's ground would. */
+const GROUND_ABOVE_BOX_BOTTOM = 2;
+/** The logical view's centre height: the camera's y. */
+export const STAGING_CENTRE_Y = GROUND_TOP_Y - GROUND_ABOVE_BOX_BOTTOM + CONFIG.view.height / 2;
+/** † Without a spot, the camera sweeps ±this many tiles over PAN_PERIOD_SECONDS. */
+export const PAN_RANGE_TILES = 6;
+const PAN_PERIOD_SECONDS = 12;
+/**
+ * † The second pan the spots are shot at; spots.ts repeats the number (it imports nothing). Not a
+ * multiple of the ruler's 2-tile period, or the play layer looks still between the two shots
+ * (critic round 18).
+ */
+export const PAN_SPOT_TILES = 3;
+/** The window shapes the layers must cover: 4:3, 16:9 and 21:9, the spots' shapes. */
+export const STAGING_ASPECTS = [1440 / 1080, 1920 / 1080, 2560 / 1080] as const;
+/**
+ * The window shapes the layers are built to cover, from a portrait 9:16 to 32:9, so any window the
+ * page is opened in shows no layer edge (code review, 2026-11-14). Coverage only needs the extremes:
+ * the visible width grows and the visible height shrinks as the aspect rises.
+ */
+const COVERED_ASPECTS = [9 / 16, ...STAGING_ASPECTS, 32 / 9] as const;
+/** Tiles of extra cover past what any shape and pan can see, on every side. */
+const COVERAGE_SLACK = 1;
+/** The shapes are authored for this window shape (16:9, the main target). */
+const AUTHORED_ASPECT = 1920 / 1080;
+
+/** The tile ruler: 1-tile cells along the ground's top, alternating two slots (D9). */
+export const RULER_SLOTS = [
+  'groundTop',
+  'groundSide',
+] as const satisfies readonly LevelPaletteSlot[];
+const RULER_HEIGHT = 0.5;
+const GROUND_BODY_SLOT: LevelPaletteSlot = 'groundSide';
+// Every layer's shapes stand at uneven gaps and widths: a regular pattern can repeat exactly under a
+// pan, and then a layer looks still between two shots (critic round 18).
+/** Play layer: posts standing on the ground, so the play layer's motion reads against the others. */
+const POST = { slot: 'bark', gaps: [3, 5, 2.5, 4.5], width: 0.3, height: 1.5 } as const;
+/** Middle distance: trunks rising from below the screen and out of its top, as in the key art. */
+const TRUNK = {
+  slot: 'treeMid',
+  gaps: [2.4, 3.6, 2.9, 4.2, 3.1],
+  widths: [0.6, 1, 0.75, 1.2],
+} as const;
+/**
+ * Far distance: a band, and a low ridge line of rectangles of varying widths and heights above it,
+ * with the sky above (critic round 18: at 3.5 tiles up it read as a near wall).
+ */
+const RIDGE = {
+  slot: 'ridgeFar',
+  baseY: 1.5,
+  widths: [2.5, 3.5, 2, 3, 4],
+  heights: [0.8, 1.9, 1.2, 2.3, 1.5, 1],
+} as const;
+/** Foreground: dark plants along the bottom, their tops at or below the highest clear top. */
+const PLANT = {
+  slot: 'foregroundDark',
+  gap: 1.2,
+  widths: [1.6, 1, 2.2, 1.3],
+  dips: [0, 0.35, 0.1, 0.5],
+} as const;
+/** Tiles kept between a plant's top and the box's bottom edge on screen, so they never touch. */
+const PLANT_CLEARANCE = 0.02;
+
+/** A rectangle in canvas pixels (y down). */
+export interface PixelRect {
+  readonly left: number;
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+}
+
+export interface StagingLayout {
+  /** The logical-view box (the play area), on screen. */
+  readonly box: PixelRect;
+  /** Its size in tiles (CONFIG.view, without the margin), for the caption: lookdev/ can't read sim/. */
+  readonly boxTiles: { readonly width: number; readonly height: number };
+  /** Each foreground piece, on screen. */
+  readonly foreground: readonly PixelRect[];
+  /** A pixel row through the middle of the ruler, and the slots its cells alternate between. */
+  readonly ruler: { readonly yPx: number; readonly slots: readonly LevelPaletteSlot[] };
+  readonly framing: {
+    readonly distance: number;
+    readonly visibleWidth: number;
+    readonly visibleHeight: number;
+    readonly aspect: number;
+    /** Pixels per tile at z = 0, computed (for display only: the check measures the ruler). */
+    readonly tilePx: number;
+    /** The camera's centre x. */
+    readonly panTiles: number;
+  };
+}
+
+export interface StagingLookdevScene extends LookdevScene {
+  readonly levelId: string;
+  /** The camera's centre x now, in tiles. */
+  readonly panTiles: number;
+  /** Fixes the camera's centre x, or (null) lets it sweep with time. */
+  setPan(panTiles: number | null): void;
+  /** Swaps the level's palette and rig (stage.applyLevel): no new material or program. */
+  setLevel(id: string): void;
+  /** Screen positions for the page's outline and the checks, projected with the scene's camera. */
+  layout(widthPx: number, heightPx: number): StagingLayout;
+}
+
+/** One instanced unit plane per rectangle (z = 0 in the layer), with culling bounds computed. */
+function rectanglesMesh(
+  geometry: PlaneGeometry,
+  material: Material,
+  rects: readonly Rect[],
+): InstancedMesh {
+  const mesh = new InstancedMesh(geometry, material, rects.length);
+  const matrix = new Matrix4();
+  rects.forEach((rect, i) => {
+    matrix.makeScale(rect.right - rect.left, rect.top - rect.bottom, 1);
+    matrix.setPosition((rect.left + rect.right) / 2, (rect.bottom + rect.top) / 2, 0);
+    mesh.setMatrixAt(i, matrix);
+  });
+  mesh.instanceMatrix.needsUpdate = true;
+  // Without bounds, culling uses the unit plane's and drops the mesh (project-context, known traps).
+  mesh.computeBoundingSphere();
+  return mesh;
+}
+
+/** Cycles through a non-empty list. */
+function cycle<T>(list: readonly T[], i: number): T {
+  const item = list.at(i % list.length);
+  invariant(item !== undefined, 'cycle needs a non-empty list');
+  return item;
+}
+
+export function createStagingLookdevScene(options: {
+  readonly levels: readonly MaterialsLevel[];
+  readonly levelId: string;
+}): StagingLookdevScene {
+  const { levels } = options;
+  const levelOf = (id: string): MaterialsLevel => {
+    const level = levels.find((candidate) => candidate.id === id);
+    if (level === undefined) {
+      throw new Error(
+        `Unknown level "${id}" (known: ${levels.map((candidate) => candidate.id).join(', ')})`,
+      );
+    }
+    return level;
+  };
+  let current = levelOf(options.levelId);
+
+  const stage = createStage(current.palette, current.rig);
+  const view = createViewCamera();
+  const unitPlane = new PlaneGeometry(1, 1);
+  const centreY = STAGING_CENTRE_Y;
+
+  // Where each layer's shapes must reach, and the scale that places a shape drawn on the play plane
+  // at the layer's depth so it lands where it was drawn (16:9, pan 0).
+  const authoredDistance = viewFraming(AUTHORED_ASPECT).distance;
+  const coverage = (z: number): Rect => {
+    const needed = coverageNeeded(z, {
+      aspects: COVERED_ASPECTS,
+      panRange: PAN_RANGE_TILES,
+      centreY,
+    });
+    return {
+      left: needed.left - COVERAGE_SLACK,
+      right: needed.right + COVERAGE_SLACK,
+      bottom: needed.bottom - COVERAGE_SLACK,
+      top: needed.top + COVERAGE_SLACK,
+    };
+  };
+  /** A rectangle drawn on the play plane, moved to depth z (scaled about x = 0 and the centre's y). */
+  const atDepth = (rect: Rect, z: number): Rect => {
+    const scale = (authoredDistance - z) / authoredDistance;
+    return {
+      left: rect.left * scale,
+      right: rect.right * scale,
+      bottom: centreY + (rect.bottom - centreY) * scale,
+      top: centreY + (rect.top - centreY) * scale,
+    };
+  };
+  /** The coverage at depth z, as drawn on the play plane (the inverse of atDepth). */
+  const drawnCoverage = (z: number): Rect => {
+    const reach = coverage(z);
+    const scale = (authoredDistance - z) / authoredDistance;
+    return {
+      left: reach.left / scale,
+      right: reach.right / scale,
+      bottom: centreY + (reach.bottom - centreY) / scale,
+      top: centreY + (reach.top - centreY) / scale,
+    };
+  };
+  const backdrop = (slot: LevelPaletteSlot): Material =>
+    createBackdropMaterial(stage.look, { slot });
+  const addRects = (layer: StageLayer, slot: LevelPaletteSlot, drawn: readonly Rect[]): void => {
+    const z = STAGE_LAYERS[layer];
+    stage.layers[layer].add(
+      rectanglesMesh(
+        unitPlane,
+        backdrop(slot),
+        drawn.map((r) => atDepth(r, z)),
+      ),
+    );
+  };
+
+  // Far distance: a band up to the ridge's base, and the ridge line above it.
+  {
+    const reach = drawnCoverage(STAGE_LAYERS.far);
+    addRects('far', RIDGE.slot, [
+      { left: reach.left, right: reach.right, bottom: reach.bottom, top: RIDGE.baseY },
+    ]);
+    const teeth: Rect[] = [];
+    for (let x = reach.left, i = 0; x < reach.right; i += 1) {
+      const width = cycle(RIDGE.widths, i);
+      teeth.push({
+        left: x,
+        right: x + width,
+        bottom: RIDGE.baseY,
+        top: RIDGE.baseY + cycle(RIDGE.heights, i),
+      });
+      x += width;
+    }
+    addRects('far', RIDGE.slot, teeth);
+  }
+
+  // Middle distance: trunks of varying widths, from below the screen to above it.
+  {
+    const reach = drawnCoverage(STAGE_LAYERS.middle);
+    const trunks: Rect[] = [];
+    for (let x = reach.left, i = 0; x < reach.right; x += cycle(TRUNK.gaps, i), i += 1) {
+      const width = cycle(TRUNK.widths, i);
+      trunks.push({
+        left: x - width / 2,
+        right: x + width / 2,
+        bottom: reach.bottom,
+        top: reach.top,
+      });
+    }
+    addRects('middle', TRUNK.slot, trunks);
+  }
+
+  // The play layer: the ground, its top row the tile ruler, and posts standing on it.
+  const rulerBottom = GROUND_TOP_Y - RULER_HEIGHT;
+  {
+    const reach = drawnCoverage(STAGE_LAYERS.play);
+    addRects('play', GROUND_BODY_SLOT, [
+      { left: reach.left, right: reach.right, bottom: reach.bottom, top: rulerBottom },
+    ]);
+    const cells: [Rect[], Rect[]] = [[], []];
+    for (let i = Math.floor(reach.left); i < reach.right; i += 1) {
+      cells[((i % 2) + 2) % 2 === 0 ? 0 : 1].push({
+        left: i,
+        right: i + 1,
+        bottom: rulerBottom,
+        top: GROUND_TOP_Y,
+      });
+    }
+    addRects('play', RULER_SLOTS[0], cells[0]);
+    addRects('play', RULER_SLOTS[1], cells[1]);
+    const posts: Rect[] = [];
+    for (let x = reach.left, i = 0; x < reach.right; x += cycle(POST.gaps, i), i += 1) {
+      posts.push({
+        left: x - POST.width / 2,
+        right: x + POST.width / 2,
+        bottom: GROUND_TOP_Y,
+        top: GROUND_TOP_Y + POST.height,
+      });
+    }
+    addRects('play', POST.slot, posts);
+  }
+
+  // The foreground: plants whose tops stay below the box on screen at every window shape and pan.
+  // Seen from a camera at distance D, a point at depth z > 0 lands at c + (p − c) × D / (D − z), pushed
+  // away from the centre by a factor above 1 whatever D is; so a top at or below the box's bottom edge
+  // stays below it on screen at any window shape (code review, 2026-11-14: a top computed for the 4:3
+  // camera crossed into the box on narrower windows).
+  const foregroundPieces: Rect[] = [];
+  {
+    const z = STAGE_LAYERS.foreground;
+    const highestTop = centreY - CONFIG.view.height / 2 - PLANT_CLEARANCE;
+    const reach = coverage(z);
+    for (let x = reach.left, i = 0; x < reach.right; i += 1) {
+      const width = cycle(PLANT.widths, i);
+      foregroundPieces.push({
+        left: x,
+        right: x + width,
+        bottom: reach.bottom,
+        top: highestTop - cycle(PLANT.dips, i),
+      });
+      x += width + PLANT.gap;
+    }
+    stage.layers.foreground.add(rectanglesMesh(unitPlane, backdrop(PLANT.slot), foregroundPieces));
+    // The rule, checked with the stage's own helper at every covered shape and both pan extremes.
+    for (const aspect of COVERED_ASPECTS) {
+      for (const pan of [-PAN_RANGE_TILES, PAN_RANGE_TILES]) {
+        invariant(
+          foregroundIntruders(viewFraming(aspect), pan, centreY, foregroundPieces).length === 0,
+          `a staging plant covers the logical view at aspect ${aspect.toFixed(3)}, pan ${String(pan)}`,
+        );
+      }
+    }
+  }
+
+  let aspect = 1;
+  let fixedPan: number | null = 0;
+  let centreX = 0;
+  function frame(): void {
+    view.frame(centreX, centreY, aspect);
+  }
+
+  function applyLevel(): void {
+    stage.applyLevel(current.palette, current.rig);
+    // Any low fog lies below the ruler, so the ruler's cells draw their exact slots (D9).
+    stage.look.setGroundFogBaseY(rulerBottom - (current.rig.groundFog?.heightTiles ?? 0));
+  }
+
+  applyLevel();
+  frame();
+
+  const point = new Vector3();
+  const toPixels = (x: number, y: number, z: number, widthPx: number, heightPx: number) => {
+    point.set(x, y, z).project(view.camera);
+    return { xPx: ((point.x + 1) / 2) * widthPx, yPx: ((1 - point.y) / 2) * heightPx };
+  };
+  const pixelRect = (rect: Rect, z: number, widthPx: number, heightPx: number): PixelRect => {
+    const topLeft = toPixels(rect.left, rect.top, z, widthPx, heightPx);
+    const bottomRight = toPixels(rect.right, rect.bottom, z, widthPx, heightPx);
+    return { left: topLeft.xPx, top: topLeft.yPx, right: bottomRight.xPx, bottom: bottomRight.yPx };
+  };
+
+  return {
+    label: 'Staging',
+    scene: stage.scene,
+    camera: view.camera,
+    get levelId() {
+      return current.id;
+    },
+    get panTiles() {
+      return centreX;
+    },
+    setAspect(next) {
+      if (!Number.isFinite(next) || next <= 0) return;
+      aspect = next;
+      frame();
+    },
+    setPan(panTiles) {
+      // The layers cover ±PAN_RANGE_TILES, so a fixed pan is clamped to it.
+      fixedPan =
+        panTiles === null ? null : Math.max(-PAN_RANGE_TILES, Math.min(PAN_RANGE_TILES, panTiles));
+      if (fixedPan !== null) {
+        centreX = fixedPan;
+        frame();
+      }
+    },
+    update(timeSeconds) {
+      if (fixedPan !== null) return;
+      centreX = PAN_RANGE_TILES * Math.sin((2 * Math.PI * timeSeconds) / PAN_PERIOD_SECONDS);
+      frame();
+    },
+    setLevel(id) {
+      current = levelOf(id);
+      applyLevel();
+    },
+    layout(widthPx, heightPx) {
+      const { framing } = view;
+      return {
+        box: pixelRect(logicalViewBox(centreX, centreY), STAGE_LAYERS.play, widthPx, heightPx),
+        boxTiles: { width: CONFIG.view.width, height: CONFIG.view.height },
+        foreground: foregroundPieces.map((piece) =>
+          pixelRect(piece, STAGE_LAYERS.foreground, widthPx, heightPx),
+        ),
+        ruler: {
+          yPx: toPixels(centreX, rulerBottom + RULER_HEIGHT / 2, 0, widthPx, heightPx).yPx,
+          slots: RULER_SLOTS,
+        },
+        framing: {
+          distance: framing.distance,
+          visibleWidth: framing.visibleWidth,
+          visibleHeight: framing.visibleHeight,
+          aspect: framing.aspect,
+          tilePx: tilePx(framing, heightPx),
+          panTiles: centreX,
+        },
+      };
+    },
+    dispose() {
+      stage.dispose();
+      unitPlane.dispose();
     },
   };
 }

@@ -12,8 +12,9 @@ import type { MaterialsLayout, MaterialsRow } from '../render/lookdevScenes.ts';
 import { slotToneHexes } from '../render/materials/tones.ts';
 import { createRenderer } from '../render/renderer.ts';
 import type { LookdevMountOptions, LookdevViewHandle } from './assetBrowser.ts';
-import { findLevelLook, LEVEL_LOOKS } from './levelLooks.ts';
+import { LEVEL_LOOKS, levelLookOrThrow } from './levelLooks.ts';
 import type { LevelLook } from './levelLooks.ts';
+import { buildLevelPicker, replaceLevelInUrl } from './levelPicker.ts';
 import { buildStatsPanel } from './rendererView.ts';
 
 /** Refresh the statistics every this many frames, as the renderer view does. */
@@ -126,16 +127,6 @@ function buildRig(level: LevelLook): HTMLElement {
   return panel;
 }
 
-function levelOrThrow(id: string): LevelLook {
-  const level = findLevelLook(id);
-  if (level === undefined) {
-    throw new Error(
-      `Unknown level "${id}" (known: ${LEVEL_LOOKS.map((each) => each.id).join(', ')})`,
-    );
-  }
-  return level;
-}
-
 /** Decodes the key art; a clone without `git lfs pull` holds a pointer file, which can't decode. */
 function loadKeyArt(image: HTMLImageElement): Promise<void> {
   image.src = keyArtUrl;
@@ -150,7 +141,7 @@ export function mountMaterialsView(
   host: HTMLElement,
   options: LookdevMountOptions,
 ): LookdevViewHandle {
-  let level = levelOrThrow(options.level ?? DEFAULT_LEVEL);
+  let level = levelLookOrThrow(options.level ?? DEFAULT_LEVEL);
 
   const root = element('div', 'lookdev-materials');
   const labels = element('div', 'lookdev-materials-labels');
@@ -178,23 +169,15 @@ export function mountMaterialsView(
   );
   const ready = loadKeyArt(image);
 
-  const picker = element('nav', 'lookdev-materials-picker');
-  const buttons = LEVEL_LOOKS.map((each) => {
-    const button = element('button', 'lookdev-materials-level', each.label);
-    button.type = 'button';
-    button.dataset.levelButton = each.id;
-    button.addEventListener('click', () => {
-      switchTo(each.id);
-    });
-    picker.append(button);
-    return button;
+  const picker = buildLevelPicker(LEVEL_LOOKS, (id) => {
+    switchTo(id);
   });
   const rigHost = element('div', 'lookdev-materials-rig-host');
   const warmTags = element('p', 'lookdev-materials-warm');
   const stats = buildStatsPanel(view.label, renderer.gpuName());
   side.append(
     element('h1', 'lookdev-materials-title', 'Materials'),
-    picker,
+    picker.element,
     art,
     rigHost,
     warmTags,
@@ -242,18 +225,14 @@ export function mountMaterialsView(
         return tag;
       }),
     );
-    for (const button of buttons) {
-      button.setAttribute('aria-pressed', String(button.dataset.levelButton === level.id));
-    }
+    picker.setCurrent(level.id);
     placeLabels();
   }
 
   function switchTo(id: string): void {
-    level = levelOrThrow(id);
+    level = levelLookOrThrow(id);
     view.setLevel(id);
-    const url = new URL(window.location.href);
-    url.searchParams.set('level', id);
-    window.history.replaceState(null, '', url);
+    replaceLevelInUrl(id);
     showLevel();
   }
 

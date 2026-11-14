@@ -6,6 +6,7 @@ import { mountMaterialsView } from './materialsView.ts';
 import { mountOverlayView } from './overlayView.ts';
 import { mountPalettesView } from './palettesView.ts';
 import { mountRendererView } from './rendererView.ts';
+import { mountStagingView } from './stagingView.ts';
 import { mountTypeView } from './typeView.ts';
 import type { LookdevSpot } from './spots.ts';
 
@@ -20,7 +21,7 @@ export interface LookdevViewHandle {
   dispose(): void;
 }
 
-/** What a view is mounted with. Story 0.10 adds camera presets here. */
+/** What a view is mounted with. */
 export interface LookdevMountOptions {
   /** The open spot, if any. */
   readonly spot: LookdevSpot | undefined;
@@ -29,6 +30,11 @@ export interface LookdevMountOptions {
    * level resolve it (and throw on an unknown id); the others ignore it.
    */
   readonly level: string | undefined;
+  /**
+   * The camera's centre x, in tiles, from the spot only (story 0.10); undefined without a spot, and a
+   * panning view then sweeps. Views that don't pan ignore it.
+   */
+  readonly panTiles: number | undefined;
 }
 
 export interface LookdevView {
@@ -44,6 +50,7 @@ export const LOOKDEV_VIEWS: readonly LookdevView[] = [
   { id: 'palettes', label: 'Palettes', mount: mountPalettesView },
   { id: 'type', label: 'Type', mount: mountTypeView },
   { id: 'materials', label: 'Materials', mount: mountMaterialsView },
+  { id: 'staging', label: 'Staging', mount: mountStagingView },
 ];
 
 export function findView(id: string): LookdevView | undefined {
