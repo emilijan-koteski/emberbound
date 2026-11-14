@@ -1,0 +1,14 @@
+{
+  // The simulation project: pure code that runs in Node and the browser alike.
+  // No DOM library and no @types packages, so `document`, `window` or `process` fail here.
+  // Everything else (strict, noEmit, skipLibCheck, the .ts-import and erasable-syntax
+  // flags) is inherited from the root tsconfig.json.
+  // skipLibCheck must stay on: vitest's own .d.ts files use DOM types.
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": []
+  },
+  "include": ["./**/*.ts"],
+  "exclude": []
+}

@@ -1,0 +1,32 @@
+{
+  // The root project: browser layers (DOM), scripts/, tests/ and the tool configs.
+  // src/sim/ is checked on its own by src/sim/tsconfig.json, without DOM or Node types.
+  // No `references`: TypeScript project references can't be checked with `tsc --noEmit`
+  // (story 0.1, decision D12). `make typecheck` runs both projects.
+  "compilerOptions": {
+    "target": "es2023",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2023", "DOM"],
+    // vite/client: import.meta.env. node: scripts/, tests/ and the config files.
+    // Browser code must not use Node: ESLint bans Node built-in modules and globals in src/.
+    "types": ["vite/client", "node"],
+
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+
+    // Node runs scripts/*.ts natively: .ts imports, type-only imports, erasable syntax only.
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+
+    "moduleDetection": "force",
+    "allowArbitraryExtensions": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src", "scripts", "tests", "vite.config.ts", "playwright.config.ts"],
+  "exclude": ["src/sim/**"]
+}

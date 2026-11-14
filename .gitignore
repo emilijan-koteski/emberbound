@@ -27,3 +27,10 @@ CLAUDE.local.md
 .DS_Store
 Thumbs.db
 *.swp
+
+# Toolchain and generated output (story 0.1)
+mise.local.toml
+.vitest/
+shots/
+public/assets/levels/
+public/assets/manifest.json

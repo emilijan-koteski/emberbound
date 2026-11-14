@@ -1,0 +1,6 @@
+# Tool versions for Emberbound. Exact pins only; see README.md, "Version policy".
+# Library versions live in package.json and package-lock.json, not here.
+# Personal overrides go in mise.local.toml, which is never committed.
+[tools]
+node = "26.13.1"     # security release (2026-11-10); exempt from the 14-day rule
+git-lfs = "3.8.1"

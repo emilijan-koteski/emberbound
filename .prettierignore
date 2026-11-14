@@ -1,0 +1,15 @@
+# Prettier also reads .gitignore, which covers dist/, shots/, .vitest/, generated assets
+# and the Playwright output.
+
+# BMad install, planning artifacts and installed skills: managed by their own tools.
+_bmad/
+_bmad-output/
+.claude/
+
+# Reference only; never built.
+prototype/
+
+# Prose is written by people and the BMad workflows; Prettier formats code and config.
+*.md
+
+package-lock.json
