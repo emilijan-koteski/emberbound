@@ -31,7 +31,7 @@ BIN := node_modules/.bin
 PREVIEW_PORT ?= 4173
 export PREVIEW_PORT
 
-.PHONY: help setup dev test test-watch smoke lint format typecheck check build preview clean
+.PHONY: help setup dev test test-watch smoke lint format typecheck check contrast build preview clean
 
 help: ## List the targets
 	@echo "Emberbound make targets:"
@@ -70,6 +70,15 @@ check: ## Lint, format check, type check and tests: run before saying a change w
 	$(MISE) $(BIN)/prettier --check .
 	$(MAKE) typecheck
 	$(MAKE) test
+
+# Proposed colours: a YAML file with a top-level colors: map (all 16 roles), or a Markdown file
+# whose frontmatter has one. Story 0.5 re-measures the style guide's values with it. With no
+# COLORS, it checks DESIGN.md's own colours, as `make test` does.
+# COLORS counts only when given on the command line: a COLORS variable exported by the shell is
+# ignored, so a bare `make contrast` always checks DESIGN.md. Quoted, so a path may hold spaces.
+CONTRAST_FILE := $(if $(filter command line,$(origin COLORS)),$(COLORS))
+contrast: ## Check DESIGN.md's contrast targets, or a proposed set: make contrast COLORS=file.yaml
+	$(MISE) node scripts/checkContrast.ts $(if $(CONTRAST_FILE),"$(CONTRAST_FILE)")
 
 # make build, in the architecture's order (Build and Release). Epic 1 fills in the gaps:
 #   story 1.2: the level compile, before the type check

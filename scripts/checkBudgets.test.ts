@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
   BUDGETS,
@@ -13,6 +14,9 @@ import {
 } from './checkBudgets.ts';
 import type { SpawnSyncReturns } from 'node:child_process';
 import type { BuiltFile, FileGroup } from './checkBudgets.ts';
+
+const SCRIPT = fileURLToPath(new URL('./checkBudgets.ts', import.meta.url));
+const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url));
 
 // Every number comes from BUDGETS and LIMITS; the tests never repeat the table (AC 10).
 
@@ -412,7 +416,8 @@ describe('the command line, run as make build runs it', () => {
   }
 
   function run(...args: string[]): SpawnSyncReturns<string> {
-    return spawnSync(process.execPath, ['scripts/checkBudgets.ts', ...args], { encoding: 'utf8' });
+    // Absolute paths and an explicit cwd, so the tests pass from any working directory.
+    return spawnSync(process.execPath, [SCRIPT, ...args], { encoding: 'utf8', cwd: REPO_ROOT });
   }
 
   it('exits 0 and reports on a passing build', () => {

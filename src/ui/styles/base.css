@@ -1,0 +1,98 @@
+/*
+ * DESIGN.md tokens as --{group}-{name} custom properties (DESIGN.md, Colors rule 5; architecture,
+ * Naming Conventions). Written by hand; scripts/designTokens.test.ts fails on any drift.
+ * Change a value in DESIGN.md first, through gds-ux Update, then here.
+ *
+ * Declared on the overlay root, where ui/overlay.ts sets --tile: a token that uses var(--tile)
+ * is resolved where it is declared, so declaring it on :root would make it invalid.
+ *
+ * Not emitted: spacing.tile (ui/overlay.ts sets --tile; never in CSS), typography `note`
+ * (tabular figures are applied by each numeric component), components (built from these).
+ * Overlay CSS reads these properties, never raw values.
+ */
+.ui-overlay {
+  /* colors */
+  --colors-surface-screen: #0e0f11;
+  --colors-surface-scrim: #0e0f11bf; /* 75 % alpha, intentional */
+  --colors-surface-panel: #18191c;
+  --colors-surface-focus: #2b2e33;
+  --colors-border-subtle: #3a3d43;
+  --colors-text-primary: #ececec;
+  --colors-text-muted: #a3a6ab;
+  --colors-focus-ring: #aebbc9;
+  --colors-hud-outline: #0e0f11;
+  --colors-hud-track: #232529;
+  --colors-heart-fill: #e6e6e6;
+  --colors-heart-empty: #8e9196;
+  --colors-ember: #e8902e;
+  --colors-weapon-timer: #c8ced6;
+  --colors-warden-bar: #a9b3bd;
+  --colors-warning: #ffffff;
+
+  /* typography */
+  --typography-display-xl-font-family: system-ui, sans-serif;
+  --typography-display-xl-font-size: calc(var(--tile) * 0.9);
+  --typography-display-xl-font-weight: 700;
+  --typography-display-xl-line-height: 1.1;
+  --typography-display-xl-letter-spacing: 0.02em;
+
+  --typography-display-lg-font-family: system-ui, sans-serif;
+  --typography-display-lg-font-size: max(24px, calc(var(--tile) * 0.5));
+  --typography-display-lg-font-weight: 600;
+  --typography-display-lg-line-height: 1.2;
+
+  --typography-display-body-font-family: system-ui, sans-serif;
+  --typography-display-body-font-size: max(16px, calc(var(--tile) * 0.3));
+  --typography-display-body-font-weight: 400;
+  --typography-display-body-line-height: 1.4;
+
+  --typography-ui-lg-font-family: system-ui, sans-serif;
+  --typography-ui-lg-font-size: max(16px, calc(var(--tile) * 0.28));
+  --typography-ui-lg-font-weight: 500;
+  --typography-ui-lg-line-height: 1.3;
+
+  --typography-ui-md-font-family: system-ui, sans-serif;
+  --typography-ui-md-font-size: max(14px, calc(var(--tile) * 0.22));
+  --typography-ui-md-font-weight: 400;
+  --typography-ui-md-line-height: 1.35;
+
+  --typography-ui-sm-font-family: system-ui, sans-serif;
+  --typography-ui-sm-font-size: max(13px, calc(var(--tile) * 0.18));
+  --typography-ui-sm-font-weight: 500;
+  --typography-ui-sm-line-height: 1.3;
+  --typography-ui-sm-letter-spacing: 0.02em;
+
+  --typography-numeric-lg-font-family: system-ui, sans-serif;
+  --typography-numeric-lg-font-size: max(18px, calc(var(--tile) * 0.36));
+  --typography-numeric-lg-font-weight: 600;
+  --typography-numeric-lg-line-height: 1.2;
+
+  --typography-numeric-md-font-family: system-ui, sans-serif;
+  --typography-numeric-md-font-size: max(14px, calc(var(--tile) * 0.22));
+  --typography-numeric-md-font-weight: 500;
+  --typography-numeric-md-line-height: 1.3;
+
+  /* rounded */
+  --rounded-none: 0;
+  --rounded-sm: max(2px, calc(var(--tile) * 0.04));
+  --rounded-full: 9999px;
+
+  /* spacing */
+  --spacing-1: calc(var(--tile) * 0.05);
+  --spacing-2: calc(var(--tile) * 0.1);
+  --spacing-3: calc(var(--tile) * 0.15);
+  --spacing-4: calc(var(--tile) * 0.25);
+  --spacing-5: calc(var(--tile) * 0.4);
+  --spacing-6: calc(var(--tile) * 0.6);
+  --spacing-safe-margin: calc(var(--tile) * 0.25);
+  --spacing-hud-icon: calc(var(--tile) * 0.34);
+  --spacing-hud-icon-sm: calc(var(--tile) * 0.24);
+  --spacing-hud-bar-length: calc(var(--tile) * 1.12);
+  --spacing-hud-bar-thickness: max(4px, calc(var(--tile) * 0.09));
+  --spacing-hud-outline: max(1.5px, calc(var(--tile) * 0.02));
+  --spacing-bar-long: calc(var(--tile) * 6);
+  --spacing-focus-ring: max(2px, calc(var(--tile) * 0.03));
+  --spacing-menu-item-height: max(36px, calc(var(--tile) * 0.5));
+  --spacing-panel-width: min(90vw, calc(var(--tile) * 7));
+  --spacing-text-measure: calc(var(--tile) * 11);
+}
